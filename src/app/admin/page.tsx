@@ -40,6 +40,8 @@ import { instructorsData, Instructor } from "@/data/instructorsData";
 import { blogsData, BlogPost } from "@/data/blogsData";
 import Pagination from "@/components/ui/Pagination";
 import RichTextEditor from "@/components/ui/RichTextEditor";
+import CustomConfirmModal from "@/components/ui/CustomConfirmModal";
+import ToastNotification from "@/components/ui/ToastNotification";
 
 interface Lead {
   id: string;
@@ -134,6 +136,25 @@ export default function AdminDashboardPage() {
   const [facultyBio, setFacultyBio] = useState("");
   const [isSavingFaculty, setIsSavingFaculty] = useState(false);
 
+  // Custom Confirm Modal & Toast State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    onConfirm: () => Promise<void> | void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
   // Modals State
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
@@ -205,7 +226,7 @@ export default function AdminDashboardPage() {
       if (data.success) {
         setIsAssignModalOpen(false);
         triggerConfetti();
-        alert(`Successfully assigned ${selectedCourse?.title || "Course"} to ${assignStudentEmail}! It is now available on their student dashboard.`);
+        showToast(`Successfully assigned ${selectedCourse?.title || "Course"} to ${assignStudentEmail}!`);
       }
     } catch (err) {
       console.error("Course assignment failed", err);
@@ -422,15 +443,27 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleDeleteBlog = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this blog post?")) return;
-    try {
-      await fetch(`/api/blogs?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-      setBlogs((prev) => prev.filter((b) => b.id !== id && b.slug !== id));
-      triggerConfetti();
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDeleteBlog = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Blog Post?",
+      message: "Are you sure you want to delete this educational article? It will be removed immediately from the public website and blog index.",
+      confirmText: "Delete Post",
+      onConfirm: async () => {
+        // 1. Instant live optimistic UI update
+        setBlogs((prev) => prev.filter((b) => b.id !== id && b.slug !== id));
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        triggerConfetti();
+        showToast("Blog post successfully deleted.");
+
+        // 2. Background database delete
+        try {
+          await fetch(`/api/blogs?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+        } catch (err) {
+          console.error("Blog deletion failed", err);
+        }
+      },
+    });
   };
 
   // Course Batch CRUD
@@ -524,15 +557,27 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleDeleteCourse = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this course batch?")) return;
-    try {
-      await fetch(`/api/courses?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-      setCourses((prev) => prev.filter((c) => c.id !== id && c.slug !== id));
-      triggerConfetti();
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDeleteCourse = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Course Batch?",
+      message: "Are you sure you want to delete this course batch? It will be removed immediately from the platform catalog.",
+      confirmText: "Delete Batch",
+      onConfirm: async () => {
+        // 1. Instant live optimistic UI update
+        setCourses((prev) => prev.filter((c) => c.id !== id && c.slug !== id));
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        triggerConfetti();
+        showToast("Course batch successfully deleted.");
+
+        // 2. Background database delete
+        try {
+          await fetch(`/api/courses?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+        } catch (err) {
+          console.error(err);
+        }
+      },
+    });
   };
 
   // Faculty Educators CRUD
@@ -595,6 +640,7 @@ export default function AdminDashboardPage() {
           );
           setIsFacultyModalOpen(false);
           triggerConfetti();
+          showToast("Faculty profile updated successfully.");
         }
       } else {
         const res = await fetch("/api/instructors", {
@@ -607,6 +653,7 @@ export default function AdminDashboardPage() {
           setInstructors((prev) => [data.instructor, ...prev]);
           setIsFacultyModalOpen(false);
           triggerConfetti();
+          showToast("New faculty member added to directory.");
         }
       }
     } catch (err) {
@@ -616,15 +663,27 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleDeleteFaculty = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this faculty profile?")) return;
-    try {
-      await fetch(`/api/instructors?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-      setInstructors((prev) => prev.filter((inst) => inst.id !== id));
-      triggerConfetti();
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDeleteFaculty = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Remove Faculty Member?",
+      message: "Are you sure you want to remove this educator from the faculty directory?",
+      confirmText: "Remove Profile",
+      onConfirm: async () => {
+        // 1. Instant live optimistic UI update
+        setInstructors((prev) => prev.filter((inst) => inst.id !== id));
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        triggerConfetti();
+        showToast("Faculty member profile removed.");
+
+        // 2. Background database delete
+        try {
+          await fetch(`/api/instructors?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+        } catch (err) {
+          console.error(err);
+        }
+      },
+    });
   };
 
   // Send Official Broadcast Notification
@@ -2405,6 +2464,22 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* REUSABLE CUSTOM CONFIRM MODAL (NO BROWSER POPUPS) */}
+        <CustomConfirmModal
+          isOpen={confirmModal.isOpen}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmText={confirmModal.confirmText}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        />
+
+        {/* REUSABLE TOAST NOTIFICATION */}
+        <ToastNotification
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
+        />
 
         {/* Subtle TheWebVale Portal Branding */}
         <div className="text-center pt-4">

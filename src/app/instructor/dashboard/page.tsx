@@ -43,6 +43,8 @@ import { coursesData, Course } from "@/data/coursesData";
 import { triggerConfetti } from "@/lib/confetti";
 import { formatPrice } from "@/lib/utils";
 import Pagination from "@/components/ui/Pagination";
+import CustomConfirmModal from "@/components/ui/CustomConfirmModal";
+import ToastNotification from "@/components/ui/ToastNotification";
 
 export default function InstructorDashboardPage() {
   const { user, logout, switchRole } = useAuth();
@@ -55,6 +57,25 @@ export default function InstructorDashboardPage() {
   const [courses, setCourses] = useState<Course[]>(coursesData);
   const [isLoading, setIsLoading] = useState(true);
   const [courseSearch, setCourseSearch] = useState("");
+
+  // Custom Confirm Modal & Toast State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    onConfirm: () => Promise<void> | void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   // Tab Pagination States
   const [coursesPage, setCoursesPage] = useState(1);
@@ -137,15 +158,27 @@ export default function InstructorDashboardPage() {
     setIsCourseStudioOpen(true);
   };
 
-  const handleDeleteCourse = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this course batch?")) return;
-    try {
-      await fetch(`/api/courses?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-      setCourses((prev) => prev.filter((c) => c.id !== id && c.slug !== id));
-      triggerConfetti();
-    } catch (err) {
-      console.error("Course deletion failed", err);
-    }
+  const handleDeleteCourse = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Coaching Batch?",
+      message: "Are you sure you want to delete this course batch? The batch will be removed immediately from your dashboard and student catalog.",
+      confirmText: "Delete Batch",
+      onConfirm: async () => {
+        // 1. Instant optimistic live UI update
+        setCourses((prev) => prev.filter((c) => c.id !== id && c.slug !== id));
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        triggerConfetti();
+        showToast("Course batch successfully removed.");
+
+        // 2. Background database sync
+        try {
+          await fetch(`/api/courses?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+        } catch (err) {
+          console.error("Course deletion failed", err);
+        }
+      },
+    });
   };
 
   // Doubts Q&A State
@@ -400,15 +433,27 @@ export default function InstructorDashboardPage() {
     }
   };
 
-  const handleDeleteLiveClass = async (roomId: string) => {
-    if (!confirm("Are you sure you want to end and delete this live classroom?")) return;
-    try {
-      await fetch(`/api/live/classes?roomId=${encodeURIComponent(roomId)}`, { method: "DELETE" });
-      setLiveClasses((prev) => prev.filter((lc) => lc.roomId !== roomId));
-      triggerConfetti();
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDeleteLiveClass = (roomId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "End & Delete Live Classroom?",
+      message: "Are you sure you want to end and delete this live classroom session? Active broadcasting and participants will be disconnected immediately.",
+      confirmText: "End Classroom",
+      onConfirm: async () => {
+        // 1. Instant optimistic live UI update (No page refresh needed!)
+        setLiveClasses((prev) => prev.filter((lc) => lc.roomId !== roomId));
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        triggerConfetti();
+        showToast("Live classroom studio successfully closed and removed.");
+
+        // 2. Background database sync
+        try {
+          await fetch(`/api/live/classes?roomId=${encodeURIComponent(roomId)}`, { method: "DELETE" });
+        } catch (err) {
+          console.error("Live class deletion failed", err);
+        }
+      },
+    });
   };
 
   const handleCreateCourseSubmit = async (e: React.FormEvent) => {
@@ -1145,7 +1190,7 @@ export default function InstructorDashboardPage() {
                           <button
                             onClick={() => {
                               triggerConfetti();
-                              alert(`Downloading Payout Settlement receipt for ${p.id}...`);
+                              showToast(`Downloading Payout Settlement receipt for ${p.id}...`);
                             }}
                             className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                           >
@@ -1229,7 +1274,7 @@ export default function InstructorDashboardPage() {
                   onSubmit={(e) => {
                     e.preventDefault();
                     triggerConfetti();
-                    alert("Profile updated successfully!");
+                    showToast("Profile updated successfully!");
                   }}
                   className="space-y-4 text-xs max-w-xl"
                 >
@@ -1880,6 +1925,22 @@ export default function InstructorDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* REUSABLE CUSTOM CONFIRM MODAL (NO BROWSER POPUPS) */}
+        <CustomConfirmModal
+          isOpen={confirmModal.isOpen}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmText={confirmModal.confirmText}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        />
+
+        {/* REUSABLE TOAST NOTIFICATION */}
+        <ToastNotification
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
+        />
       </div>
     </div>
   );

@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useModal } from "@/components/ui/CustomModal";
+import ToastNotification from "@/components/ui/ToastNotification";
 import { useCart } from "@/components/cart/CartContext";
 import { coursesData, Course } from "@/data/coursesData";
 import { triggerConfetti } from "@/lib/confetti";
@@ -135,6 +136,11 @@ export default function StudentDashboardPage() {
   const [studentEnrollments, setStudentEnrollments] = useState<any[]>([]);
   const [testHistory, setTestHistory] = useState<any[]>([]);
   const [liveClasses, setLiveClasses] = useState<any[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   useEffect(() => {
     fetch("/api/courses")
@@ -231,7 +237,7 @@ export default function StudentDashboardPage() {
     setDoubtQuestion("");
     setAskDoubtOpen(false);
     triggerConfetti();
-    alert("Your doubt has been submitted to the faculty lead!");
+    showToast("Your doubt has been submitted to the faculty lead!");
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -248,7 +254,7 @@ export default function StudentDashboardPage() {
         localStorage.setItem("fukey_auth_user", JSON.stringify(updatedUser));
       }
       triggerConfetti();
-      alert("Profile and Academic Settings successfully updated!");
+      showToast("Profile and Academic Settings successfully updated!");
     } finally {
       setIsSaving(false);
     }
@@ -955,7 +961,7 @@ export default function StudentDashboardPage() {
                           <button
                             onClick={() => {
                               triggerConfetti();
-                              alert(`Downloading GST Invoice receipt for ${o.id}...`);
+                              showToast(`Downloading GST Invoice receipt for ${o.id}...`);
                             }}
                             className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                           >
@@ -1194,6 +1200,12 @@ export default function StudentDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* REUSABLE TOAST NOTIFICATION */}
+        <ToastNotification
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
+        />
       </div>
     </div>
   );
