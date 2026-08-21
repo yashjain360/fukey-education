@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
+import { sendWelcomeEmail, sendLoginAlertEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, name, role, phone, avatar } = body;
+    const { email, name, role, phone, avatar, isNewRegistration } = body;
 
     if (!email) {
       return NextResponse.json({ success: false, error: "Email is required" }, { status: 400 });
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
       token,
     };
 
+    const existingUser = await db.collection("users").findOne({ email });
+
     await db.collection("users").updateOne(
       { email },
       {
@@ -33,6 +36,19 @@ export async function POST(request: Request) {
     );
 
     const savedUser = await db.collection("users").findOne({ email });
+
+    // Automated Email Notification in Background
+    (async () => {
+      try {
+        if (!existingUser || isNewRegistration) {
+          await sendWelcomeEmail(email, userRecord.name);
+        } else {
+          await sendLoginAlertEmail(email, userRecord.name, userRecord.role);
+        }
+      } catch (emailErr) {
+        console.error("Automated auth email failed:", emailErr);
+      }
+    })();
 
     return NextResponse.json({
       success: true,

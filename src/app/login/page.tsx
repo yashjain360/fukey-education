@@ -33,10 +33,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center p-4 bg-slate-50/50">
-      <div className="w-full max-w-md bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-6">
+      <div
+        className="w-full max-w-md bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-6"
+        data-aos="zoom-in"
+        data-aos-duration="650"
+      >
         <div className="text-center space-y-2">
           <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-[#050071] mx-auto flex items-center justify-center">
-            <GraduationCap className="w-7 h-7" />
+            <GraduationCap className="w-7 h-7 animate-icon-float" />
           </div>
           <h1 className="text-2xl font-black text-slate-900">Sign In to Your Account</h1>
           <p className="text-xs text-slate-500">
@@ -49,7 +53,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setRole("student")}
-            className={`py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
+            className={`py-2 text-[11px] font-bold rounded-xl transition-all hover:scale-105 active:scale-95 cursor-pointer ${
               role === "student"
                 ? "bg-white text-[#050071] shadow-xs"
                 : "text-slate-600 hover:text-slate-900"
@@ -60,7 +64,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setRole("instructor")}
-            className={`py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
+            className={`py-2 text-[11px] font-bold rounded-xl transition-all hover:scale-105 active:scale-95 cursor-pointer ${
               role === "instructor"
                 ? "bg-white text-[#050071] shadow-xs"
                 : "text-slate-600 hover:text-slate-900"
@@ -71,7 +75,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setRole("admin")}
-            className={`py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
+            className={`py-2 text-[11px] font-bold rounded-xl transition-all hover:scale-105 active:scale-95 cursor-pointer ${
               role === "admin"
                 ? "bg-white text-[#050071] shadow-xs"
                 : "text-slate-600 hover:text-slate-900"
@@ -85,7 +89,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={openGoogleModal}
-          className="w-full py-3.5 px-4 rounded-2xl border-2 border-slate-200 hover:border-indigo-400 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-3 active:scale-98 cursor-pointer"
+          className="w-full py-3.5 px-4 rounded-2xl border-2 border-slate-200 hover:border-indigo-400 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-3 hover:scale-102 active:scale-95 cursor-pointer"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
@@ -133,9 +137,9 @@ export default function LoginPage() {
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-bold text-slate-700">Password</label>
-              <a href="#" className="text-[11px] font-semibold text-indigo-600 hover:underline">
+              <Link href="/forgot-password" className="text-[11px] font-semibold text-indigo-600 hover:underline">
                 Forgot password?
-              </a>
+              </Link>
             </div>
             <div className="relative">
               <Lock className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
@@ -152,7 +156,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoggingIn}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] hover:brightness-110 text-white font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] hover:brightness-110 text-white font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 hover:scale-102 active:scale-95"
           >
             <span>{isLoggingIn ? "Signing In..." : `Sign In as ${role.charAt(0).toUpperCase() + role.slice(1)}`}</span>
             <ArrowRight className="w-4 h-4" />

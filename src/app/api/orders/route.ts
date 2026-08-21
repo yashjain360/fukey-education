@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function GET(request: Request) {
   try {
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
       date: new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
       time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
       items: body.items || ["Class 10th & 12th Board Booster Batch"],
-      courseTitle: body.courseTitle || (body.items && body.items[0]?.course?.title) || "CBSE Target Board Batch 2026",
+      courseTitle: body.courseTitle || (body.items && body.items[0]?.title) || "CBSE Target Board Batch 2026",
     };
 
     await db.collection("orders").insertOne(newOrder);
@@ -67,6 +68,21 @@ export async function POST(request: Request) {
       },
       { upsert: true }
     );
+
+    // Automated Email Dispatch in Background
+    (async () => {
+      try {
+        await sendOrderConfirmationEmail(newOrder.studentEmail, newOrder.studentName, {
+          invoice: newOrder.invoice,
+          courseTitle: newOrder.courseTitle,
+          total: newOrder.paid,
+          gateway: newOrder.gateway,
+          phone: newOrder.studentPhone,
+        });
+      } catch (emailErr) {
+        console.error("Order invoice email dispatch error:", emailErr);
+      }
+    })();
 
     return NextResponse.json({ success: true, order: newOrder });
   } catch (error) {

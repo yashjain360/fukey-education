@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
+import { sendEnquiryReceiptEmail } from "@/lib/email";
 
 export async function GET() {
   try {
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
     const newEnquiry = {
       id: `ENQ-2026-${Math.floor(10000 + Math.random() * 90000)}`,
       name: body.name || "Prospective Student",
-      phone: body.phone || "+91 98765 43210",
+      phone: body.phone || "+91 88718 35015",
       email: body.email || "student@example.com",
       targetClass: body.targetClass || "Class 10",
       medium: body.medium || "Hindi & English",
@@ -50,6 +51,21 @@ export async function POST(request: Request) {
     };
 
     await db.collection("orders").insertOne(leadOrder);
+
+    // Automated Email Dispatch in Background
+    (async () => {
+      try {
+        if (newEnquiry.email && newEnquiry.email.includes("@")) {
+          await sendEnquiryReceiptEmail(newEnquiry.email, newEnquiry.name, {
+            targetClass: newEnquiry.targetClass,
+            medium: newEnquiry.medium,
+            phone: newEnquiry.phone,
+          });
+        }
+      } catch (emailErr) {
+        console.error("Enquiry receipt email dispatch error:", emailErr);
+      }
+    })();
 
     return NextResponse.json({ success: true, enquiry: newEnquiry });
   } catch (error) {

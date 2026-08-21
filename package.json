@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/aos": "^3.0.8",
+    "@types/nodemailer": "^8.0.1",
     "aos": "^2.3.4",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
@@ -18,6 +19,7 @@
     "lucide-react": "^1.33.0",
     "mongodb": "^7.5.0",
     "next": "^15.1.7",
+    "nodemailer": "^9.0.5",
     "qrcode.react": "^4.2.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
