@@ -3,18 +3,6 @@
 import React, { useEffect, useRef } from "react";
 import { useFestivalTheme } from "./FestivalThemeContext";
 
-interface Particle {
-  x: number;
-  y: number;
-  size: number;
-  color: string;
-  vx: number;
-  vy: number;
-  alpha: number;
-  decay: number;
-  shape: "circle" | "star";
-}
-
 export default function FestivalMouseTrail() {
   const { activeFestival, isTrailEnabled } = useFestivalTheme();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -29,7 +17,22 @@ export default function FestivalMouseTrail() {
     if (!ctx) return;
 
     let animationFrameId: number;
-    let particles: Particle[] = [];
+    let mouseX = -1000;
+    let mouseY = -1000;
+    let targetX = -1000;
+    let targetY = -1000;
+
+    interface MicroSparkle {
+      x: number;
+      y: number;
+      size: number;
+      alpha: number;
+      color: string;
+      decay: number;
+    }
+
+    let sparkles: MicroSparkle[] = [];
+    let frameCount = 0;
 
     const handleResize = () => {
       canvas.width = window.innerWidth;
@@ -39,93 +42,70 @@ export default function FestivalMouseTrail() {
     handleResize();
     window.addEventListener("resize", handleResize);
 
-    const colors = activeFestival.trailColors || ["#FF9933", "#FFFFFF", "#138808"];
+    const colors = activeFestival.trailColors || ["#FF9933", "#138808", "#FFD700"];
 
-    const addParticle = (x: number, y: number) => {
-      for (let i = 0; i < 3; i++) {
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        const shape = Math.random() > 0.6 ? "star" : "circle";
-        particles.push({
-          x: x + (Math.random() - 0.5) * 8,
-          y: y + (Math.random() - 0.5) * 8,
-          size: Math.random() * 5 + 3,
-          color,
-          vx: (Math.random() - 0.5) * 2,
-          vy: (Math.random() - 0.5) * 2 - 0.5,
-          alpha: 1,
-          decay: Math.random() * 0.03 + 0.02,
-          shape,
+    const handleMouseMove = (e: MouseEvent) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+
+      if (mouseX === -1000) {
+        mouseX = targetX;
+        mouseY = targetY;
+      }
+
+      // Add only 1 subtle micro-sparkle occasionally
+      frameCount++;
+      if (frameCount % 3 === 0) {
+        sparkles.push({
+          x: targetX + (Math.random() - 0.5) * 6,
+          y: targetY + (Math.random() - 0.5) * 6,
+          size: Math.random() * 2 + 1, // tiny 1-3px micro-dot
+          alpha: 0.5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          decay: 0.04, // quick smooth fade
         });
       }
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      addParticle(e.clientX, e.clientY);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        addParticle(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    window.addEventListener("touchmove", handleTouchMove, { passive: true });
 
-    // Render loop
     const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.alpha -= p.decay;
+      // Smooth lerp cursor tracking
+      mouseX += (targetX - mouseX) * 0.15;
+      mouseY += (targetY - mouseY) * 0.15;
 
-        if (p.alpha <= 0) {
-          particles.splice(i, 1);
+      // 1. Ultra-subtle ambient spotlight glow around cursor (low opacity, purely ambient)
+      if (mouseX > 0 && mouseY > 0) {
+        const gradient = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 160);
+        gradient.addColorStop(0, "rgba(255, 153, 51, 0.05)"); // Saffron whisper
+        gradient.addColorStop(0.5, "rgba(255, 255, 255, 0.03)");
+        gradient.addColorStop(1, "rgba(19, 136, 8, 0)"); // Fade to transparent
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, 160, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 2. Render delicate micro-sparkles
+      for (let i = 0; i < sparkles.length; i++) {
+        const s = sparkles[i];
+        s.alpha -= s.decay;
+
+        if (s.alpha <= 0) {
+          sparkles.splice(i, 1);
           i--;
           continue;
         }
 
         ctx.save();
-        ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.fillStyle = p.color;
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 8;
-
-        if (p.shape === "circle") {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          // Draw sparkling star
-          ctx.beginPath();
-          const spikes = 4;
-          const outerRadius = p.size * 1.4;
-          const innerRadius = p.size * 0.5;
-          let rot = (Math.PI / 2) * 3;
-          let x = p.x;
-          let y = p.y;
-          const step = Math.PI / spikes;
-
-          ctx.moveTo(p.x, p.y - outerRadius);
-          for (let s = 0; s < spikes; s++) {
-            x = p.x + Math.cos(rot) * outerRadius;
-            y = p.y + Math.sin(rot) * outerRadius;
-            ctx.lineTo(x, y);
-            rot += step;
-
-            x = p.x + Math.cos(rot) * innerRadius;
-            y = p.y + Math.sin(rot) * innerRadius;
-            ctx.lineTo(x, y);
-            rot += step;
-          }
-          ctx.lineTo(p.x, p.y - outerRadius);
-          ctx.closePath();
-          ctx.fill();
-        }
-
+        ctx.globalAlpha = Math.max(0, s.alpha);
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
       }
 
@@ -137,7 +117,6 @@ export default function FestivalMouseTrail() {
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("touchmove", handleTouchMove);
       cancelAnimationFrame(animationFrameId);
     };
   }, [activeFestival, isTrailEnabled]);

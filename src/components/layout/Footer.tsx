@@ -11,7 +11,8 @@ import {
   ShieldCheck,
   Award,
   BookCheck,
-  Sparkles
+  Sparkles,
+  Heart
 } from "lucide-react";
 import { siteConfig } from "@/data/siteConfig";
 
@@ -245,11 +246,27 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Tier 3: Bottom Copyright & Policies */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        {/* Tier 3: Bottom Copyright & TheWebVale Branding */}
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <div>
             © {new Date().getFullYear()} <span className="text-white font-semibold">Fukey Education Pvt. Ltd.</span> All rights reserved.
           </div>
+
+          {/* TheWebVale Branding */}
+          <div className="flex items-center gap-1.5 text-xs text-slate-300 font-medium px-4 py-1.5 rounded-full bg-indigo-950/70 border border-indigo-900 shadow-inner">
+            <span>Made with</span>
+            <span className="text-rose-500 text-sm leading-none">❤️</span>
+            <span>by</span>
+            <a
+              href="https://thewebvale.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-extrabold text-white hover:text-orange-400 transition-colors underline decoration-orange-500/60 underline-offset-4 tracking-wide"
+            >
+              TheWebVale
+            </a>
+          </div>
+
           <div className="flex items-center gap-6">
             <Link href="/about-us" className="hover:text-white transition-colors">
               Privacy Policy

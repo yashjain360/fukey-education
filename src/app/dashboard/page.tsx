@@ -16,7 +16,7 @@ import {
   ArrowRight,
   Download,
   Play,
-  Database
+  ShieldCheck
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useModal } from "@/components/ui/CustomModal";
@@ -34,7 +34,6 @@ export default function StudentDashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch live user orders from MongoDB
     fetch(`/api/orders?email=${encodeURIComponent(user?.email || "mayank@fukeyeducation.com")}`)
       .then((res) => res.json())
       .then((data) => {
@@ -122,16 +121,16 @@ export default function StudentDashboardPage() {
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                   {user?.name || "Mayank Dubey"}
                 </h1>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-400/30 flex items-center gap-1">
-                  <Database className="w-3 h-3 text-emerald-400" />
-                  <span>MongoDB Atlas Connected</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-400/30 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                  <span>Verified Student Pass 2026-27</span>
                 </span>
               </div>
               <div className="text-xs text-indigo-200 font-medium">
                 {user?.email || "mayank@fukeyeducation.com"}
               </div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-800/60 text-indigo-200 text-[10px] font-bold">
-                <span>Active Student Pass 2026-27</span>
+                <span>CBSE Target Batch Active</span>
               </div>
             </div>
           </div>
@@ -389,6 +388,21 @@ export default function StudentDashboardPage() {
                     </table>
                   </div>
                 </div>
+
+                {/* Subtle TheWebVale Portal Branding */}
+                <div className="text-center pt-2">
+                  <div className="inline-flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+                    <span>Engineered with ❤️ by</span>
+                    <a
+                      href="https://thewebvale.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-bold text-slate-600 hover:text-[#5751E1] transition-colors underline decoration-slate-300 underline-offset-2"
+                    >
+                      TheWebVale
+                    </a>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -469,7 +483,7 @@ export default function StudentDashboardPage() {
                   Manage your academic records, reviews, and profile settings seamlessly.
                 </p>
                 <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600">
-                  All active certificates and test results are automatically synchronized with your MongoDB student portal.
+                  All active certificates and test results are automatically synchronized with your official student portal.
                 </div>
               </div>
             )}

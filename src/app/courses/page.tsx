@@ -30,7 +30,6 @@ function CoursesContent() {
   const { addToCart, isInCart, toggleWishlist, isInWishlist, currency } = useCart();
 
   useEffect(() => {
-    // Fetch live from MongoDB endpoint
     fetch("/api/courses")
       .then((res) => res.json())
       .then((data) => {
@@ -114,7 +113,7 @@ function CoursesContent() {
               All Online Coaching Courses
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-              Explore 52+ real CBSE and State Board courses for Classes 9th, 10th, 11th &amp; 12th powered by MongoDB Atlas.
+              Explore 52+ real CBSE and State Board courses for Classes 9th, 10th, 11th &amp; 12th with expert faculty guidance.
             </p>
           </div>
         </div>

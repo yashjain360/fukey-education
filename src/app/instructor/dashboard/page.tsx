@@ -294,6 +294,21 @@ export default function InstructorDashboardPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* Subtle TheWebVale Portal Branding */}
+                <div className="text-center pt-2">
+                  <div className="inline-flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+                    <span>Engineered with ❤️ by</span>
+                    <a
+                      href="https://thewebvale.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-bold text-slate-600 hover:text-[#5751E1] transition-colors underline decoration-slate-300 underline-offset-2"
+                    >
+                      TheWebVale
+                    </a>
+                  </div>
+                </div>
               </div>
             )}
 
