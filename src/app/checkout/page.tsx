@@ -10,9 +10,7 @@ import {
   ArrowRight,
   ShoppingBag,
   CreditCard,
-  QrCode,
-  Sparkles,
-  Zap
+  QrCode
 } from "lucide-react";
 import { useCart } from "@/components/cart/CartContext";
 import { useAuth } from "@/components/auth/AuthContext";
@@ -21,7 +19,7 @@ import { triggerConfetti } from "@/lib/confetti";
 
 export default function CheckoutPage() {
   const { cart, subtotal, discountAmount, total, appliedCoupon, clearCart, currency } = useCart();
-  const { user, loginWithGoogle } = useAuth();
+  const { user, openGoogleModal } = useAuth();
   
   const [fullName, setFullName] = useState(user?.name || "Mayank Dubey");
   const [email, setEmail] = useState(user?.email || "mayank@fukeyeducation.com");
@@ -38,14 +36,6 @@ export default function CheckoutPage() {
       if (user.phone) setPhone(user.phone);
     }
   }, [user]);
-
-  const handleGoogleFastFill = () => {
-    const googleProfile = loginWithGoogle();
-    setFullName(googleProfile.name);
-    setEmail(googleProfile.email);
-    setPhone(googleProfile.phone || "+91 88718 35015");
-    triggerConfetti();
-  };
 
   const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,7 +150,7 @@ export default function CheckoutPage() {
               {/* ⚡ 1-Click Fast Auto-Fill with Google */}
               <button
                 type="button"
-                onClick={handleGoogleFastFill}
+                onClick={openGoogleModal}
                 className="w-full py-3.5 px-4 rounded-2xl border-2 border-indigo-200 hover:border-indigo-400 bg-gradient-to-r from-indigo-50/90 via-white to-indigo-50/90 text-indigo-950 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-3 active:scale-98 group cursor-pointer"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -181,7 +171,7 @@ export default function CheckoutPage() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                   />
                 </svg>
-                <span>⚡ Fast 1-Click Auto-Fill with Google (Name &amp; Email)</span>
+                <span>⚡ 1-Click Auto-Fill with Google (Name &amp; Email)</span>
               </button>
 
               <div className="flex items-center gap-3 text-slate-400 text-xs">
@@ -278,7 +268,7 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] text-white font-extrabold text-sm shadow-xl shadow-indigo-950/20 hover:brightness-110 active:scale-98 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] text-white font-extrabold text-sm shadow-xl shadow-indigo-950/20 hover:brightness-110 active:scale-98 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
                   <Lock className="w-4 h-4" />
                   <span>

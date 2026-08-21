@@ -3,54 +3,89 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { GraduationCap, Lock, Mail, ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
+import { GraduationCap, Lock, Mail, ArrowRight, ShieldCheck, User } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("mayank@fukeyeducation.com");
   const [password, setPassword] = useState("••••••••");
-  const { loginWithGoogle, loginAsDemo, loginWithEmail, user } = useAuth();
+  const [role, setRole] = useState<"student" | "instructor" | "admin">("student");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { openGoogleModal, loginWithEmail } = useAuth();
   const router = useRouter();
 
-  const handleGoogleLogin = () => {
-    loginWithGoogle();
-    router.push("/dashboard");
-  };
-
-  const handleDemoStudent = () => {
-    loginAsDemo("student");
-    router.push("/dashboard");
-  };
-
-  const handleDemoInstructor = () => {
-    loginAsDemo("instructor");
-    router.push("/instructor/dashboard");
-  };
-
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    loginWithEmail(email);
-    router.push("/dashboard");
+    setIsLoggingIn(true);
+    try {
+      const loggedUser = await loginWithEmail(email, email.split("@")[0], role);
+      if (role === "admin") {
+        router.push("/admin");
+      } else if (role === "instructor") {
+        router.push("/instructor/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center p-4 bg-slate-50/50">
       <div className="w-full max-w-md bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-[#050071] mx-auto flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-[#050071] mx-auto flex items-center justify-center">
             <GraduationCap className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl font-black text-slate-900">Welcome Back</h1>
+          <h1 className="text-2xl font-black text-slate-900">Sign In to Your Account</h1>
           <p className="text-xs text-slate-500">
-            Sign in to access your live classes, recordings, and formula notes
+            Access your live online batches, faculty mentor chats, and official study records
           </p>
         </div>
 
-        {/* Google One-Click Login (Just as Amulyam) */}
+        {/* Portal Role Selector */}
+        <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-2xl">
+          <button
+            type="button"
+            onClick={() => setRole("student")}
+            className={`py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
+              role === "student"
+                ? "bg-white text-[#050071] shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Student
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("instructor")}
+            className={`py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
+              role === "instructor"
+                ? "bg-white text-[#050071] shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Instructor
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("admin")}
+            className={`py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
+              role === "admin"
+                ? "bg-white text-[#050071] shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Admin
+          </button>
+        </div>
+
+        {/* Google One-Click Login */}
         <button
           type="button"
-          onClick={handleGoogleLogin}
-          className="w-full py-3.5 px-4 rounded-2xl border-2 border-slate-200 hover:border-indigo-400 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-3 active:scale-98"
+          onClick={openGoogleModal}
+          className="w-full py-3.5 px-4 rounded-2xl border-2 border-slate-200 hover:border-indigo-400 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-3 active:scale-98 cursor-pointer"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
@@ -75,11 +110,11 @@ export default function LoginPage() {
 
         <div className="flex items-center gap-3 text-slate-400 text-xs">
           <div className="flex-1 h-px bg-slate-200" />
-          <span>or sign in with email</span>
+          <span>or sign in with credentials</span>
           <div className="flex-1 h-px bg-slate-200" />
         </div>
 
-        {/* Standard Email Form */}
+        {/* Standard Email/Password Form */}
         <form onSubmit={handleEmailSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
@@ -90,13 +125,18 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 font-medium"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Password</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-slate-700">Password</label>
+              <a href="#" className="text-[11px] font-semibold text-indigo-600 hover:underline">
+                Forgot password?
+              </a>
+            </div>
             <div className="relative">
               <Lock className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
               <input
@@ -104,40 +144,26 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 font-medium"
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
+            disabled={isLoggingIn}
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] hover:brightness-110 text-white font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <span>Sign In</span>
+            <span>{isLoggingIn ? "Signing In..." : `Sign In as ${role.charAt(0).toUpperCase() + role.slice(1)}`}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        {/* Quick Demo Logins for Instant Testing */}
-        <div className="p-4 bg-indigo-50/70 rounded-2xl border border-indigo-100 space-y-2">
-          <div className="text-[11px] font-bold text-indigo-900 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Instant Demo Access (Screenshots Profile)</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={handleDemoStudent}
-              className="px-3 py-2 bg-white hover:bg-indigo-100 text-[#050071] font-bold text-[11px] rounded-xl border border-indigo-200 transition-colors text-center"
-            >
-              Student View
-            </button>
-            <button
-              onClick={handleDemoInstructor}
-              className="px-3 py-2 bg-white hover:bg-indigo-100 text-[#5751E1] font-bold text-[11px] rounded-xl border border-indigo-200 transition-colors text-center"
-            >
-              Instructor View
-            </button>
-          </div>
+        <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className="font-bold text-[#5751E1] hover:underline">
+            Create Student Account
+          </Link>
         </div>
       </div>
     </div>

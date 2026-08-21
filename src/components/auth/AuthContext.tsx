@@ -3,13 +3,16 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { UserProfile, DEMO_USER, setCookie, getCookie, removeCookie } from "@/lib/auth";
 import { triggerConfetti } from "@/lib/confetti";
+import GoogleOAuthModal from "./GoogleOAuthModal";
 
 interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
-  loginWithGoogle: (customData?: Partial<UserProfile>) => UserProfile;
-  loginAsDemo: (role?: "student" | "instructor" | "admin") => void;
-  loginWithEmail: (email: string, name?: string) => void;
+  isGoogleModalOpen: boolean;
+  openGoogleModal: () => void;
+  closeGoogleModal: () => void;
+  loginWithGoogle: (customData?: Partial<UserProfile>) => Promise<UserProfile>;
+  loginWithEmail: (email: string, name?: string, role?: "student" | "instructor" | "admin") => Promise<UserProfile>;
   logout: () => void;
   switchRole: (role: "student" | "instructor" | "admin") => void;
 }
@@ -17,66 +20,98 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(DEMO_USER);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   useEffect(() => {
+    // 1. Check cookies first, fallback to localStorage, fallback to initial Mayank session
     try {
+      const sessionCookie = getCookie("fukey_session");
       const savedUser = localStorage.getItem("fukey_auth_user");
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
+
+      if (sessionCookie) {
+        const parsed = JSON.parse(sessionCookie);
+        setUser(parsed);
+      } else if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+        setCookie("fukey_session", JSON.stringify(parsed));
       } else {
         setUser(DEMO_USER);
+        setCookie("fukey_session", JSON.stringify(DEMO_USER));
         localStorage.setItem("fukey_auth_user", JSON.stringify(DEMO_USER));
       }
-    } catch (e) {}
+    } catch (e) {
+      setUser(DEMO_USER);
+    }
   }, []);
 
-  const loginWithGoogle = (customData?: Partial<UserProfile>) => {
+  const saveUserSession = async (userObj: UserProfile) => {
+    setUser(userObj);
+    localStorage.setItem("fukey_auth_user", JSON.stringify(userObj));
+    setCookie("fukey_session", JSON.stringify(userObj), 30);
+
+    // Sync to MongoDB users collection
+    try {
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userObj),
+      });
+    } catch (err) {}
+
+    triggerConfetti();
+    return userObj;
+  };
+
+  const loginWithGoogle = async (customData?: Partial<UserProfile>) => {
     const googleUser: UserProfile = {
-      id: "google-mayank-1039",
+      id: customData?.id || `google_${Date.now()}`,
       name: customData?.name || "Mayank Dubey",
       email: customData?.email || "mayank@fukeyeducation.com",
       role: customData?.role || "student",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      avatar: customData?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
       phone: customData?.phone || "+91 88718 35015",
+      bio: "CBSE & State Board Scholar at Fukey Education",
       enrolledCoursesCount: 2,
       quizAttemptsCount: 5,
       totalReviewsCount: 3300,
       instructorCoursesCount: 2,
       pendingCoursesCount: 0,
     };
-    setUser(googleUser);
-    localStorage.setItem("fukey_auth_user", JSON.stringify(googleUser));
-    setCookie("fukey_session", JSON.stringify(googleUser));
-    triggerConfetti();
-    return googleUser;
+
+    setIsGoogleModalOpen(false);
+    return await saveUserSession(googleUser);
   };
 
-  const loginAsDemo = (role: "student" | "instructor" | "admin" = "student") => {
-    const updated = { ...DEMO_USER, role: role as any };
-    setUser(updated);
-    localStorage.setItem("fukey_auth_user", JSON.stringify(updated));
-    setCookie("fukey_session", JSON.stringify(updated));
-    triggerConfetti();
-  };
-
-  const loginWithEmail = (email: string, name = "Mayank Dubey") => {
-    const newUser: UserProfile = {
-      ...DEMO_USER,
+  const loginWithEmail = async (
+    email: string,
+    name = "Mayank Dubey",
+    role: "student" | "instructor" | "admin" = "student"
+  ) => {
+    const emailUser: UserProfile = {
+      id: `usr_${Date.now()}`,
+      name: name || email.split("@")[0],
       email,
-      name,
+      role,
+      phone: "+91 88718 35015",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      enrolledCoursesCount: 2,
+      quizAttemptsCount: 5,
+      totalReviewsCount: 3300,
+      instructorCoursesCount: 2,
+      pendingCoursesCount: 0,
     };
-    setUser(newUser);
-    localStorage.setItem("fukey_auth_user", JSON.stringify(newUser));
-    setCookie("fukey_session", JSON.stringify(newUser));
-    triggerConfetti();
+
+    return await saveUserSession(emailUser);
   };
 
   const switchRole = (role: "student" | "instructor" | "admin") => {
     if (user) {
-      const updated = { ...user, role: role as any };
+      const updated = { ...user, role };
       setUser(updated);
       localStorage.setItem("fukey_auth_user", JSON.stringify(updated));
+      setCookie("fukey_session", JSON.stringify(updated), 30);
       triggerConfetti();
     }
   };
@@ -92,14 +127,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         isAuthenticated: !!user,
+        isGoogleModalOpen,
+        openGoogleModal: () => setIsGoogleModalOpen(true),
+        closeGoogleModal: () => setIsGoogleModalOpen(false),
         loginWithGoogle,
-        loginAsDemo,
         loginWithEmail,
         logout,
         switchRole,
       }}
     >
       {children}
+      <GoogleOAuthModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onSelectAccount={(acc) => loginWithGoogle(acc)}
+      />
     </AuthContext.Provider>
   );
 };
