@@ -12,7 +12,7 @@ interface AuthContextType {
   openGoogleModal: () => void;
   closeGoogleModal: () => void;
   loginWithGoogle: (customData?: Partial<UserProfile>) => Promise<UserProfile>;
-  loginWithEmail: (email: string, name?: string, role?: "student" | "instructor" | "admin") => Promise<UserProfile>;
+  loginWithEmail: (email: string, name?: string, role?: "student" | "instructor" | "admin", phone?: string) => Promise<UserProfile>;
   logout: () => void;
   switchRole: (role: "student" | "instructor" | "admin") => void;
 }
@@ -64,15 +64,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return userObj;
   };
 
+  const openGoogleModal = () => setIsGoogleModalOpen(true);
+  const closeGoogleModal = () => setIsGoogleModalOpen(false);
+
   const loginWithGoogle = async (customData?: Partial<UserProfile>) => {
     const googleUser: UserProfile = {
-      id: customData?.id || `google_${Date.now()}`,
+      id: customData?.id || `usr_google_${Date.now()}`,
       name: customData?.name || "Mayank Dubey",
       email: customData?.email || "mayank@fukeyeducation.com",
       role: customData?.role || "student",
-      avatar: customData?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
       phone: customData?.phone || "+91 88718 35015",
-      bio: "CBSE & State Board Scholar at Fukey Education",
+      avatar: customData?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
       enrolledCoursesCount: 2,
       quizAttemptsCount: 5,
       totalReviewsCount: 3300,
@@ -87,14 +89,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithEmail = async (
     email: string,
     name = "Mayank Dubey",
-    role: "student" | "instructor" | "admin" = "student"
+    role: "student" | "instructor" | "admin" = "student",
+    phone = "+91 88718 35015"
   ) => {
     const emailUser: UserProfile = {
       id: `usr_${Date.now()}`,
       name: name || email.split("@")[0],
       email,
       role,
-      phone: "+91 88718 35015",
+      phone: phone || "+91 88718 35015",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
       enrolledCoursesCount: 2,
       quizAttemptsCount: 5,

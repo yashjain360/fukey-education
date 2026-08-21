@@ -5,9 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number, currency: string = "INR"): string {
+export function formatPrice(price: number | string, currency: string = "INR"): string {
+  const num = typeof price === "number" ? price : parseFloat(String(price).replace(/[^0-9.]/g, "")) || 0;
   if (currency === "USD") {
-    return `$${(price / 83).toFixed(2)}`;
+    return `$${(num / 83).toFixed(2)}`;
   }
-  return `₹${price.toLocaleString("en-IN")}`;
+  return `₹${num.toLocaleString("en-IN")}`;
 }

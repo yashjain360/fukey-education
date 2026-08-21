@@ -13,7 +13,7 @@ const smtpConfig = {
   },
 };
 
-const transporter = nodemailer.createTransporter(smtpConfig);
+export const transporter = nodemailer.createTransport(smtpConfig);
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 

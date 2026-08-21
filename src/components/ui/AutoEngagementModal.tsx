@@ -77,8 +77,8 @@ export default function AutoEngagementModal() {
     sessionStorage.setItem("fukey_auto_hub_dismissed", "true");
   };
 
-  const handleGoogleFastFill = () => {
-    const profile = loginWithGoogle();
+  const handleGoogleFastFill = async () => {
+    const profile = await loginWithGoogle();
     setStudentName(profile.name);
     setStudentEmail(profile.email);
     if (profile.phone) setStudentPhone(profile.phone);

@@ -1197,12 +1197,12 @@ export default function AdminDashboardPage() {
                   className="p-5 rounded-2xl border border-slate-200 bg-white space-y-4 shadow-xs text-center flex flex-col items-center"
                 >
                   <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 shadow-md border-2 border-indigo-100">
-                    <img src={inst.avatar} alt={inst.name} className="w-full h-full object-cover" />
+                    <img src={inst.photo || inst.image || "/images/instructors/kratika-rathore.webp"} alt={inst.name} className="w-full h-full object-cover" />
                   </div>
 
                   <div className="space-y-0.5">
                     <h3 className="font-black text-sm text-slate-900">{inst.name}</h3>
-                    <p className="text-xs text-indigo-600 font-bold">{inst.subject}</p>
+                    <p className="text-xs text-indigo-600 font-bold">{inst.role || inst.department}</p>
                     <p className="text-[11px] text-slate-400">{inst.experience} Experience</p>
                   </div>
 

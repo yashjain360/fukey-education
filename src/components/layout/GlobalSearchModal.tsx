@@ -8,6 +8,8 @@ import { coursesData, Course } from "@/data/coursesData";
 import { instructorsData, Instructor } from "@/data/instructorsData";
 import { ebooksData, Ebook } from "@/data/ebooksData";
 import { blogsData, BlogPost } from "@/data/blogsData";
+import { useCart } from "@/components/cart/CartContext";
+import { formatPrice } from "@/lib/utils";
 
 interface GlobalSearchModalProps {
   isOpen: boolean;
@@ -15,6 +17,7 @@ interface GlobalSearchModalProps {
 }
 
 export default function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
+  const { currency } = useCart();
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "courses" | "instructors" | "ebooks" | "blogs">("all");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -173,7 +176,7 @@ export default function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModal
                       <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
                         <span>{c.instructor}</span>
                         <span>•</span>
-                        <span className="font-semibold text-emerald-600">₹{c.price}</span>
+                        <span className="font-semibold text-emerald-600">{formatPrice(c.price, currency)}</span>
                       </div>
                     </div>
                   </div>

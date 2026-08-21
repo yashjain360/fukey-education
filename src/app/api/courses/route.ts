@@ -46,34 +46,43 @@ export async function POST(request: Request) {
       id: body.id || `course-${Date.now()}`,
       slug,
       title: body.title,
-      price: Number(body.price) || 1499,
-      originalPrice: Number(body.originalPrice) || 2499,
-      discountPercent: Number(body.discountPercent) || 40,
-      thumbnail: body.thumbnail || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png",
-      instructor: body.instructor || "Pawan Gupta",
-      instructorAvatar: body.instructorAvatar || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-06-15-02-14-08-1645.webp",
-      instructorTitle: body.instructorTitle || "Senior Mathematics Faculty",
+      subTitle: body.subTitle || `Complete CBSE & State Board coaching for ${body.title}`,
       class: body.class || "Class 10",
       classNum: Number(body.classNum) || 10,
       subject: body.subject || "Mathematics",
+      stream: body.stream || "General",
       language: body.language || "Hindi",
+      price: Number(body.price) || 1499,
+      originalPrice: Number(body.originalPrice) || 2499,
+      discountPercent: Number(body.discountPercent) || 40,
       rating: Number(body.rating) || 5.0,
       reviewsCount: Number(body.reviewsCount) || 18,
-      lessonsCount: Number(body.lessonsCount) || 36,
+      studentsEnrolled: Number(body.studentsEnrolled || body.enrolledCount) || 140,
+      instructor: body.instructor || "Pawan Gupta",
+      instructorRole: body.instructorRole || body.instructorTitle || "Senior Mathematics Faculty",
       duration: body.duration || "45 Hours Live",
-      enrolledCount: Number(body.enrolledCount) || 140,
-      isFeatured: body.isFeatured ?? true,
+      lessonsCount: Number(body.lessonsCount) || 36,
+      resourcesCount: Number(body.resourcesCount) || 12,
+      badge: body.badge || "Live Batch",
       description: body.description || "Comprehensive live online board preparation batch mapped 100% to NCERT curriculum with daily 15-minute doubt solving.",
-      curriculum: body.curriculum || [
-        {
-          title: "Module 1: Fundamental Concepts & Theorems",
-          lessons: ["Live Lecture 1: Concept Introduction", "Live Lecture 2: Derivations", "15-Min Live Doubt Room"]
-        }
-      ],
+      thumbnail: body.thumbnail || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png",
       features: body.features || [
         "100% NCERT Syllabus Coverage",
         "Live 1-on-1 Doubt Clearing",
         "Handwritten Formula PDF Notes"
+      ],
+      curriculum: body.curriculum || [
+        {
+          moduleTitle: "Module 1: Fundamental Concepts & Theorems",
+          duration: "24 Hours",
+          topics: ["Live Lecture 1: Concept Introduction", "Live Lecture 2: Derivations", "15-Min Live Doubt Room"]
+        }
+      ],
+      faqs: body.faqs || [
+        {
+          q: "What is the schedule for this batch?",
+          a: "Daily live lectures from Monday to Friday with weekly doubt clearing."
+        }
       ]
     };
 

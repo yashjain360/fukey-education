@@ -50,7 +50,7 @@ export default function BlogDetailPage() {
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-2">
               <div className="flex items-center gap-1.5 font-semibold text-slate-700">
                 <User className="w-4 h-4 text-[#5751E1]" />
-                <span>{blog.author} ({blog.authorRole})</span>
+                <span>{blog.author}</span>
               </div>
               <span>•</span>
               <div className="flex items-center gap-1.5">

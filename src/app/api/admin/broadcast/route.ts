@@ -60,7 +60,7 @@ export async function POST(request: Request) {
         to: email,
         subject: `[Fukey Education] ${subject}`,
         html: htmlContent,
-      }).catch((e) => ({ error: String(e), email }))
+      }).catch((e: any) => ({ error: String(e), email }))
     );
 
     await Promise.all(sendPromises);

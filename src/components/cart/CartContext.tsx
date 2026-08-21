@@ -55,6 +55,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
       const savedCoupon = localStorage.getItem("fukey_coupon");
       if (savedCoupon) setAppliedCoupon(savedCoupon);
+      const savedCurrency = localStorage.getItem("fukey_currency") as "INR" | "USD";
+      if (savedCurrency === "INR" || savedCurrency === "USD") setCurrency(savedCurrency);
     } catch (e) {
       console.error("Failed loading storage", e);
     }
@@ -72,6 +74,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem("fukey_wishlist", JSON.stringify(wishlist));
     } catch (e) {}
   }, [wishlist]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("fukey_currency", currency);
+    } catch (e) {}
+  }, [currency]);
 
   const addToCart = (course: Course) => {
     if (!isInCart(course.id)) {
