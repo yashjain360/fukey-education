@@ -38,10 +38,18 @@ export default function LoginPage() {
         data-aos="zoom-in"
         data-aos-duration="650"
       >
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-[#050071] mx-auto flex items-center justify-center">
-            <GraduationCap className="w-7 h-7 animate-icon-float" />
-          </div>
+        <div className="text-center space-y-3">
+          <Link href="/" className="inline-block">
+            <img
+              src="/images/logo/logo-main.png"
+              alt="Fukey Education Logo"
+              className="h-12 w-auto mx-auto object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-02-23-03-59-14-6859.png";
+              }}
+            />
+          </Link>
           <h1 className="text-2xl font-black text-slate-900">Sign In to Your Account</h1>
           <p className="text-xs text-slate-500">
             Access your live online batches, faculty mentor chats, and official study records

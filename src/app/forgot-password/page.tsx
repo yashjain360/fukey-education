@@ -36,10 +36,18 @@ export default function ForgotPasswordPage() {
         data-aos="zoom-in"
         data-aos-duration="600"
       >
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-[#050071] mx-auto flex items-center justify-center">
-            <Lock className="w-6 h-6 animate-icon-pulse" />
-          </div>
+        <div className="text-center space-y-3">
+          <Link href="/" className="inline-block">
+            <img
+              src="/images/logo/logo-main.png"
+              alt="Fukey Education Logo"
+              className="h-12 w-auto mx-auto object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-02-23-03-59-14-6859.png";
+              }}
+            />
+          </Link>
           <h1 className="text-2xl font-black text-slate-900">Reset Your Password</h1>
           <p className="text-xs text-slate-500">
             Enter your registered email address to receive password reset instructions

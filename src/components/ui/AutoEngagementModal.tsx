@@ -163,11 +163,22 @@ export default function AutoEngagementModal() {
         {/* Top Header Bar */}
         <div className="bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-5 sm:p-6 flex items-center justify-between relative">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-extrabold border border-orange-400/30 uppercase tracking-wider">
-              <Sparkles className="w-3 h-3 text-amber-300" />
-              <span>Fukey Student Center &amp; Admissions</span>
+            <div className="flex items-center gap-3">
+              <img
+                src="/images/logo/logo-white.png"
+                alt="Fukey Education Logo"
+                className="h-8 w-auto object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    "https://fukeyeducation.com/uploads/custom-images/wsus-img-2025-11-10-12-04-32-8747.png";
+                }}
+              />
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-extrabold border border-orange-400/30 uppercase tracking-wider">
+                <Sparkles className="w-3 h-3 text-amber-300" />
+                <span>Admissions 2026-27</span>
+              </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight mt-1">
               Instant Academic Hub &amp; Live Help
             </h2>
           </div>

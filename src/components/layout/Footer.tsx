@@ -68,13 +68,16 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 py-12 border-b border-indigo-900/60">
           {/* Col 1 & 2: Brand Story */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-white to-slate-200 p-0.5 flex items-center justify-center transition-transform group-hover:scale-105">
-                <GraduationCap className="w-6 h-6 text-[#050071]" />
-              </div>
-              <div className="font-extrabold text-2xl tracking-tight text-white">
-                Fukey <span className="text-[#FF2424]">Education</span>
-              </div>
+            <Link href="/" className="inline-block group transition-transform hover:scale-105">
+              <img
+                src="/images/logo/logo-white.png"
+                alt="Fukey Education Logo"
+                className="h-10 w-auto object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    "https://fukeyeducation.com/uploads/custom-images/wsus-img-2025-11-10-12-04-32-8747.png";
+                }}
+              />
             </Link>
 
             <p className="text-sm text-slate-300 leading-relaxed max-w-sm font-medium">

@@ -64,26 +64,21 @@ export default function Navbar() {
         className={`sticky top-0 z-50 w-full transition-all duration-300 ${
           isScrolled
             ? "bg-white/95 backdrop-blur-md shadow-md py-3 border-b border-slate-200"
-            : "bg-white py-4 border-b border-slate-100"
+            : "bg-white py-3.5 border-b border-slate-100"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group transition-transform hover:scale-105 active:scale-95">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#050071] via-[#5751E1] to-[#FF2424] p-0.5 shadow-sm flex items-center justify-center">
-              <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-[#050071]" />
-              </div>
-            </div>
-            <div>
-              <div className="font-extrabold text-xl tracking-tight text-[#050071] flex items-center gap-1">
-                <span>Fukey</span>
-                <span className="text-[#FF2424]">Education</span>
-              </div>
-              <div className="text-[10px] text-slate-500 font-medium tracking-wide">
-                Classes 9th - 12th Online Coaching
-              </div>
-            </div>
+          {/* Authentic Fukey Education Brand Logo */}
+          <Link href="/" className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95 flex-shrink-0">
+            <img
+              src="/images/logo/logo-main.png"
+              alt="Fukey Education Logo"
+              className="h-10 sm:h-11 w-auto object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-02-23-03-59-14-6859.png";
+              }}
+            />
           </Link>
 
           {/* Center Navigation Links Desktop */}
