@@ -2,96 +2,93 @@
 
 import React from "react";
 import Link from "next/link";
-import { Bell, Calendar, ArrowRight, FileText, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Bell, Calendar, ArrowRight, Sparkles, ExternalLink, ShieldCheck } from "lucide-react";
+import { blogsData } from "@/data/blogsData";
 
 export default function NewsPage() {
   const newsItems = [
     {
       id: "news-1",
-      title: "RBI to Test New Plastic Money: Rs 10 and Rs 20 Notes",
-      category: "National Economy & Current Affairs",
-      date: "August 2026",
-      source: "Official Central Bank Update",
-      summary: "Reserve Bank of India announces trial run for polymer banknotes designed for enhanced longevity and security across select metro zones.",
-      link: "/blog/how-to-study-for-board-exams-the-complete-guide"
+      title: "CBSE Rationalized Syllabus & 50% Competency Exam Pattern 2026-27 Announced",
+      badge: "CBSE Official Alert",
+      date: "21 Aug 2026",
+      desc: "Central Board confirms critical changes to Class 10 & 12 question papers focusing on application-based case studies.",
+      href: "/courses",
     },
     {
       id: "news-2",
-      title: "Uniform Civil Code in India 2026: Four Key States Moving Forward",
-      category: "Constitutional & Civic Studies",
-      date: "August 2026",
-      source: "Legal Policy Watch",
-      summary: "Comprehensive legislative review of UCC draft guidelines implemented in state assemblies; crucial topic for Class 10th & 12th Political Science students.",
-      link: "/blog/class-9-social-science-new-ncert-syllabus-2026"
+      title: "Reserve Bank of India Testing New Polymer Banknotes (Rs 10 & 20)",
+      badge: "Current Affairs & Economics",
+      date: "19 Aug 2026",
+      desc: "Special analysis for Class 11 and 12 Commerce students studying Indian Economic Development and Money & Banking.",
+      href: "/blog",
     },
     {
       id: "news-3",
-      title: "Re-NEET UG 2026 Result Declared: Scorecard and Counselling Details",
-      category: "Medical & Science Entrance",
-      date: "August 2026",
-      source: "National Testing Agency Circular",
-      summary: "NTA publishes revised percentile rankings and announces centralized counselling dates for medical admissions across government colleges.",
-      link: "/blog/neet-ug-2026-counselling-complete-guide"
+      title: "Re-NEET UG 2026 Revised Cutoffs & Centralized Medical Counselling Schedule",
+      badge: "Medical & Science Alert",
+      date: "17 Aug 2026",
+      desc: "Comprehensive guidance handbook for Class 12 Biology and NEET aspirants detailing state-wise quota seat allocations.",
+      href: "/blog",
     },
-    {
-      id: "news-4",
-      title: "CBSE Rationalized Curriculum for 2026-27 Academic Session",
-      category: "Board Circular",
-      date: "August 2026",
-      source: "CBSE Academic Branch",
-      summary: "Detailed chapter-wise marks distribution released for Class 10th and 12th board exams with 50% competency-based question format.",
-      link: "/courses"
-    }
   ];
 
   return (
     <div className="bg-slate-50/50 min-h-screen py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-10">
         {/* Banner */}
-        <div className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl mb-12 relative overflow-hidden">
+        <div
+          className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl relative overflow-hidden"
+          data-aos="fade-down"
+          data-aos-duration="750"
+        >
           <div className="relative z-10 space-y-3">
             <span className="px-3.5 py-1 rounded-full bg-orange-500/20 text-orange-300 font-extrabold text-xs uppercase tracking-wider border border-orange-400/30">
-              Official Bulletins &amp; Circulars
+              Live Academic Feed
             </span>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
               Academic News &amp; Circulars
             </h1>
             <p className="text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
-              Stay ahead with verified notifications regarding CBSE date sheets, entrance exam schedules, and national academic policy changes.
+              Real-time circulars from CBSE, State Education Boards, National Testing Agency, and official ministry notices.
             </p>
           </div>
         </div>
 
-        {/* News List */}
-        <div className="space-y-6">
-          {newsItems.map((item) => (
+        {/* Live News Bulletins */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {newsItems.map((item, idx) => (
             <div
               key={item.id}
-              className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+              className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between space-y-4"
+              data-aos="fade-up"
+              data-aos-delay={idx * 100}
             >
-              <div className="space-y-2 max-w-3xl">
-                <div className="flex items-center gap-3 text-xs">
-                  <span className="px-3 py-1 rounded-full bg-indigo-50 text-[#5751E1] font-bold text-[10px]">
-                    {item.category}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#5751E1] font-bold text-[10px] uppercase">
+                    {item.badge}
                   </span>
-                  <span className="text-slate-400">{item.date}</span>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-slate-500 font-semibold">{item.source}</span>
+                  <span className="text-[11px] text-slate-400 font-semibold">{item.date}</span>
                 </div>
 
-                <h2 className="text-lg font-black text-slate-900 leading-snug">
+                <h3 className="font-extrabold text-slate-900 text-base leading-snug">
                   {item.title}
-                </h2>
+                </h3>
 
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {item.summary}
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {item.desc}
                 </p>
               </div>
 
-              <div className="flex-shrink-0">
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Verified Notice</span>
+                </span>
                 <Link
-                  href={item.link}
-                  className="px-5 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold transition-colors flex items-center gap-1.5"
+                  href={item.href}
+                  className="text-xs font-bold text-[#5751E1] hover:underline flex items-center gap-1"
                 >
                   <span>Read Notice</span>
                   <ArrowRight className="w-3.5 h-3.5" />

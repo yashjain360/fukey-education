@@ -107,8 +107,12 @@ export default function StudentDashboardPage() {
   return (
     <div className="bg-slate-50/60 min-h-screen pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
-        {/* Top Header Banner with Doodle Motif (Matching Screenshot 2) */}
-        <div className="relative rounded-3xl overflow-hidden bg-[#2D1B69] border border-indigo-900 shadow-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+        {/* Top Header Banner with Doodle Motif */}
+        <div
+          className="relative rounded-3xl overflow-hidden bg-[#2D1B69] border border-indigo-900 shadow-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6"
+          data-aos="fade-down"
+          data-aos-duration="750"
+        >
           <div className="flex items-center gap-5 relative z-10">
             <div className="w-20 h-20 rounded-full border-4 border-white/80 overflow-hidden bg-indigo-100 flex-shrink-0 shadow-lg relative">
               <div className="w-full h-full bg-[#5751E1] flex items-center justify-center text-white font-black text-2xl">
@@ -139,7 +143,7 @@ export default function StudentDashboardPage() {
           <div className="relative z-10">
             <button
               onClick={handleSwitchToInstructor}
-              className="px-6 py-3 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-extrabold text-xs shadow-lg shadow-red-900/30 flex items-center gap-2"
+              className="px-6 py-3 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-extrabold text-xs shadow-lg shadow-red-900/30 flex items-center gap-2 cursor-pointer"
             >
               <span>Instructor Dashboard</span>
               <ArrowRight className="w-4 h-4" />
@@ -149,8 +153,12 @@ export default function StudentDashboardPage() {
 
         {/* Dashboard Grid Layout (Sidebar + Main Panel) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Sidebar Navigation (Matching Screenshot 2) */}
-          <div className="lg:col-span-3 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
+          {/* Left Sidebar Navigation */}
+          <div
+            className="lg:col-span-3 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6"
+            data-aos="fade-right"
+            data-aos-duration="800"
+          >
             <div className="space-y-1">
               <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider px-3 py-1">
                 Welcome, {user?.name || "Mayank Dubey"}
@@ -159,7 +167,7 @@ export default function StudentDashboardPage() {
               <nav className="space-y-1">
                 <button
                   onClick={() => setActiveTab("dashboard")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer ${
                     activeTab === "dashboard"
                       ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -171,7 +179,7 @@ export default function StudentDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("orders")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer ${
                     activeTab === "orders"
                       ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -183,7 +191,7 @@ export default function StudentDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("live")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer ${
                     activeTab === "live"
                       ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -195,7 +203,7 @@ export default function StudentDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("courses")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer ${
                     activeTab === "courses"
                       ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -207,7 +215,7 @@ export default function StudentDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("wishlist")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer ${
                     activeTab === "wishlist"
                       ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -219,7 +227,7 @@ export default function StudentDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("reviews")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer ${
                     activeTab === "reviews"
                       ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -231,7 +239,7 @@ export default function StudentDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("quizzes")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer ${
                     activeTab === "quizzes"
                       ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -251,7 +259,7 @@ export default function StudentDashboardPage() {
 
               <button
                 onClick={() => setActiveTab("settings")}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer ${
                   activeTab === "settings"
                     ? "bg-indigo-50 text-[#5751E1]"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -263,7 +271,7 @@ export default function StudentDashboardPage() {
 
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-600 hover:bg-rose-50 text-left"
+                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-600 hover:bg-rose-50 text-left cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -272,13 +280,13 @@ export default function StudentDashboardPage() {
           </div>
 
           {/* Right Main Content Area */}
-          <div className="lg:col-span-9 space-y-8">
+          <div className="lg:col-span-9 space-y-8" data-aos="fade-left" data-aos-duration="850">
             {activeTab === "dashboard" && (
               <div className="space-y-8">
                 <div>
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-6">Dashboard</h2>
 
-                  {/* 3 Metric Cards / Skeletons (Matching Screenshot 2) */}
+                  {/* 3 Metric Cards */}
                   {isLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                       <DashboardMetricSkeleton />
@@ -288,7 +296,11 @@ export default function StudentDashboardPage() {
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                       {/* Card 1: Enrolled Courses */}
-                      <div className="bg-[#EBF2FF] rounded-3xl p-6 flex flex-col items-center justify-center text-center space-y-2 border border-blue-100">
+                      <div
+                        className="bg-[#EBF2FF] rounded-3xl p-6 flex flex-col items-center justify-center text-center space-y-2 border border-blue-100"
+                        data-aos="zoom-in"
+                        data-aos-delay="100"
+                      >
                         <div className="w-14 h-14 rounded-full bg-[#D4E4FC] text-[#3B82F6] flex items-center justify-center mb-1">
                           <GraduationCap className="w-7 h-7" />
                         </div>
@@ -301,7 +313,11 @@ export default function StudentDashboardPage() {
                       </div>
 
                       {/* Card 2: Quiz Attempts */}
-                      <div className="bg-[#F8EFFF] rounded-3xl p-6 flex flex-col items-center justify-center text-center space-y-2 border border-purple-100">
+                      <div
+                        className="bg-[#F8EFFF] rounded-3xl p-6 flex flex-col items-center justify-center text-center space-y-2 border border-purple-100"
+                        data-aos="zoom-in"
+                        data-aos-delay="200"
+                      >
                         <div className="w-14 h-14 rounded-full bg-[#EAD4FC] text-[#A855F7] flex items-center justify-center mb-1">
                           <Lightbulb className="w-7 h-7" />
                         </div>
@@ -314,7 +330,11 @@ export default function StudentDashboardPage() {
                       </div>
 
                       {/* Card 3: Total Reviews */}
-                      <div className="bg-[#FDF0F6] rounded-3xl p-6 flex flex-col items-center justify-center text-center space-y-2 border border-pink-100">
+                      <div
+                        className="bg-[#FDF0F6] rounded-3xl p-6 flex flex-col items-center justify-center text-center space-y-2 border border-pink-100"
+                        data-aos="zoom-in"
+                        data-aos-delay="300"
+                      >
                         <div className="w-14 h-14 rounded-full bg-[#FBD7E8] text-[#EC4899] flex items-center justify-center mb-1">
                           <MessageSquare className="w-7 h-7" />
                         </div>
@@ -329,8 +349,8 @@ export default function StudentDashboardPage() {
                   )}
                 </div>
 
-                {/* Order History Table (Matching Screenshot 2) */}
-                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                {/* Order History Table */}
+                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-black text-slate-900">Order History</h3>
                     <span className="text-xs font-bold text-slate-400">{orders.length} Invoices</span>
@@ -375,7 +395,7 @@ export default function StudentDashboardPage() {
                               <td className="p-3.5">
                                 <button
                                   onClick={() => handleDownloadInvoice(ord.invoice)}
-                                  className="px-3 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-[#5751E1] font-bold text-[11px] flex items-center gap-1"
+                                  className="px-3 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-[#5751E1] font-bold text-[11px] flex items-center gap-1 cursor-pointer"
                                 >
                                   <Download className="w-3.5 h-3.5" />
                                   <span>Receipt</span>
@@ -408,7 +428,7 @@ export default function StudentDashboardPage() {
 
             {/* Enrolled Courses Tab */}
             {activeTab === "courses" && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
                 <h2 className="text-xl font-black text-slate-900">My Active Batches</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {enrolledCourses.map((c) => (
@@ -435,7 +455,7 @@ export default function StudentDashboardPage() {
                         </Link>
                         <button
                           onClick={() => handleDownloadNotes(c.title)}
-                          className="text-xs font-bold text-indigo-600 hover:underline"
+                          className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer"
                         >
                           Notes PDF
                         </button>
@@ -448,7 +468,7 @@ export default function StudentDashboardPage() {
 
             {/* Live Classes Tab */}
             {activeTab === "live" && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-black text-slate-900">Today&apos;s Live Classroom Schedule</h2>
                   <span className="px-3 py-1 rounded-full bg-red-100 text-red-600 font-black text-xs">
@@ -466,7 +486,7 @@ export default function StudentDashboardPage() {
                   </div>
                   <button
                     onClick={handleJoinLiveRoom}
-                    className="px-6 py-3 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-md flex items-center gap-2"
+                    className="px-6 py-3 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-md flex items-center gap-2 cursor-pointer"
                   >
                     <Video className="w-4 h-4" />
                     <span>Join Live Class Now</span>
@@ -477,7 +497,7 @@ export default function StudentDashboardPage() {
 
             {/* Fallback for other tabs */}
             {(activeTab === "orders" || activeTab === "wishlist" || activeTab === "reviews" || activeTab === "quizzes" || activeTab === "settings") && (
-              <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-4">
+              <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-4" data-aos="fade-up">
                 <h2 className="text-xl font-black text-slate-900 capitalize">{activeTab} Details</h2>
                 <p className="text-xs text-slate-500">
                   Manage your academic records, reviews, and profile settings seamlessly.

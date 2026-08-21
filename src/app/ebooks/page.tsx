@@ -2,35 +2,22 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { BookOpen, Download, Star, CheckCircle2, FileText, Search, Sparkles } from "lucide-react";
+import { Download, BookOpen, Search, Star, CheckCircle2 } from "lucide-react";
 import { ebooksData, EBook } from "@/data/ebooksData";
-import { useModal } from "@/components/ui/CustomModal";
 
 export default function EbooksPage() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [ebooks, setEbooks] = useState<EBook[]>(ebooksData);
   const [searchQuery, setSearchQuery] = useState("");
-  const { openModal } = useModal();
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", "Science", "Mathematics", "Commerce", "Humanities"];
-
-  const handleDownload = (eb: EBook) => {
-    openModal({
-      type: "download",
-      title: `Download ${eb.title}`,
-      subtitle: `${eb.class} • ${eb.subject} (${eb.fileSize})`,
-    });
-  };
-
-  const filteredEbooks = ebooksData.filter((eb) => {
-    if (selectedCategory !== "All" && !eb.class.includes(selectedCategory) && !eb.subject.includes(selectedCategory)) {
-      return false;
-    }
+  const filteredEbooks = ebooks.filter((eb) => {
+    if (selectedCategory !== "All" && eb.category !== selectedCategory) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
         eb.title.toLowerCase().includes(q) ||
-        eb.subject.toLowerCase().includes(q) ||
-        eb.author.toLowerCase().includes(q)
+        eb.author.toLowerCase().includes(q) ||
+        eb.class.toLowerCase().includes(q)
       );
     }
     return true;
@@ -40,30 +27,37 @@ export default function EbooksPage() {
     <div className="bg-slate-50/50 min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Banner */}
-        <div className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl mb-12 relative overflow-hidden">
+        <div
+          className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl mb-10 relative overflow-hidden"
+          data-aos="fade-down"
+          data-aos-duration="750"
+        >
           <div className="relative z-10 space-y-3">
             <span className="px-3.5 py-1 rounded-full bg-orange-500/20 text-orange-300 font-extrabold text-xs uppercase tracking-wider border border-orange-400/30">
-              Free NCERT &amp; Exam Preparation
+              NCERT Solved Handbooks
             </span>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
-              Study eBooks &amp; Formula Banks
+              Curated eBooks &amp; Study Notes Library
             </h1>
             <p className="text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
-              Download curated chapter-wise revision notes, mind maps, formula handbooks, and previous 10 years solved board question papers for Classes 9th to 12th.
+              Free formula handbooks, solved chapter notes, and sample question papers for CBSE &amp; State Boards Classes 9th–12th.
             </p>
           </div>
         </div>
 
-        {/* Filter and Search Bar */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
-            {categories.map((cat) => (
+        {/* Filter & Search Bar */}
+        <div
+          className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 mb-8"
+          data-aos="fade-up"
+        >
+          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+            {["All", "Formula Bank", "Solved Notes", "Question Bank", "Concept Maps"].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                   selectedCategory === cat
-                    ? "bg-[#5751E1] text-white shadow-sm"
+                    ? "bg-[#050071] text-white"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >
@@ -72,55 +66,60 @@ export default function EbooksPage() {
             ))}
           </div>
 
-          <div className="relative w-full md:w-72">
+          <div className="relative w-full sm:w-72">
             <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search books, formulas, NCERT..."
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-indigo-500"
+              placeholder="Search in eBooks..."
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-indigo-500"
             />
           </div>
         </div>
 
         {/* eBooks Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEbooks.map((eb) => (
+          {filteredEbooks.map((ebook, idx) => (
             <div
-              key={eb.id}
-              className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between space-y-5"
+              key={ebook.id}
+              className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between space-y-4"
+              data-aos="fade-up"
+              data-aos-delay={(idx % 6) * 90}
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-lg bg-indigo-50 text-[#5751E1] font-extrabold text-[11px]">
-                    {eb.class}
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-extrabold text-[10px] uppercase">
+                    {ebook.isFree ? "Free PDF" : "Premium"}
                   </span>
-                  <span className="text-xs font-bold text-slate-400">{eb.fileSize}</span>
+                  <span className="text-[11px] font-bold text-slate-400">{ebook.fileSize || "3.2 MB"}</span>
                 </div>
 
-                <h2 className="text-base font-extrabold text-slate-900 line-clamp-2">
-                  {eb.title}
-                </h2>
+                <h3 className="font-extrabold text-slate-900 text-base line-clamp-2">
+                  {ebook.title}
+                </h3>
 
                 <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-                  {eb.description}
+                  {ebook.description}
                 </p>
 
-                <div className="text-[11px] text-slate-600 space-y-1">
-                  <div>Author: <span className="font-semibold text-slate-800">{eb.author}</span></div>
-                  <div>Pages: <span className="font-semibold text-slate-800">{eb.pages} Pages</span></div>
-                  <div>Downloads: <span className="font-semibold text-slate-800">{eb.downloadsCount.toLocaleString()}+</span></div>
+                <div className="text-xs text-slate-600">
+                  Author: <span className="font-bold text-slate-800">{ebook.author}</span>
                 </div>
               </div>
 
-              <button
-                onClick={() => handleDownload(eb)}
-                className="w-full py-3 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download Free PDF</span>
-              </button>
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-xs font-bold text-[#050071]">{ebook.class}</span>
+                <a
+                  href={ebook.downloadUrl || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download PDF</span>
+                </a>
+              </div>
             </div>
           ))}
         </div>

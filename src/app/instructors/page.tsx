@@ -10,7 +10,11 @@ export default function InstructorsPage() {
     <div className="bg-slate-50/50 min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Banner */}
-        <div className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl mb-12 relative overflow-hidden">
+        <div
+          className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl mb-12 relative overflow-hidden"
+          data-aos="fade-down"
+          data-aos-duration="750"
+        >
           <div className="relative z-10 space-y-3">
             <span className="px-3.5 py-1 rounded-full bg-orange-500/20 text-orange-300 font-extrabold text-xs uppercase tracking-wider border border-orange-400/30">
               World Class Faculty
@@ -26,22 +30,20 @@ export default function InstructorsPage() {
 
         {/* Faculty Grid with Real Photos */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {instructorsData.map((inst) => (
+          {instructorsData.map((inst, idx) => (
             <div
               key={inst.id}
               className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between space-y-6"
+              data-aos="fade-up"
+              data-aos-delay={(idx % 4) * 100}
             >
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
                   <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-indigo-100 flex-shrink-0 shadow-md bg-indigo-50">
                     <img
-                      src={inst.photo}
+                      src={inst.photo || inst.image || "/images/instructors/kratika-rathore.webp"}
                       alt={inst.name}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "https://fukeyeducation.com/uploads/website-images/frontend-avatar.png";
-                      }}
                     />
                   </div>
 
@@ -96,7 +98,7 @@ export default function InstructorsPage() {
                 </span>
                 <Link
                   href={`/courses`}
-                  className="px-5 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold transition-colors flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>Explore Batches</span>
                   <ArrowRight className="w-3.5 h-3.5" />

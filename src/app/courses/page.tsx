@@ -97,7 +97,7 @@ function CoursesContent() {
   return (
     <div className="bg-slate-50/50 min-h-screen py-10">
       {/* Breadcrumb Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8" data-aos="fade-down" data-aos-duration="700">
         <div className="rounded-3xl bg-gradient-to-r from-indigo-900 via-[#050071] to-[#1C1A4A] text-white p-8 shadow-xl relative overflow-hidden">
           <div className="relative z-10 space-y-2">
             <div className="text-xs font-semibold text-indigo-200 flex items-center gap-2">
@@ -118,7 +118,7 @@ function CoursesContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Sidebar Filters */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="lg:col-span-3 space-y-6" data-aos="fade-right" data-aos-duration="800">
             <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2 font-black text-slate-900 text-sm">
@@ -195,7 +195,7 @@ function CoursesContent() {
                 <select
                   value={selectedSubject}
                   onChange={(e) => setSelectedSubject(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-medium text-slate-700 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-medium text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
                 >
                   {uniqueSubjects.map((sub) => (
                     <option key={sub} value={sub}>
@@ -208,7 +208,7 @@ function CoursesContent() {
           </div>
 
           {/* Right Main Course Grid */}
-          <div className="lg:col-span-9 space-y-6">
+          <div className="lg:col-span-9 space-y-6" data-aos="fade-left" data-aos-duration="850">
             {/* Top Search & Sort Control Bar */}
             <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs font-black text-slate-800">
@@ -230,7 +230,7 @@ function CoursesContent() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none"
+                  className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
                 >
                   <option value="latest">Sort By: Latest to Oldest</option>
                   <option value="rating">Sort By: Top Rated</option>
@@ -257,7 +257,7 @@ function CoursesContent() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCourses.map((course) => {
+                {filteredCourses.map((course, idx) => {
                   const inCart = isInCart(course.id);
                   const inWishlist = isInWishlist(course.id);
 
@@ -265,6 +265,8 @@ function CoursesContent() {
                     <div
                       key={course.id}
                       className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
+                      data-aos="fade-up"
+                      data-aos-delay={(idx % 6) * 80}
                     >
                       {/* Uncut Real Course Thumbnail Banner */}
                       <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
@@ -312,7 +314,7 @@ function CoursesContent() {
                         <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                           <button
                             onClick={() => addToCart(course)}
-                            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
+                            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer ${
                               inCart
                                 ? "bg-emerald-600 text-white"
                                 : "bg-[#FF2424] hover:bg-red-700 text-white shadow-sm"
