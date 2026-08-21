@@ -7,7 +7,7 @@ import { ModalProvider } from "@/components/ui/CustomModal";
 import { FestivalThemeProvider } from "@/components/theme/FestivalThemeContext";
 import FestivalMouseTrail from "@/components/theme/FestivalMouseTrail";
 import FestivalMovingBackground from "@/components/theme/FestivalMovingBackground";
-import FestivalThemeSwitcher from "@/components/theme/FestivalThemeSwitcher";
+import InteractiveRakhiExperience from "@/components/theme/InteractiveRakhiExperience";
 import TopBar from "@/components/layout/TopBar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -67,7 +67,7 @@ export default function RootLayout({
                   </div>
                   <CartDrawer />
                   <FreedomSaleModal />
-                  <FestivalThemeSwitcher />
+                  <InteractiveRakhiExperience />
                   <LayoutClientWrapper />
                 </FestivalThemeProvider>
               </ModalProvider>
