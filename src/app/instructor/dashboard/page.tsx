@@ -29,7 +29,13 @@ import {
   Settings,
   Star,
   Users,
-  Search
+  Search,
+  IndianRupee,
+  DollarSign,
+  TrendingUp,
+  Receipt,
+  FileSpreadsheet,
+  Award
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useCart } from "@/components/cart/CartContext";
@@ -41,7 +47,7 @@ export default function InstructorDashboardPage() {
   const { user, logout, switchRole } = useAuth();
   const { currency } = useCart();
   const [activeTab, setActiveTab] = useState<
-    "dashboard" | "courses" | "live" | "questions" | "wishlist" | "settings"
+    "dashboard" | "courses" | "live" | "questions" | "students" | "earnings" | "wishlist" | "settings"
   >("dashboard");
   const router = useRouter();
 
@@ -107,13 +113,25 @@ export default function InstructorDashboardPage() {
     }
   ]);
 
+  // Students Engagement Roster
+  const [studentsRoster, setStudentsRoster] = useState([
+    { id: "s-1", name: "Aman Sharma", batch: "Maths 10th Hindi", attendance: "96%", testScore: "92%", status: "Active" },
+    { id: "s-2", name: "Sneha Verma", batch: "Science 10th English", attendance: "100%", testScore: "98%", status: "Top Ranker" },
+    { id: "s-3", name: "Pooja Patel", batch: "Maths 10th Hindi", attendance: "88%", testScore: "85%", status: "Active" },
+    { id: "s-4", name: "Rohan Gupta", batch: "Physics 12th Optics", attendance: "92%", testScore: "90%", status: "Active" }
+  ]);
+
+  // Payout Settlements
+  const [payouts, setPayouts] = useState([
+    { id: "PAY-AUG-2026", month: "August 2026", amount: 48500, status: "Settled", date: "2026-08-01" },
+    { id: "PAY-JUL-2026", month: "July 2026", amount: 52000, status: "Settled", date: "2026-07-01" }
+  ]);
+
   useEffect(() => {
     fetch("/api/courses")
       .then((res) => res.json())
       .then((data) => {
-        if (data.courses && data.courses.length > 0) {
-          setCourses(data.courses);
-        }
+        if (data.courses && data.courses.length > 0) setCourses(data.courses);
       })
       .catch(() => {})
       .finally(() => setIsLoading(false));
@@ -127,6 +145,11 @@ export default function InstructorDashboardPage() {
   const handleSwitchToStudent = () => {
     switchRole("student");
     router.push("/dashboard");
+  };
+
+  const handleSwitchToAdmin = () => {
+    switchRole("admin");
+    router.push("/admin");
   };
 
   const handleOpenReplyModal = (q: any) => {
@@ -234,7 +257,7 @@ export default function InstructorDashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
         {/* Top Header Banner */}
         <div
-          className="relative rounded-3xl overflow-hidden bg-[#2D1B69] border border-indigo-900 shadow-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6"
+          className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#2D1B69] via-[#1C1A4A] to-[#050071] border border-indigo-900 shadow-xl p-6 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-6"
           data-aos="fade-down"
           data-aos-duration="750"
         >
@@ -254,12 +277,12 @@ export default function InstructorDashboardPage() {
               </div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-bold border border-orange-400/30">
                 <ShieldCheck className="w-3 h-3 text-orange-400" />
-                <span>Verified Senior Educator</span>
+                <span>Senior Faculty Lead (Mathematics &amp; Science)</span>
               </div>
             </div>
           </div>
 
-          <div className="relative z-10 flex flex-wrap items-center gap-3">
+          <div className="relative z-10 flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => setIsCourseStudioOpen(true)}
               className="px-6 py-3 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-900/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
@@ -282,6 +305,13 @@ export default function InstructorDashboardPage() {
             >
               Student View
             </button>
+
+            <button
+              onClick={handleSwitchToAdmin}
+              className="px-4 py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 font-bold text-xs transition-colors cursor-pointer"
+            >
+              Master Admin
+            </button>
           </div>
         </div>
 
@@ -294,7 +324,7 @@ export default function InstructorDashboardPage() {
           >
             <div className="space-y-1">
               <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider px-3 py-1">
-                Faculty Portal
+                Faculty Studio
               </div>
 
               <nav className="space-y-1">
@@ -319,7 +349,7 @@ export default function InstructorDashboardPage() {
                   }`}
                 >
                   <GraduationCap className="w-4 h-4" />
-                  <span>Courses Catalog ({courses.length})</span>
+                  <span>Manage Courses ({courses.length})</span>
                 </button>
 
                 <button
@@ -343,7 +373,31 @@ export default function InstructorDashboardPage() {
                   }`}
                 >
                   <HelpCircle className="w-4 h-4" />
-                  <span>Lesson Questions ({questionsQueue.filter((q) => !q.answered).length})</span>
+                  <span>Student Doubts ({questionsQueue.filter((q) => !q.answered).length})</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab("students")}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
+                    activeTab === "students"
+                      ? "bg-indigo-50 text-[#5751E1]"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Enrolled Students ({studentsRoster.length})</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab("earnings")}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
+                    activeTab === "earnings"
+                      ? "bg-indigo-50 text-[#5751E1]"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span>Honorarium &amp; Payouts</span>
                 </button>
 
                 <button
@@ -355,7 +409,7 @@ export default function InstructorDashboardPage() {
                   }`}
                 >
                   <Heart className="w-4 h-4" />
-                  <span>Saved Courses ({courses.slice(0, 3).length})</span>
+                  <span>Curriculum Reference</span>
                 </button>
               </nav>
             </div>
@@ -363,7 +417,7 @@ export default function InstructorDashboardPage() {
             {/* USER Section */}
             <div className="pt-4 border-t border-slate-100 space-y-1">
               <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider px-3 py-1">
-                User
+                Account
               </div>
 
               <button
@@ -380,7 +434,7 @@ export default function InstructorDashboardPage() {
 
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-600 hover:bg-rose-50 text-left cursor-pointer transition-all"
+                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-600 hover:bg-rose-50 text-left cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -394,32 +448,40 @@ export default function InstructorDashboardPage() {
             {activeTab === "dashboard" && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-6">Dashboard Overview</h2>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-6">Faculty Overview</h2>
 
                   {/* Stat Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="bg-[#EBF2FF] rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-2 border border-blue-100 shadow-xs">
-                      <div className="w-16 h-16 rounded-full bg-[#D4E4FC] text-[#3B82F6] flex items-center justify-center mb-2">
-                        <GraduationCap className="w-8 h-8 animate-icon-float" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-[#EBF2FF] rounded-3xl p-5 flex flex-col items-center justify-center text-center space-y-1 border border-blue-100 shadow-xs">
+                      <div className="w-10 h-10 rounded-full bg-[#D4E4FC] text-[#3B82F6] flex items-center justify-center mb-1">
+                        <GraduationCap className="w-5 h-5" />
                       </div>
-                      <div className="text-5xl font-black text-[#1E3A8A]">
-                        {courses.length}
-                      </div>
-                      <div className="text-xs font-extrabold text-[#3B82F6] uppercase tracking-wider">
-                        Published Academic Batches
-                      </div>
+                      <div className="text-2xl font-black text-[#1E3A8A]">{courses.length} Batches</div>
+                      <div className="text-[10px] font-extrabold text-[#3B82F6] uppercase">Published Courses</div>
                     </div>
 
-                    <div className="bg-[#F8EFFF] rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-2 border border-purple-100 shadow-xs">
-                      <div className="w-16 h-16 rounded-full bg-[#EAD4FC] text-[#A855F7] flex items-center justify-center mb-2">
-                        <Video className="w-8 h-8 animate-icon-pulse" />
+                    <div className="bg-[#F8EFFF] rounded-3xl p-5 flex flex-col items-center justify-center text-center space-y-1 border border-purple-100 shadow-xs">
+                      <div className="w-10 h-10 rounded-full bg-[#EAD4FC] text-[#A855F7] flex items-center justify-center mb-1">
+                        <Video className="w-5 h-5" />
                       </div>
-                      <div className="text-5xl font-black text-[#581C87]">
-                        42
+                      <div className="text-2xl font-black text-[#581C87]">42 Online</div>
+                      <div className="text-[10px] font-extrabold text-[#A855F7] uppercase">Live Class Queue</div>
+                    </div>
+
+                    <div className="bg-emerald-50 rounded-3xl p-5 flex flex-col items-center justify-center text-center space-y-1 border border-emerald-100 shadow-xs">
+                      <div className="w-10 h-10 rounded-full bg-emerald-200 text-emerald-700 flex items-center justify-center mb-1">
+                        <Star className="w-5 h-5 fill-current" />
                       </div>
-                      <div className="text-xs font-extrabold text-[#A855F7] uppercase tracking-wider">
-                        Active Students in Live Queue
+                      <div className="text-2xl font-black text-emerald-900">4.9 / 5.0</div>
+                      <div className="text-[10px] font-extrabold text-emerald-700 uppercase">Faculty Rating</div>
+                    </div>
+
+                    <div className="bg-[#FFF4EB] rounded-3xl p-5 flex flex-col items-center justify-center text-center space-y-1 border border-orange-100 shadow-xs">
+                      <div className="w-10 h-10 rounded-full bg-[#FFE2CC] text-[#F97316] flex items-center justify-center mb-1">
+                        <TrendingUp className="w-5 h-5" />
                       </div>
+                      <div className="text-2xl font-black text-[#9A3412]">{formatPrice(100500, currency)}</div>
+                      <div className="text-[10px] font-extrabold text-[#F97316] uppercase">Earned Honorarium</div>
                     </div>
                   </div>
                 </div>
@@ -465,7 +527,7 @@ export default function InstructorDashboardPage() {
               </div>
             )}
 
-            {/* TAB 2: COURSES CATALOG WITH FULL THUMBNAILS */}
+            {/* TAB 2: COURSES CATALOG */}
             {activeTab === "courses" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -502,7 +564,6 @@ export default function InstructorDashboardPage() {
                       key={c.id}
                       className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
                     >
-                      {/* Authentic Thumbnail */}
                       <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
                         <img
                           src={c.thumbnail || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png"}
@@ -553,7 +614,7 @@ export default function InstructorDashboardPage() {
               </div>
             )}
 
-            {/* TAB 3: LIVE CLASSES HUB */}
+            {/* TAB 3: LIVE CLASSES */}
             {activeTab === "live" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                 <div className="flex items-center justify-between">
@@ -574,33 +635,31 @@ export default function InstructorDashboardPage() {
                   </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-6 rounded-3xl bg-gradient-to-br from-[#050071] to-[#1C1A4A] text-white space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase border border-emerald-400/30">
-                        Broadcasting Room
-                      </span>
-                      <span className="text-xs text-slate-300">42 Students Waiting</span>
-                    </div>
+                <div className="p-6 rounded-3xl bg-gradient-to-br from-[#050071] to-[#1C1A4A] text-white space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase border border-emerald-400/30">
+                      Broadcasting Room
+                    </span>
+                    <span className="text-xs text-slate-300">42 Students Waiting</span>
+                  </div>
 
-                    <h3 className="font-extrabold text-lg">Class 10th Maths: Quadratic Equations</h3>
-                    <p className="text-xs text-slate-300">Digital Pen-Tablet Whiteboard + 45-Min Lecture + 15-Min Live Doubt Queue</p>
+                  <h3 className="font-extrabold text-lg">Class 10th Maths: Quadratic Equations</h3>
+                  <p className="text-xs text-slate-300">Digital Pen-Tablet Whiteboard + 45-Min Lecture + 15-Min Live Doubt Queue</p>
 
-                    <div className="pt-2">
-                      <Link
-                        href="/live/room-maths-10-quadratics"
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white text-xs font-black transition-all hover:scale-105"
-                      >
-                        <Video className="w-4 h-4" />
-                        <span>Enter Live Studio</span>
-                      </Link>
-                    </div>
+                  <div className="pt-2">
+                    <Link
+                      href="/live/room-maths-10-quadratics"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white text-xs font-black transition-all hover:scale-105"
+                    >
+                      <Video className="w-4 h-4" />
+                      <span>Enter Live Studio</span>
+                    </Link>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* TAB 4: LESSON QUESTIONS & DOUBTS */}
+            {/* TAB 4: LESSON QUESTIONS */}
             {activeTab === "questions" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                 <div>
@@ -645,7 +704,92 @@ export default function InstructorDashboardPage() {
               </div>
             )}
 
-            {/* TAB 5: WISHLIST / SAVED BATCHES */}
+            {/* TAB 5: ENROLLED STUDENTS ROSTER */}
+            {activeTab === "students" && (
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900">Enrolled Students Performance Roster</h2>
+                    <p className="text-xs text-slate-500">Monitor student attendance streaks, test accuracy, and learning progress</p>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 font-bold text-xs">
+                    {studentsRoster.length} Active Students
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-slate-500 uppercase font-black tracking-wider text-[10px]">
+                        <th className="pb-3">Student Name</th>
+                        <th className="pb-3">Enrolled Batch</th>
+                        <th className="pb-3">Live Attendance</th>
+                        <th className="pb-3">Test Average</th>
+                        <th className="pb-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {studentsRoster.map((s) => (
+                        <tr key={s.id} className="hover:bg-slate-50">
+                          <td className="py-3 font-extrabold text-slate-900">{s.name}</td>
+                          <td className="py-3 text-slate-600">{s.batch}</td>
+                          <td className="py-3 font-bold text-emerald-600">{s.attendance}</td>
+                          <td className="py-3 font-bold text-indigo-600">{s.testScore}</td>
+                          <td className="py-3">
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                              {s.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 6: HONORARIUM & PAYOUTS */}
+            {activeTab === "earnings" && (
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900">Faculty Honorarium &amp; Payout Statements</h2>
+                  <p className="text-xs text-slate-500">Monthly compensation for live lecturing and doubt resolution</p>
+                </div>
+
+                <div className="space-y-3">
+                  {payouts.map((p) => (
+                    <div key={p.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 flex items-center justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-slate-600">{p.id}</span>
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] uppercase">
+                            {p.status}
+                          </span>
+                        </div>
+                        <h4 className="font-extrabold text-sm text-slate-900">{p.month} Settlement</h4>
+                        <div className="text-xs text-slate-500">Disbursed on {p.date}</div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <span className="font-black text-base text-[#050071]">{formatPrice(p.amount, currency)}</span>
+                        <button
+                          onClick={() => {
+                            triggerConfetti();
+                            alert(`Downloading Payout Settlement receipt for ${p.id}...`);
+                          }}
+                          className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Receipt className="w-3.5 h-3.5" />
+                          <span>Receipt</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 7: WISHLIST / REFERENCE */}
             {activeTab === "wishlist" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                 <div>
@@ -685,7 +829,7 @@ export default function InstructorDashboardPage() {
               </div>
             )}
 
-            {/* TAB 6: PROFILE SETTINGS */}
+            {/* TAB 8: PROFILE SETTINGS */}
             {activeTab === "settings" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                 <div>
@@ -740,7 +884,7 @@ export default function InstructorDashboardPage() {
 
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs shadow-md transition-all hover:scale-105"
+                    className="px-6 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
                     Save Changes
                   </button>
@@ -759,7 +903,7 @@ export default function InstructorDashboardPage() {
                   <h3 className="font-extrabold text-sm text-slate-900">Reply to {selectedQuestion.student}</h3>
                   <p className="text-[11px] text-slate-500">{selectedQuestion.course}</p>
                 </div>
-                <button onClick={() => setReplyModalOpen(false)} className="p-1.5 rounded-full bg-slate-100">
+                <button onClick={() => setReplyModalOpen(false)} className="p-1.5 rounded-full bg-slate-100 cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -785,13 +929,13 @@ export default function InstructorDashboardPage() {
                   <button
                     type="button"
                     onClick={() => setReplyModalOpen(false)}
-                    className="px-3 py-2 rounded-xl text-slate-600 font-bold"
+                    className="px-3 py-2 rounded-xl text-slate-600 font-bold cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-[#050071] text-white font-bold shadow-md"
+                    className="px-5 py-2 rounded-xl bg-[#050071] text-white font-bold shadow-md cursor-pointer"
                   >
                     Send Answer
                   </button>
@@ -819,7 +963,6 @@ export default function InstructorDashboardPage() {
               </div>
 
               <form onSubmit={handleCreateCourseSubmit} className="space-y-4 text-xs">
-                {/* Title */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Course / Batch Headline</label>
                   <input
@@ -832,7 +975,6 @@ export default function InstructorDashboardPage() {
                   />
                 </div>
 
-                {/* Class & Subject */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Class Level</label>
@@ -868,7 +1010,6 @@ export default function InstructorDashboardPage() {
                   </div>
                 </div>
 
-                {/* Medium & Duration */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Teaching Medium</label>
@@ -895,7 +1036,6 @@ export default function InstructorDashboardPage() {
                   </div>
                 </div>
 
-                {/* Pricing: Sale Price & Original Price */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Enrolled Fee ({currency === "USD" ? "$ USD" : "₹ Sale Price"})</label>
@@ -920,7 +1060,6 @@ export default function InstructorDashboardPage() {
                   </div>
                 </div>
 
-                {/* Faculty Info */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Educator / Faculty Lead</label>
@@ -944,7 +1083,6 @@ export default function InstructorDashboardPage() {
                   </div>
                 </div>
 
-                {/* Thumbnail URL */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Course Thumbnail Asset URL</label>
                   <input
@@ -955,7 +1093,6 @@ export default function InstructorDashboardPage() {
                   />
                 </div>
 
-                {/* Description */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Course Overview &amp; Board Methodology</label>
                   <textarea
@@ -966,7 +1103,6 @@ export default function InstructorDashboardPage() {
                   />
                 </div>
 
-                {/* Key Features List Builder */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Key Highlights &amp; Inclusions</label>
                   <div className="flex gap-2 mb-2">
@@ -1005,7 +1141,6 @@ export default function InstructorDashboardPage() {
                   </div>
                 </div>
 
-                {/* Submit Actions */}
                 <div className="pt-3 border-t border-slate-100 flex justify-end gap-3">
                   <button
                     type="button"

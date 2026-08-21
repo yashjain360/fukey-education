@@ -28,24 +28,68 @@ import {
   Mail,
   ShieldCheck,
   Camera,
-  Check
+  Check,
+  Flame,
+  Target,
+  BookOpen,
+  TrendingUp,
+  ChevronRight,
+  Plus,
+  Send,
+  X,
+  ExternalLink,
+  Receipt,
+  FileSpreadsheet
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useModal } from "@/components/ui/CustomModal";
 import { useCart } from "@/components/cart/CartContext";
-import { coursesData } from "@/data/coursesData";
+import { coursesData, Course } from "@/data/coursesData";
 import { triggerConfetti } from "@/lib/confetti";
 import { formatPrice } from "@/lib/utils";
 
 export default function StudentDashboardPage() {
-  const { user, logout, switchRole, loginWithGoogle } = useAuth();
+  const { user, logout, switchRole } = useAuth();
   const { currency } = useCart();
   const { openModal } = useModal();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<
-    "dashboard" | "orders" | "live" | "courses" | "wishlist" | "reviews" | "quizzes" | "settings"
+    "dashboard" | "courses" | "live" | "tests" | "doubts" | "orders" | "wishlist" | "settings"
   >("dashboard");
+
+  // Dynamic state
+  const [courses, setCourses] = useState<Course[]>(coursesData);
+  const [studentGoals, setStudentGoals] = useState([
+    { id: "g1", title: "Complete Quadratic Equations NCERT Derivations", done: true },
+    { id: "g2", title: "Attempt Chapter 4 Science Chemical Reactions Mock Test", done: false },
+    { id: "g3", title: "Revise Ray Optics 10-Year Board PYQs", done: false },
+    { id: "g4", title: "Attend Saturday 5:00 PM Live Doubt Clearance Room", done: false }
+  ]);
+  const [newGoalText, setNewGoalText] = useState("");
+
+  // Ask Doubt Modal State
+  const [askDoubtOpen, setAskDoubtOpen] = useState(false);
+  const [doubtSubject, setDoubtSubject] = useState("Mathematics");
+  const [doubtQuestion, setDoubtQuestion] = useState("");
+  const [doubtList, setDoubtList] = useState([
+    {
+      id: "d-1",
+      subject: "Mathematics",
+      question: "Sir, in Quadratic Equations, when discriminant D < 0, how do we write the final board step?",
+      status: "Answered by Pawan Gupta",
+      answer: "Write: 'Since D = b² - 4ac < 0, no real roots exist for this equation.' Full marks are awarded for this exact phrasing.",
+      time: "Yesterday"
+    },
+    {
+      id: "d-2",
+      subject: "Science",
+      question: "Difference between exothermic and endothermic reaction with 2 real-life examples?",
+      status: "Faculty Reviewing...",
+      answer: null,
+      time: "2 hours ago"
+    }
+  ]);
 
   // Profile Settings Form State
   const [profileName, setProfileName] = useState(user?.name || "Mayank Dubey");
@@ -60,10 +104,34 @@ export default function StudentDashboardPage() {
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Password fields
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  // Orders State
+  const [orders, setOrders] = useState([
+    {
+      id: "ORD-2026-9812",
+      date: "2026-08-14",
+      course: "Class 10th Complete Mathematics (Hindi Medium)",
+      amount: 1499,
+      status: "Completed",
+      paymentMode: "UPI (Google Pay)"
+    },
+    {
+      id: "ORD-2026-7734",
+      date: "2026-08-10",
+      course: "Class 10th Science Master Batch (Physics, Chemistry & Biology)",
+      amount: 2499,
+      status: "Completed",
+      paymentMode: "Razorpay / Cards"
+    }
+  ]);
+
+  useEffect(() => {
+    fetch("/api/courses")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.courses && data.courses.length > 0) setCourses(data.courses);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -75,19 +143,54 @@ export default function StudentDashboardPage() {
     router.push("/instructor/dashboard");
   };
 
-  const handleDownloadNotes = (title: string) => {
-    triggerConfetti();
-    alert(`Downloading "${title}" Study Notes PDF...`);
+  const handleSwitchToAdmin = () => {
+    switchRole("admin");
+    router.push("/admin");
   };
 
-  const handleJoinLiveRoom = () => {
-    router.push("/live/room-maths-10-quadratics");
+  const handleToggleGoal = (id: string) => {
+    setStudentGoals((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, done: !g.done } : g))
+    );
+    triggerConfetti();
+  };
+
+  const handleAddGoal = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newGoalText.trim()) {
+      setStudentGoals((prev) => [
+        ...prev,
+        { id: `g-${Date.now()}`, title: newGoalText.trim(), done: false }
+      ]);
+      setNewGoalText("");
+      triggerConfetti();
+    }
+  };
+
+  const handleAskDoubtSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!doubtQuestion.trim()) return;
+
+    setDoubtList((prev) => [
+      {
+        id: `d-${Date.now()}`,
+        subject: doubtSubject,
+        question: doubtQuestion.trim(),
+        status: "Faculty Reviewing...",
+        answer: null,
+        time: "Just now"
+      },
+      ...prev
+    ]);
+    setDoubtQuestion("");
+    setAskDoubtOpen(false);
+    triggerConfetti();
+    alert("Your doubt has been submitted to the faculty lead!");
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-
     try {
       if (user) {
         const updatedUser = {
@@ -105,27 +208,14 @@ export default function StudentDashboardPage() {
     }
   };
 
-  const handleSavePassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      alert("New password and confirm password do not match!");
-      return;
-    }
-    triggerConfetti();
-    alert("Password updated successfully!");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-  };
-
-  const enrolledCourses = coursesData.slice(0, 2);
+  const enrolledCourses = courses.slice(0, 2);
 
   return (
     <div className="bg-slate-50/60 min-h-screen pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
-        {/* Top Header Banner */}
+        {/* Top Header Banner with Dynamic Role Switchers */}
         <div
-          className="relative rounded-3xl overflow-hidden bg-[#2D1B69] border border-indigo-900 shadow-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6"
+          className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] border border-indigo-900 shadow-xl p-6 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-6"
           data-aos="fade-down"
           data-aos-duration="750"
         >
@@ -143,7 +233,7 @@ export default function StudentDashboardPage() {
             </div>
 
             <div className="space-y-1 text-center sm:text-left">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                   {profileName}
                 </h1>
@@ -153,21 +243,44 @@ export default function StudentDashboardPage() {
                 </span>
               </div>
               <div className="text-xs text-indigo-200 font-medium">
-                {profileEmail}
+                {profileEmail} • {profilePhone}
               </div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-800/60 text-indigo-200 text-[10px] font-bold">
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-indigo-800/60 text-indigo-200 text-[10px] font-bold">
                 <span>{targetBoard} {targetClass} • {medium}</span>
               </div>
             </div>
           </div>
 
-          <div className="relative z-10 flex flex-wrap items-center gap-3">
+          {/* Quick Universal Role Switchers */}
+          <div className="relative z-10 flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={() => setAskDoubtOpen(true)}
+              className="px-5 py-3 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-extrabold text-xs shadow-lg shadow-red-900/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <HelpCircle className="w-4 h-4" />
+              <span>Ask Faculty Doubt</span>
+            </button>
+
+            <Link
+              href="/live/room-maths-10-quadratics"
+              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+            >
+              <Video className="w-4 h-4 animate-icon-pulse" />
+              <span>Join Live Class</span>
+            </Link>
+
             <button
               onClick={handleSwitchToInstructor}
-              className="px-6 py-3 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-extrabold text-xs shadow-lg shadow-red-900/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors cursor-pointer"
             >
-              <span>Switch to Faculty View</span>
-              <ArrowRight className="w-4 h-4" />
+              Faculty Portal
+            </button>
+
+            <button
+              onClick={handleSwitchToAdmin}
+              className="px-4 py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 font-bold text-xs transition-colors cursor-pointer"
+            >
+              Master Admin
             </button>
           </div>
         </div>
@@ -181,7 +294,7 @@ export default function StudentDashboardPage() {
           >
             <div className="space-y-1">
               <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider px-3 py-1">
-                Student Portal
+                Student Learning Center
               </div>
 
               <nav className="space-y-1">
@@ -206,7 +319,7 @@ export default function StudentDashboardPage() {
                   }`}
                 >
                   <GraduationCap className="w-4 h-4" />
-                  <span>Enrolled Batches (2)</span>
+                  <span>Enrolled Batches ({enrolledCourses.length})</span>
                 </button>
 
                 <button
@@ -222,6 +335,42 @@ export default function StudentDashboardPage() {
                 </button>
 
                 <button
+                  onClick={() => setActiveTab("tests")}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
+                    activeTab === "tests"
+                      ? "bg-indigo-50 text-[#5751E1]"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <Award className="w-4 h-4" />
+                  <span>Online Test Series</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab("doubts")}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
+                    activeTab === "doubts"
+                      ? "bg-indigo-50 text-[#5751E1]"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>My Doubts ({doubtList.length})</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab("orders")}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
+                    activeTab === "orders"
+                      ? "bg-indigo-50 text-[#5751E1]"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Invoices &amp; Orders ({orders.length})</span>
+                </button>
+
+                <button
                   onClick={() => setActiveTab("wishlist")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "wishlist"
@@ -230,25 +379,29 @@ export default function StudentDashboardPage() {
                   }`}
                 >
                   <Heart className="w-4 h-4" />
-                  <span>Saved Courses ({coursesData.slice(0, 3).length})</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab("settings")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
-                    activeTab === "settings"
-                      ? "bg-indigo-50 text-[#5751E1]"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <User className="w-4 h-4" />
-                  <span>Profile Settings</span>
+                  <span>Saved Courses ({courses.slice(0, 3).length})</span>
                 </button>
               </nav>
             </div>
 
             {/* USER Section */}
             <div className="pt-4 border-t border-slate-100 space-y-1">
+              <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider px-3 py-1">
+                Account
+              </div>
+
+              <button
+                onClick={() => setActiveTab("settings")}
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
+                  activeTab === "settings"
+                    ? "bg-indigo-50 text-[#5751E1]"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <User className="w-4 h-4" />
+                <span>Profile Settings</span>
+              </button>
+
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-600 hover:bg-rose-50 text-left cursor-pointer"
@@ -265,74 +418,124 @@ export default function StudentDashboardPage() {
             {activeTab === "dashboard" && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-6">Dashboard Overview</h2>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-6">Learning Dashboard</h2>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div className="bg-[#EBF2FF] rounded-3xl p-6 flex flex-col items-center justify-center text-center space-y-1 border border-blue-100">
-                      <div className="w-12 h-12 rounded-full bg-[#D4E4FC] text-[#3B82F6] flex items-center justify-center mb-1">
-                        <GraduationCap className="w-6 h-6" />
+                  {/* Stat Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-[#EBF2FF] rounded-3xl p-5 flex flex-col items-center justify-center text-center space-y-1 border border-blue-100">
+                      <div className="w-10 h-10 rounded-full bg-[#D4E4FC] text-[#3B82F6] flex items-center justify-center mb-1">
+                        <GraduationCap className="w-5 h-5" />
                       </div>
-                      <div className="text-3xl font-black text-[#1E3A8A]">2</div>
-                      <div className="text-[11px] font-extrabold text-[#3B82F6] uppercase">Enrolled Batches</div>
+                      <div className="text-2xl font-black text-[#1E3A8A]">{enrolledCourses.length} Batches</div>
+                      <div className="text-[10px] font-extrabold text-[#3B82F6] uppercase">Enrolled Courses</div>
                     </div>
 
-                    <div className="bg-[#F8EFFF] rounded-3xl p-6 flex flex-col items-center justify-center text-center space-y-1 border border-purple-100">
-                      <div className="w-12 h-12 rounded-full bg-[#EAD4FC] text-[#A855F7] flex items-center justify-center mb-1">
-                        <Award className="w-6 h-6" />
+                    <div className="bg-[#F8EFFF] rounded-3xl p-5 flex flex-col items-center justify-center text-center space-y-1 border border-purple-100">
+                      <div className="w-10 h-10 rounded-full bg-[#EAD4FC] text-[#A855F7] flex items-center justify-center mb-1">
+                        <Award className="w-5 h-5" />
                       </div>
-                      <div className="text-3xl font-black text-[#581C87]">94.2%</div>
-                      <div className="text-[11px] font-extrabold text-[#A855F7] uppercase">Mock Test Percentile</div>
+                      <div className="text-2xl font-black text-[#581C87]">94.2%</div>
+                      <div className="text-[10px] font-extrabold text-[#A855F7] uppercase">Mock Test Percentile</div>
                     </div>
 
-                    <div className="bg-[#FFF4EB] rounded-3xl p-6 flex flex-col items-center justify-center text-center space-y-1 border border-orange-100">
-                      <div className="w-12 h-12 rounded-full bg-[#FFE2CC] text-[#F97316] flex items-center justify-center mb-1">
-                        <Clock className="w-6 h-6" />
+                    <div className="bg-[#FFF4EB] rounded-3xl p-5 flex flex-col items-center justify-center text-center space-y-1 border border-orange-100">
+                      <div className="w-10 h-10 rounded-full bg-[#FFE2CC] text-[#F97316] flex items-center justify-center mb-1">
+                        <Flame className="w-5 h-5 animate-pulse" />
                       </div>
-                      <div className="text-3xl font-black text-[#9A3412]">48 Hrs</div>
-                      <div className="text-[11px] font-extrabold text-[#F97316] uppercase">Live Class Attendance</div>
+                      <div className="text-2xl font-black text-[#9A3412]">7 Days 🔥</div>
+                      <div className="text-[10px] font-extrabold text-[#F97316] uppercase">Study Streak</div>
+                    </div>
+
+                    <div className="bg-emerald-50 rounded-3xl p-5 flex flex-col items-center justify-center text-center space-y-1 border border-emerald-100">
+                      <div className="w-10 h-10 rounded-full bg-emerald-200 text-emerald-700 flex items-center justify-center mb-1">
+                        <CheckCircle2 className="w-5 h-5" />
+                      </div>
+                      <div className="text-2xl font-black text-emerald-900">48 Hrs</div>
+                      <div className="text-[10px] font-extrabold text-emerald-700 uppercase">Live Attendance</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Enrolled Courses */}
-                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-black text-slate-900">Your Active Coaching Batches</h3>
-                    <Link href="/courses" className="text-xs font-bold text-[#5751E1] hover:underline">
-                      Explore More Courses
-                    </Link>
+                {/* Live Class Radar Card */}
+                <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                  <div className="space-y-2">
+                    <span className="px-3 py-1 rounded-full bg-red-500 text-white font-black text-[10px] uppercase tracking-wider animate-pulse flex items-center gap-1.5 w-fit">
+                      <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                      <span>Live Classroom Broadcasting Now</span>
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-black">
+                      Class 10th Maths: Quadratic Equations
+                    </h3>
+                    <p className="text-xs text-indigo-200">
+                      Senior Faculty: Pawan Gupta • 45-Min Lecture + 15-Min 1-on-1 Voice Doubt Room
+                    </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {enrolledCourses.map((c) => (
-                      <div key={c.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-[#5751E1] font-bold">
-                            {c.class} • {c.subject}
-                          </span>
-                          <span className="text-emerald-600 font-bold">● Active 100%</span>
-                        </div>
-                        <h3 className="font-extrabold text-sm text-slate-900">{c.title}</h3>
-                        <div className="text-xs text-slate-500">Instructor: {c.instructor}</div>
+                  <Link
+                    href="/live/room-maths-10-quadratics"
+                    className="px-6 py-3.5 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                  >
+                    <Video className="w-4 h-4" />
+                    <span>Join Live Lecture Room</span>
+                  </Link>
+                </div>
 
-                        <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
-                          <Link
-                            href={`/course/${c.slug}`}
-                            className="px-4 py-2 rounded-xl bg-[#050071] text-white font-bold text-xs flex items-center gap-1.5"
+                {/* Interactive Goal Tracker */}
+                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                        <Target className="w-5 h-5 text-indigo-600" />
+                        <span>Daily Board Preparation Checkpoints</span>
+                      </h3>
+                      <p className="text-xs text-slate-500">Tick off tasks as you complete video lessons and revision notes</p>
+                    </div>
+                    <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+                      {studentGoals.filter((g) => g.done).length} / {studentGoals.length} Completed
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {studentGoals.map((goal) => (
+                      <div
+                        key={goal.id}
+                        onClick={() => handleToggleGoal(goal.id)}
+                        className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                          goal.done
+                            ? "bg-emerald-50/50 border-emerald-200 text-slate-500 line-through"
+                            : "bg-slate-50 border-slate-200 text-slate-800 hover:border-indigo-300"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-5 h-5 rounded-lg border flex items-center justify-center ${
+                              goal.done ? "bg-emerald-500 border-emerald-600 text-white" : "border-slate-400"
+                            }`}
                           >
-                            <Play className="w-3.5 h-3.5 fill-current" />
-                            <span>Watch Lecture</span>
-                          </Link>
-                          <button
-                            onClick={() => handleDownloadNotes(c.title)}
-                            className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer"
-                          >
-                            Notes PDF
-                          </button>
+                            {goal.done && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </div>
+                          <span className="text-xs font-semibold">{goal.title}</span>
                         </div>
                       </div>
                     ))}
                   </div>
+
+                  <form onSubmit={handleAddGoal} className="flex gap-2 pt-2">
+                    <input
+                      type="text"
+                      value={newGoalText}
+                      onChange={(e) => setNewGoalText(e.target.value)}
+                      placeholder="Add custom target (e.g. Solve 20 questions on Trigonometry)..."
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-indigo-500"
+                    />
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Target</span>
+                    </button>
+                  </form>
                 </div>
               </div>
             )}
@@ -360,7 +563,7 @@ export default function StudentDashboardPage() {
                       <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
                         <Link
                           href={`/course/${c.slug}`}
-                          className="px-4 py-2 rounded-xl bg-[#050071] text-white font-bold text-xs flex items-center gap-1.5"
+                          className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center gap-1.5"
                         >
                           <Play className="w-3.5 h-3.5 fill-current" />
                           <span>Enter Classroom</span>
@@ -376,9 +579,12 @@ export default function StudentDashboardPage() {
             {activeTab === "live" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-black text-slate-900">Today&apos;s Live Classroom Schedule</h2>
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900">Today&apos;s Live Classroom Schedule</h2>
+                    <p className="text-xs text-slate-500">Interactive live streaming with digital whiteboard and 1-on-1 audio doubt queue</p>
+                  </div>
                   <span className="px-3 py-1 rounded-full bg-red-100 text-red-600 font-black text-xs">
-                    ● LIVE NOW
+                    ● BROADCASTING
                   </span>
                 </div>
 
@@ -390,18 +596,138 @@ export default function StudentDashboardPage() {
                   <div className="text-xs text-indigo-200">
                     Faculty: Pawan Gupta • Today 5:00 PM – 6:30 PM IST
                   </div>
-                  <button
-                    onClick={handleJoinLiveRoom}
-                    className="px-6 py-3 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-md flex items-center gap-2 cursor-pointer transition-all hover:scale-105"
+                  <Link
+                    href="/live/room-maths-10-quadratics"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-md transition-all hover:scale-105"
                   >
                     <Video className="w-4 h-4" />
-                    <span>Join Live Class Now</span>
-                  </button>
+                    <span>Join Live Studio Now</span>
+                  </Link>
                 </div>
               </div>
             )}
 
-            {/* TAB 4: WISHLIST */}
+            {/* TAB 4: ONLINE TEST SERIES */}
+            {activeTab === "tests" && (
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900">Board Mock Test Series</h2>
+                    <p className="text-xs text-slate-500">Proctored assessments with anti-cheating security and percentile rank</p>
+                  </div>
+                  <Link
+                    href="/test-series"
+                    className="text-xs font-bold text-[#5751E1] hover:underline"
+                  >
+                    View All Tests
+                  </Link>
+                </div>
+
+                <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="font-extrabold text-sm text-slate-900">
+                      Class 10th Mathematics: Full Chapter Test (Quadratic Equations)
+                    </div>
+                    <div className="text-xs text-slate-500">45 Minutes • 20 Marks • Anti-Cheating Monitored</div>
+                  </div>
+                  <Link
+                    href="/test/test-maths-10-quadratics"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white font-bold text-xs shadow-sm"
+                  >
+                    Start Test
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 5: MY DOUBTS & Q&A */}
+            {activeTab === "doubts" && (
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900">My Doubts &amp; Faculty Answers</h2>
+                    <p className="text-xs text-slate-500">Track responses from senior board faculties</p>
+                  </div>
+                  <button
+                    onClick={() => setAskDoubtOpen(true)}
+                    className="px-4 py-2 rounded-xl bg-[#050071] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Ask New Doubt</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {doubtList.map((d) => (
+                    <div key={d.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                          {d.subject}
+                        </span>
+                        <span className="text-slate-400 text-[11px]">{d.time}</span>
+                      </div>
+
+                      <p className="text-xs font-bold text-slate-900">Q: {d.question}</p>
+
+                      {d.answer ? (
+                        <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1">
+                          <div className="font-bold text-emerald-800">Faculty Response:</div>
+                          <div>{d.answer}</div>
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-amber-700 font-semibold flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-amber-500 animate-spin" />
+                          <span>Assigned to faculty lead for step-by-step resolution...</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 6: INVOICES & ORDERS */}
+            {activeTab === "orders" && (
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900">Enrolled Batches &amp; Official Invoices</h2>
+                  <p className="text-xs text-slate-500">Tax invoices and payment verification receipts</p>
+                </div>
+
+                <div className="space-y-3">
+                  {orders.map((o) => (
+                    <div key={o.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-slate-600">{o.id}</span>
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] uppercase">
+                            {o.status}
+                          </span>
+                        </div>
+                        <h4 className="font-extrabold text-sm text-slate-900">{o.course}</h4>
+                        <div className="text-xs text-slate-500">{o.date} • {o.paymentMode}</div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <span className="font-black text-base text-[#050071]">{formatPrice(o.amount, currency)}</span>
+                        <button
+                          onClick={() => {
+                            triggerConfetti();
+                            alert(`Downloading GST Invoice receipt for ${o.id}...`);
+                          }}
+                          className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Receipt className="w-3.5 h-3.5" />
+                          <span>Invoice PDF</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 7: WISHLIST */}
             {activeTab === "wishlist" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                 <div>
@@ -410,7 +736,7 @@ export default function StudentDashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {coursesData.slice(0, 3).map((c) => (
+                  {courses.slice(0, 3).map((c) => (
                     <div
                       key={c.id}
                       className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between"
@@ -436,10 +762,9 @@ export default function StudentDashboardPage() {
               </div>
             )}
 
-            {/* TAB 5: COMPREHENSIVE PROFILE SETTINGS */}
+            {/* TAB 8: PROFILE SETTINGS */}
             {activeTab === "settings" && (
               <div className="space-y-8 animate-in fade-in">
-                {/* Personal Information & Academic Preferences */}
                 <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                     <div>
@@ -452,7 +777,6 @@ export default function StudentDashboardPage() {
                   </div>
 
                   <form onSubmit={handleSaveProfile} className="space-y-5 text-xs">
-                    {/* Avatar Preset Selector */}
                     <div className="space-y-2">
                       <label className="block font-bold text-slate-700">Profile Photo / Avatar</label>
                       <div className="flex items-center gap-4">
@@ -464,7 +788,7 @@ export default function StudentDashboardPage() {
                             type="text"
                             value={avatarUrl}
                             onChange={(e) => setAvatarUrl(e.target.value)}
-                            placeholder="Enter image URL or choose preset below..."
+                            placeholder="Enter image URL..."
                             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:border-indigo-500"
                           />
                         </div>
@@ -511,7 +835,7 @@ export default function StudentDashboardPage() {
                         <select
                           value={targetClass}
                           onChange={(e) => setTargetClass(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 font-bold focus:outline-none"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 font-bold focus:outline-none"
                         >
                           <option value="Class 9">Class 9</option>
                           <option value="Class 10">Class 10</option>
@@ -525,48 +849,12 @@ export default function StudentDashboardPage() {
                         <select
                           value={targetBoard}
                           onChange={(e) => setTargetBoard(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 font-bold focus:outline-none"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 font-bold focus:outline-none"
                         >
                           <option value="CBSE">CBSE Board</option>
                           <option value="MP Board">MP Board</option>
                           <option value="State Board">Other State Board</option>
-                          <option value="ICSE">ICSE Board</option>
                         </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-700 mb-1">Academic Dream Goal &amp; Target</label>
-                      <input
-                        type="text"
-                        value={targetGoal}
-                        onChange={(e) => setTargetGoal(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 font-medium focus:outline-none focus:border-indigo-500"
-                      />
-                    </div>
-
-                    {/* Alert Toggles */}
-                    <div className="pt-2 border-t border-slate-100 space-y-2">
-                      <h4 className="font-bold text-slate-800">Class &amp; Exam Notifications</h4>
-                      <div className="flex flex-wrap items-center gap-6">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={whatsappAlerts}
-                            onChange={(e) => setWhatsappAlerts(e.target.checked)}
-                            className="w-4 h-4 rounded text-indigo-600 focus:ring-0"
-                          />
-                          <span>Send Live Class Reminders on WhatsApp</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={emailAlerts}
-                            onChange={(e) => setEmailAlerts(e.target.checked)}
-                            className="w-4 h-4 rounded text-indigo-600 focus:ring-0"
-                          />
-                          <span>Email Notification for Mock Test Results</span>
-                        </label>
                       </div>
                     </div>
 
@@ -581,68 +869,71 @@ export default function StudentDashboardPage() {
                     </div>
                   </form>
                 </div>
-
-                {/* Password & Security Card */}
-                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Lock className="w-5 h-5 text-indigo-600" />
-                      <span>Security &amp; Password Update</span>
-                    </h3>
-                    <p className="text-xs text-slate-500">Protect your student portal with a strong password</p>
-                  </div>
-
-                  <form onSubmit={handleSavePassword} className="space-y-4 text-xs max-w-lg">
-                    <div>
-                      <label className="block font-bold text-slate-700 mb-1">Current Password</label>
-                      <input
-                        type="password"
-                        required
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 font-medium focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">New Password</label>
-                        <input
-                          type="password"
-                          required
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          placeholder="••••••••"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 font-medium focus:outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">Confirm Password</label>
-                        <input
-                          type="password"
-                          required
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="••••••••"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 font-medium focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition-all hover:scale-105 cursor-pointer"
-                    >
-                      Update Password
-                    </button>
-                  </form>
-                </div>
               </div>
             )}
           </div>
         </div>
+
+        {/* MODAL: ASK DOUBT */}
+        {askDoubtOpen && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+            <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="space-y-0.5">
+                  <h3 className="font-extrabold text-base text-slate-900">Ask Faculty Doubt</h3>
+                  <p className="text-xs text-slate-500">Get step-by-step mathematical &amp; scientific explanations</p>
+                </div>
+                <button onClick={() => setAskDoubtOpen(false)} className="p-1.5 rounded-full bg-slate-100 cursor-pointer">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleAskDoubtSubmit} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Subject</label>
+                  <select
+                    value={doubtSubject}
+                    onChange={(e) => setDoubtSubject(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 font-bold focus:outline-none"
+                  >
+                    <option value="Mathematics">Mathematics (Pawan Gupta)</option>
+                    <option value="Science">Science (Kratika Rathore)</option>
+                    <option value="Physics">Physics (Arya Dubey)</option>
+                    <option value="Chemistry">Chemistry (Bhoopendra)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Your Question / Derivation Query</label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={doubtQuestion}
+                    onChange={(e) => setDoubtQuestion(e.target.value)}
+                    placeholder="Type your question or NCERT problem statement..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setAskDoubtOpen(false)}
+                    className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold shadow-md cursor-pointer"
+                  >
+                    Submit Question
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
