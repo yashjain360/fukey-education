@@ -4,8 +4,11 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Atom, Calculator, Briefcase, Award } from "lucide-react";
 import { categoriesData } from "@/data/categoriesData";
+import { useTranslation } from "@/components/providers/LanguageContext";
 
 export default function CategoriesSection() {
+  const { t } = useTranslation();
+
   const iconMap: Record<string, any> = {
     calculator: { icon: Calculator, anim: "animate-icon-pulse" },
     atom: { icon: Atom, anim: "animate-icon-spin-slow" },
@@ -21,13 +24,13 @@ export default function CategoriesSection() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4" data-aos="fade-up">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-orange-100 text-[#FF2424] font-extrabold text-xs uppercase tracking-wider">
-              Explore Academic Streams
+              {t("cat.tag", "Explore Academic Streams")}
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-[#050071] tracking-tight">
-              Top Categories &amp; Board Classes
+              {t("cat.title", "Top Categories & Board Classes")}
             </h2>
             <p className="text-sm text-slate-500 font-medium max-w-lg">
-              Structured CBSE &amp; State Board curriculums mapped to standard NCERT textbooks.
+              {t("cat.desc", "Structured CBSE & State Board curriculums mapped to standard NCERT textbooks.")}
             </p>
           </div>
 
@@ -35,7 +38,7 @@ export default function CategoriesSection() {
             href="/courses"
             className="inline-flex items-center gap-2 text-xs font-bold text-[#5751E1] hover:text-[#050071] transition-all hover:scale-105 active:scale-95 self-start md:self-auto"
           >
-            <span>Browse All Batches</span>
+            <span>{t("cat.browse_all", "Browse All Batches")}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -70,7 +73,7 @@ export default function CategoriesSection() {
                 </div>
 
                 <div className="pt-4 mt-6 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-400">{cat.coursesCount} Active Batches</span>
+                  <span className="font-bold text-slate-400">{cat.coursesCount} {t("cat.active_batches", "Active Batches")}</span>
                   <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-[#FF2424] group-hover:text-white flex items-center justify-center text-slate-600 transition-all group-hover:scale-110">
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>

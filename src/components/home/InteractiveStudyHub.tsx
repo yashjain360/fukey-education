@@ -8,49 +8,62 @@ import {
   Download,
   BookOpen,
   Sparkles,
-  HelpCircle,
-  RotateCcw,
   ArrowRight,
-  Video,
-  Clock,
-  Award
+  Clock
 } from "lucide-react";
 import { triggerConfetti } from "@/lib/confetti";
 import { useModal } from "@/components/ui/CustomModal";
+import { useTranslation } from "@/components/providers/LanguageContext";
 
 interface QuizQuestion {
   id: number;
-  classSubject: string;
-  question: string;
-  options: string[];
+  classSubjectEn: string;
+  classSubjectHi: string;
+  questionEn: string;
+  questionHi: string;
+  optionsEn: string[];
+  optionsHi: string[];
   correctIndex: number;
-  explanation: string;
+  explanationEn: string;
+  explanationHi: string;
 }
 
 const quizQuestions: QuizQuestion[] = [
   {
     id: 1,
-    classSubject: "Class 10 CBSE • Mathematics",
-    question: "What are the roots of the quadratic equation x² - 5x + 6 = 0?",
-    options: ["x = 1, x = 6", "x = 2, x = 3", "x = -2, x = -3", "x = 5, x = 6"],
+    classSubjectEn: "Class 10 CBSE • Mathematics",
+    classSubjectHi: "कक्षा 10वीं सीबीएसई • गणित",
+    questionEn: "What are the roots of the quadratic equation x² - 5x + 6 = 0?",
+    questionHi: "द्विघात समीकरण x² - 5x + 6 = 0 के मूल (roots) क्या हैं?",
+    optionsEn: ["x = 1, x = 6", "x = 2, x = 3", "x = -2, x = -3", "x = 5, x = 6"],
+    optionsHi: ["x = 1, x = 6", "x = 2, x = 3", "x = -2, x = -3", "x = 5, x = 6"],
     correctIndex: 1,
-    explanation: "Factorizing: (x - 2)(x - 3) = 0 gives roots x = 2 and x = 3. Taught by Pawan Sir in Chapter 4!",
+    explanationEn: "Factorizing: (x - 2)(x - 3) = 0 gives roots x = 2 and x = 3. Taught by Pawan Sir in Chapter 4!",
+    explanationHi: "गुणनखंड करने पर: (x - 2)(x - 3) = 0, जिससे मूल x = 2 और x = 3 प्राप्त होते हैं।",
   },
   {
     id: 2,
-    classSubject: "Class 12 Boards • Physics",
-    question: "According to Snell's Law, what is the ratio of sin(i) to sin(r) equal to?",
-    options: ["n₁ / n₂", "n₂ / n₁ (Relative Refractive Index)", "n₁ × n₂", "n₁ + n₂"],
+    classSubjectEn: "Class 12 Boards • Physics",
+    classSubjectHi: "कक्षा 12वीं बोर्ड • भौतिक विज्ञान",
+    questionEn: "According to Snell's Law, what is the ratio of sin(i) to sin(r) equal to?",
+    questionHi: "स्नेल के नियमानुसार sin(i) और sin(r) का अनुपात किसके बराबर होता है?",
+    optionsEn: ["n₁ / n₂", "n₂ / n₁ (Relative Refractive Index)", "n₁ × n₂", "n₁ + n₂"],
+    optionsHi: ["n₁ / n₂", "n₂ / n₁ (सापेक्ष अपवर्तनांक)", "n₁ × n₂", "n₁ + n₂"],
     correctIndex: 1,
-    explanation: "Snell's law states sin(i) / sin(r) = n₂ / n₁ = ¹n₂ (refractive index of medium 2 w.r.t 1).",
+    explanationEn: "Snell's law states sin(i) / sin(r) = n₂ / n₁ = ¹n₂ (refractive index of medium 2 w.r.t 1).",
+    explanationHi: "स्नेल का नियम: sin(i) / sin(r) = n₂ / n₁ = ¹n₂ (माध्यम 1 के सापेक्ष माध्यम 2 का अपवर्तनांक)।",
   },
   {
     id: 3,
-    classSubject: "Class 10 Science • Chemistry",
-    question: "What is the chemical formula of rust (hydrated iron oxide)?",
-    options: ["FeO", "Fe₃O₄", "Fe₂O₃ · xH₂O", "Fe(OH)₂"],
+    classSubjectEn: "Class 10 Science • Chemistry",
+    classSubjectHi: "कक्षा 10वीं विज्ञान • रसायन शास्त्र",
+    questionEn: "What is the chemical formula of rust (hydrated iron oxide)?",
+    questionHi: "जंग (hydrated iron oxide) का सही रासायनिक सूत्र क्या है?",
+    optionsEn: ["FeO", "Fe₃O₄", "Fe₂O₃ · xH₂O", "Fe(OH)₂"],
+    optionsHi: ["FeO", "Fe₃O₄", "Fe₂O₃ · xH₂O", "Fe(OH)₂"],
     correctIndex: 2,
-    explanation: "Rust is chemically hydrated iron(III) oxide: Fe₂O₃ · xH₂O. Taught with practical color reactions in Class 10!",
+    explanationEn: "Rust is chemically hydrated iron(III) oxide: Fe₂O₃ · xH₂O. Taught with practical color reactions in Class 10!",
+    explanationHi: "जंग का रासायनिक सूत्र हाइड्रेटेड फेरिक ऑक्साइड (Fe₂O₃ · xH₂O) होता है।",
   },
 ];
 
@@ -60,6 +73,7 @@ export default function InteractiveStudyHub() {
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const { openModal } = useModal();
+  const { t, language } = useTranslation();
 
   const currentQ = quizQuestions[currentQuizIdx];
 
@@ -95,13 +109,13 @@ export default function InteractiveStudyHub() {
         <div className="text-center max-w-3xl mx-auto space-y-3" data-aos="fade-up">
           <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-icon-sparkle" />
-            <span>Interactive Knowledge Hub</span>
+            <span>{t("hub.tag", "Interactive Knowledge Hub")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight">
-            Test Your Board Exam Readiness in 60 Seconds
+            {t("hub.title", "Test Your Board Exam Readiness in 60 Seconds")}
           </h2>
           <p className="text-sm text-slate-500 font-medium">
-            Try a real classroom concept quiz, download formula cheat-sheets, and experience our unique 45+15 teaching model.
+            {t("hub.desc", "Try a real classroom concept quiz, download formula cheat-sheets, and experience our unique 45+15 teaching model.")}
           </p>
         </div>
 
@@ -115,20 +129,20 @@ export default function InteractiveStudyHub() {
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/15 pb-4">
                 <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-                  {currentQ.classSubject}
+                  {language === "hi" ? currentQ.classSubjectHi : currentQ.classSubjectEn}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-black text-indigo-200">
-                  Question {currentQuizIdx + 1} of {quizQuestions.length}
+                  {t("hub.question", "Question")} {currentQuizIdx + 1} {t("hub.of", "of")} {quizQuestions.length}
                 </span>
               </div>
 
               <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-snug">
-                {currentQ.question}
+                {language === "hi" ? currentQ.questionHi : currentQ.questionEn}
               </h3>
 
               {/* Options */}
               <div className="space-y-2.5 pt-2">
-                {currentQ.options.map((opt, idx) => {
+                {(language === "hi" ? currentQ.optionsHi : currentQ.optionsEn).map((opt, idx) => {
                   const isCorrect = idx === currentQ.correctIndex;
                   const isSelected = selectedOption === idx;
 
@@ -169,23 +183,27 @@ export default function InteractiveStudyHub() {
                 <div className="p-4 rounded-2xl bg-white/10 border border-white/15 text-xs text-indigo-100 space-y-1 animate-in fade-in zoom-in-95 duration-200">
                   <div className="font-extrabold text-amber-300 flex items-center gap-1">
                     <Lightbulb className="w-3.5 h-3.5" />
-                    <span>Faculty Explanation:</span>
+                    <span>{t("hub.explanation", "Faculty Explanation:")}</span>
                   </div>
-                  <p>{currentQ.explanation}</p>
+                  <p>{language === "hi" ? currentQ.explanationHi : currentQ.explanationEn}</p>
                 </div>
               )}
             </div>
 
             <div className="pt-4 border-t border-white/15 flex items-center justify-between">
               <div className="text-xs text-indigo-200">
-                Score: <strong className="text-amber-300 font-black">{score}</strong> / {quizQuestions.length}
+                {t("hub.score", "Score:")} <strong className="text-amber-300 font-black">{score}</strong> / {quizQuestions.length}
               </div>
 
               <button
                 onClick={handleNextQuiz}
                 className="px-5 py-2.5 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-extrabold text-xs shadow-md flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <span>{currentQuizIdx === quizQuestions.length - 1 ? "Restart Quiz" : "Next Question"}</span>
+                <span>
+                  {currentQuizIdx === quizQuestions.length - 1
+                    ? t("hub.restart", "Restart Quiz")
+                    : t("hub.next", "Next Question")}
+                </span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -200,22 +218,22 @@ export default function InteractiveStudyHub() {
                   <Clock className="w-6 h-6 animate-icon-wiggle" />
                 </div>
                 <div>
-                  <h4 className="text-base font-black text-slate-900">The Signature 45+15 Learning Model</h4>
-                  <p className="text-xs text-slate-500">Live digital tablet teaching vs recorded videos</p>
+                  <h4 className="text-base font-black text-slate-900">{t("hub.model_title", "The Signature 45+15 Learning Model")}</h4>
+                  <p className="text-xs text-slate-500">{t("hub.model_sub", "Live digital tablet teaching vs recorded videos")}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200">
-                  <div className="text-lg font-black text-[#5751E1]">45 Mins</div>
-                  <div className="font-bold text-slate-800 mt-0.5">Live Interactive Lecture</div>
-                  <div className="text-[11px] text-slate-500 mt-1">Pen-tablet step-by-step whiteboard derivations.</div>
+                  <div className="text-lg font-black text-[#5751E1]">{t("hub.lecture_time", "45 Mins")}</div>
+                  <div className="font-bold text-slate-800 mt-0.5">{t("hub.lecture_title", "Live Interactive Lecture")}</div>
+                  <div className="text-[11px] text-slate-500 mt-1">{t("hub.lecture_desc", "Pen-tablet step-by-step whiteboard derivations.")}</div>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200">
-                  <div className="text-lg font-black text-emerald-600">15 Mins</div>
-                  <div className="font-bold text-slate-800 mt-0.5">1-on-1 Doubt Solving</div>
-                  <div className="text-[11px] text-slate-500 mt-1">Live voice question asking before closing the room.</div>
+                  <div className="text-lg font-black text-emerald-600">{t("hub.doubt_time", "15 Mins")}</div>
+                  <div className="font-bold text-slate-800 mt-0.5">{t("hub.doubt_title", "1-on-1 Doubt Solving")}</div>
+                  <div className="text-[11px] text-slate-500 mt-1">{t("hub.doubt_desc", "Live voice question asking before closing the room.")}</div>
                 </div>
               </div>
             </div>
@@ -225,17 +243,17 @@ export default function InteractiveStudyHub() {
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-100/80 px-2 py-0.5 rounded-full">
-                    Free Board Resources
+                    {t("hub.notes_tag", "Free Board Resources")}
                   </span>
                   <h4 className="text-base font-black text-slate-900 mt-1">
-                    Download NCERT Formula Cheat-Sheets
+                    {t("hub.notes_title", "Download NCERT Formula Cheat-Sheets")}
                   </h4>
                 </div>
                 <BookOpen className="w-7 h-7 text-[#050071] animate-icon-float" />
               </div>
 
               <p className="text-xs text-slate-600 leading-relaxed">
-                Handwritten 2-page formula summaries for Class 10th Maths, Class 12th Physics &amp; Chemistry by Bhopal subject specialists.
+                {t("hub.notes_desc", "Handwritten 2-page formula summaries for Class 10th Maths, Class 12th Physics & Chemistry by Bhopal subject specialists.")}
               </p>
 
               <div className="flex flex-wrap gap-2 pt-1">

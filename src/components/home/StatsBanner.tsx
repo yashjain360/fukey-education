@@ -3,13 +3,16 @@
 import React from "react";
 import { Users, GraduationCap, Video, Award } from "lucide-react";
 import { siteConfig } from "@/data/siteConfig";
+import { useTranslation } from "@/components/providers/LanguageContext";
 
 export default function StatsBanner() {
+  const { t } = useTranslation();
+
   const stats = [
     {
       icon: GraduationCap,
       value: siteConfig.stats.activeStudents,
-      label: "Active Students Enrolled",
+      label: t("stats.students", "Active Students Enrolled"),
       color: "text-blue-500",
       bg: "bg-blue-50",
       anim: "animate-icon-float",
@@ -17,7 +20,7 @@ export default function StatsBanner() {
     {
       icon: Video,
       value: siteConfig.stats.totalCourses,
-      label: "CBSE & State Board Batches",
+      label: t("stats.courses", "CBSE & State Board Batches"),
       color: "text-orange-500",
       bg: "bg-orange-50",
       anim: "animate-icon-pulse",
@@ -25,7 +28,7 @@ export default function StatsBanner() {
     {
       icon: Users,
       value: siteConfig.stats.expertInstructors,
-      label: "Gold Medalist Instructors",
+      label: t("stats.instructors", "Gold Medalist Instructors"),
       color: "text-emerald-500",
       bg: "bg-emerald-50",
       anim: "animate-icon-wiggle",
@@ -33,7 +36,7 @@ export default function StatsBanner() {
     {
       icon: Award,
       value: siteConfig.stats.successRate,
-      label: "Board Exam Success Rate",
+      label: t("stats.success", "Board Exam Success Rate"),
       color: "text-purple-500",
       bg: "bg-purple-50",
       anim: "animate-icon-sparkle",

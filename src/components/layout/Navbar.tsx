@@ -17,12 +17,14 @@ import {
 } from "lucide-react";
 import { useCart } from "@/components/cart/CartContext";
 import { useAuth } from "@/components/auth/AuthContext";
+import { useTranslation } from "@/components/providers/LanguageContext";
 import GlobalSearchModal from "./GlobalSearchModal";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { cart, wishlist, setIsCartOpen, setIsWishlistOpen } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
+  const { t } = useTranslation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -48,14 +50,14 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Courses", href: "/courses" },
-    { name: "Ebooks", href: "/ebooks" },
-    { name: "Instructors", href: "/instructors" },
-    { name: "About Us", href: "/about-us" },
-    { name: "Blog", href: "/blog" },
-    { name: "News", href: "/news" },
-    { name: "Contact", href: "/contact" },
+    { name: t("nav.home", "Home"), href: "/" },
+    { name: t("nav.courses", "Courses"), href: "/courses" },
+    { name: t("nav.ebooks", "Ebooks"), href: "/ebooks" },
+    { name: t("nav.instructors", "Instructors"), href: "/instructors" },
+    { name: t("nav.about", "About Us"), href: "/about-us" },
+    { name: t("nav.blog", "Blog"), href: "/blog" },
+    { name: t("nav.news", "News"), href: "/news" },
+    { name: t("nav.contact", "Contact"), href: "/contact" },
   ];
 
   return (
@@ -87,7 +89,7 @@ export default function Navbar() {
               const isActive = pathname === link.href;
               return (
                 <Link
-                  key={link.name}
+                  key={link.href}
                   href={link.href}
                   className={`text-sm font-semibold relative py-1 transition-all hover:scale-105 active:scale-95 ${
                     isActive ? "text-[#5751E1]" : "text-slate-700 hover:text-[#5751E1]"
@@ -111,7 +113,7 @@ export default function Navbar() {
               title="Search (Cmd + K)"
             >
               <Search className="w-3.5 h-3.5 text-indigo-600" />
-              <span className="hidden sm:inline font-medium">Search courses...</span>
+              <span className="hidden sm:inline font-medium">{t("nav.search_placeholder", "Search courses...")}</span>
               <kbd className="hidden md:inline bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 rounded border border-slate-200">
                 ⌘K
               </kbd>
@@ -172,7 +174,7 @@ export default function Navbar() {
                       className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-[#5751E1] transition-colors"
                     >
                       <GraduationCap className="w-4 h-4 text-blue-500" />
-                      <span>Student Dashboard</span>
+                      <span>{t("nav.dashboard", "Student Dashboard")}</span>
                     </Link>
 
                     <Link
@@ -181,7 +183,7 @@ export default function Navbar() {
                       className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-[#5751E1] transition-colors"
                     >
                       <User className="w-4 h-4 text-purple-500" />
-                      <span>Instructor Dashboard</span>
+                      <span>{t("nav.instructor_dashboard", "Instructor Dashboard")}</span>
                     </Link>
 
                     <Link
@@ -190,7 +192,7 @@ export default function Navbar() {
                       className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
                     >
                       <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                      <span>Admin Console</span>
+                      <span>{t("nav.admin_console", "Admin Console")}</span>
                     </Link>
 
                     <div className="pt-1 border-t border-slate-100">
@@ -202,7 +204,7 @@ export default function Navbar() {
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Sign Out</span>
+                        <span>{t("nav.sign_out", "Sign Out")}</span>
                       </button>
                     </div>
                   </div>
@@ -214,7 +216,7 @@ export default function Navbar() {
                 className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white text-xs font-bold shadow-sm transition-all hover:scale-105 active:scale-95"
               >
                 <User className="w-3.5 h-3.5" />
-                <span>Student Portal</span>
+                <span>{t("nav.student_portal", "Student Portal")}</span>
               </Link>
             )}
 
@@ -235,7 +237,7 @@ export default function Navbar() {
             <div className="space-y-1">
               {navLinks.map((link) => (
                 <Link
-                  key={link.name}
+                  key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`block px-3 py-2 rounded-lg text-sm font-semibold ${
@@ -255,14 +257,14 @@ export default function Navbar() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 rounded-xl bg-[#050071] text-white text-xs font-bold transition-transform active:scale-95"
               >
-                Student Dashboard
+                {t("nav.dashboard", "Student Dashboard")}
               </Link>
               <Link
                 href="/admin"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold transition-transform active:scale-95"
               >
-                Admin Console
+                {t("nav.admin_console", "Admin Console")}
               </Link>
             </div>
           </div>

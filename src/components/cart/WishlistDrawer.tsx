@@ -6,16 +6,13 @@ import { useRouter } from "next/navigation";
 import {
   X,
   Trash2,
-  ArrowRight,
   Heart,
   ShoppingCart,
-  Check,
-  BookOpen,
-  Sparkles
+  Check
 } from "lucide-react";
 import { useCart } from "@/components/cart/CartContext";
+import { useTranslation } from "@/components/providers/LanguageContext";
 import { formatPrice } from "@/lib/utils";
-import { triggerConfetti } from "@/lib/confetti";
 
 export default function WishlistDrawer() {
   const {
@@ -28,6 +25,7 @@ export default function WishlistDrawer() {
     currency
   } = useCart();
 
+  const { t } = useTranslation();
   const router = useRouter();
 
   if (!isWishlistOpen) return null;
@@ -42,11 +40,11 @@ export default function WishlistDrawer() {
         <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-              <Heart className="w-4 h-4 fill-current" />
+              <Heart className="w-4 h-4 fill-current animate-icon-heartbeat" />
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-800 text-base">Your Wishlist ({wishlist.length})</h3>
-              <p className="text-[11px] text-slate-500">Saved courses for later review</p>
+              <h3 className="font-extrabold text-slate-800 text-base">{t("wishlist.title", "Your Wishlist")} ({wishlist.length})</h3>
+              <p className="text-[11px] text-slate-500">{t("wishlist.saved", "Saved courses for later review")}</p>
             </div>
           </div>
           <button
@@ -64,9 +62,9 @@ export default function WishlistDrawer() {
               <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-500 mx-auto flex items-center justify-center">
                 <Heart className="w-8 h-8 opacity-70" />
               </div>
-              <div className="text-base font-bold text-slate-700">Your wishlist is empty</div>
+              <div className="text-base font-bold text-slate-700">{t("wishlist.empty", "Your wishlist is empty")}</div>
               <p className="text-xs max-w-xs mx-auto">
-                Click the heart icon on any CBSE or State Board course card to save it here for fast access!
+                {t("wishlist.empty_desc", "Click the heart icon on any CBSE or State Board course card to save it here for fast access!")}
               </p>
               <button
                 onClick={() => {
@@ -75,7 +73,7 @@ export default function WishlistDrawer() {
                 }}
                 className="mt-4 px-6 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
-                Browse All Batches
+                {t("wishlist.browse", "Browse All Batches")}
               </button>
             </div>
           ) : (
@@ -127,12 +125,12 @@ export default function WishlistDrawer() {
                       {inCart ? (
                         <>
                           <Check className="w-3.5 h-3.5" />
-                          <span>Already In Cart</span>
+                          <span>{t("courses.in_cart", "In Cart")}</span>
                         </>
                       ) : (
                         <>
                           <ShoppingCart className="w-3.5 h-3.5" />
-                          <span>Move To Cart</span>
+                          <span>{t("wishlist.move_to_cart", "Move To Cart")}</span>
                         </>
                       )}
                     </button>
@@ -164,7 +162,7 @@ export default function WishlistDrawer() {
               className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] text-white font-black text-xs shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
               <ShoppingCart className="w-4 h-4" />
-              <span>Add All Wishlist Items to Cart</span>
+              <span>{t("wishlist.add_all", "Add All Wishlist Items to Cart")}</span>
             </button>
           </div>
         )}

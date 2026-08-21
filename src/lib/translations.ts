@@ -1,0 +1,302 @@
+export type Language = "en" | "hi";
+
+export const translations: Record<Language, Record<string, string>> = {
+  en: {
+    // TopBar
+    "topbar.admissions": "Admissions Open for Classes 9th to 12th Live Online Batches",
+    "topbar.boards": "CBSE & State Boards 2026-27",
+    "topbar.helpline": "Official Helpline:",
+    
+    // Navbar
+    "nav.home": "Home",
+    "nav.courses": "Courses",
+    "nav.ebooks": "Ebooks",
+    "nav.instructors": "Instructors",
+    "nav.about": "About Us",
+    "nav.blog": "Blog",
+    "nav.news": "News",
+    "nav.contact": "Contact",
+    "nav.search_placeholder": "Search courses...",
+    "nav.student_portal": "Student Portal",
+    "nav.dashboard": "Student Dashboard",
+    "nav.instructor_dashboard": "Instructor Dashboard",
+    "nav.admin_console": "Admin Console",
+    "nav.sign_out": "Sign Out",
+
+    // Hero Section
+    "hero.badge": "Live Interactive Online Coaching • Session 2026-27",
+    "hero.title_part1": "Master CBSE & State Board",
+    "hero.title_part2": "Classes 9th to 12th with",
+    "hero.title_part3": "Gold Medalist Faculty",
+    "hero.desc": "Live interactive lectures, dedicated 15-minute doubt sessions, 100% NCERT-mapped syllabus, and handwritten formula cheat-sheets designed for top board scores.",
+    "hero.btn_courses": "Explore All Courses",
+    "hero.btn_sale": "Claim 40% Freedom Sale",
+    "hero.card_live": "LIVE CLASSROOM NOW",
+    "hero.card_course": "Class 10th Maths: Quadratic Equations",
+    "hero.card_faculty": "Faculty: Pawan Gupta • Today 5:00 PM",
+    "hero.card_enrolled": "650+ Active Students Learning Daily",
+    "hero.feature_live": "100% Live Classes",
+    "hero.feature_doubt": "1-on-1 Doubt Solving",
+    "hero.feature_ncert": "Full NCERT Solutions",
+
+    // Stats Banner
+    "stats.students": "Active Students Enrolled",
+    "stats.courses": "CBSE & State Board Batches",
+    "stats.instructors": "Gold Medalist Instructors",
+    "stats.success": "Board Exam Success Rate",
+
+    // Categories
+    "cat.tag": "Explore Academic Streams",
+    "cat.title": "Top Categories & Board Classes",
+    "cat.desc": "Structured CBSE & State Board curriculums mapped to standard NCERT textbooks.",
+    "cat.browse_all": "Browse All Batches",
+    "cat.active_batches": "Active Batches",
+
+    // Featured Courses
+    "courses.tag": "Top Class Courses",
+    "courses.title": "Explore Our Worlds Featured Courses",
+    "courses.desc": "Check out the most demanding courses right now for CBSE & State Board classes",
+    "courses.all": "All Courses",
+    "courses.class9": "Class 9",
+    "courses.class10": "Class 10",
+    "courses.class11": "Class 11",
+    "courses.class12": "Class 12",
+    "courses.add_to_cart": "Add To Cart",
+    "courses.in_cart": "In Cart",
+    "courses.view_all": "View All 52+ Real Courses & Batches",
+
+    // Why Choose Us
+    "why.tag": "Why Fukey Education",
+    "why.title": "The Smarter Way to Prepare for Board Exams",
+    "why.desc": "We combine experienced subject leads with interactive pen-tablet whiteboards and comprehensive study materials.",
+    "why.usp1_title": "Interactive Live Classes",
+    "why.usp1_desc": "Step-by-step whiteboard derivations and problem-solving without pre-recorded video dumping.",
+    "why.usp2_title": "15-Min Dedicated Doubt Rooms",
+    "why.usp2_desc": "Ask your faculty questions directly via live voice and chat at the end of every lecture.",
+    "why.usp3_title": "Gold Medalist Educators",
+    "why.usp3_desc": "Learn from educators with 10+ years of proven track records producing state and district toppers.",
+    "why.usp4_title": "Handwritten Formula PDFs",
+    "why.usp4_desc": "Get chapter-wise formula summaries and solved past 10-year board questions for quick revision.",
+
+    // Interactive Study Hub
+    "hub.tag": "Interactive Knowledge Hub",
+    "hub.title": "Test Your Board Exam Readiness in 60 Seconds",
+    "hub.desc": "Try a real classroom concept quiz, download formula cheat-sheets, and experience our unique 45+15 teaching model.",
+    "hub.question": "Question",
+    "hub.of": "of",
+    "hub.next": "Next Question",
+    "hub.restart": "Restart Quiz",
+    "hub.explanation": "Faculty Explanation:",
+    "hub.score": "Score:",
+    "hub.model_title": "The Signature 45+15 Learning Model",
+    "hub.model_sub": "Live digital tablet teaching vs recorded videos",
+    "hub.lecture_time": "45 Mins",
+    "hub.lecture_title": "Live Interactive Lecture",
+    "hub.lecture_desc": "Pen-tablet step-by-step whiteboard derivations.",
+    "hub.doubt_time": "15 Mins",
+    "hub.doubt_title": "1-on-1 Doubt Solving",
+    "hub.doubt_desc": "Live voice question asking before closing the room.",
+    "hub.notes_tag": "Free Board Resources",
+    "hub.notes_title": "Download NCERT Formula Cheat-Sheets",
+    "hub.notes_desc": "Handwritten 2-page formula summaries for Class 10th Maths, Class 12th Physics & Chemistry by Bhopal subject specialists.",
+
+    // Instructors
+    "inst.tag": "Expert Faculty",
+    "inst.title": "Learn From Expert Subject Specialists",
+    "inst.desc": "Our educators bring deep board syllabus mastery, concept clarity, and personalized student mentoring.",
+    "inst.view_profile": "View Full Profile",
+
+    // Google Reviews
+    "reviews.tag": "Google & Justdial Verified Reviews",
+    "reviews.title": "Real Experiences From Board Toppers & Parents",
+    "reviews.desc": "Read transparent feedback from students and parents across Madhya Pradesh and CBSE schools experiencing our 100% live interactive methodology.",
+    "reviews.score": "5.0",
+    "reviews.ratings_count": "21+ Verified Ratings",
+    "reviews.recommended": "100% Recommended",
+    "reviews.write": "Write a Review",
+    "reviews.helpful": "Helpful",
+
+    // Wishlist & Cart
+    "wishlist.title": "Your Wishlist",
+    "wishlist.saved": "Saved courses for later review",
+    "wishlist.empty": "Your wishlist is empty",
+    "wishlist.empty_desc": "Click the heart icon on any course card to save it here for fast access!",
+    "wishlist.browse": "Browse All Batches",
+    "wishlist.move_to_cart": "Move To Cart",
+    "wishlist.add_all": "Add All Wishlist Items to Cart",
+    "cart.title": "Your Cart",
+    "cart.empty": "Your cart is empty",
+    "cart.empty_desc": "Explore our world-class CBSE & State Board coaching courses and boost your marks!",
+    "cart.subtotal": "Subtotal:",
+    "cart.total": "Total Amount:",
+    "cart.checkout": "Proceed to Instant Checkout",
+    "cart.apply_coupon": "Apply",
+    "cart.coupon_placeholder": "Coupon (e.g. FREEDOM40)",
+
+    // Footer & Contact
+    "footer.ncert": "100% NCERT Aligned",
+    "footer.faculty": "Gold Medalist Faculty",
+    "footer.notes": "Free Study Notes",
+    "footer.rated": "5.0 ★ Google Rated",
+    "footer.rights": "All rights reserved.",
+    "footer.made_by": "Made with ❤️ by",
+    "contact.title": "Contact Fukey Education Bhopal",
+    "contact.desk": "Admissions Desk & Support 2026-27",
+    "contact.helpline": "Official Helplines",
+    "contact.office": "Headquarters & Studio",
+    "contact.send_inquiry": "Send an Academic Inquiry",
+    "contact.submit": "Submit Admission Inquiry",
+  },
+
+  hi: {
+    // TopBar
+    "topbar.admissions": "कक्षा 9वीं से 12वीं लाइव ऑनलाइन बैचों के लिए प्रवेश प्रारंभ",
+    "topbar.boards": "सीबीएसई और स्टेट बोर्ड 2026-27",
+    "topbar.helpline": "हेल्पलाइन नंबर:",
+
+    // Navbar
+    "nav.home": "होम",
+    "nav.courses": "कोर्सेस",
+    "nav.ebooks": "ई-बुक्स",
+    "nav.instructors": "शिक्षक गण",
+    "nav.about": "हमारे बारे में",
+    "nav.blog": "ब्लॉग",
+    "nav.news": "समाचार",
+    "nav.contact": "संपर्क करें",
+    "nav.search_placeholder": "कोर्स खोजें...",
+    "nav.student_portal": "छात्र पोर्टल",
+    "nav.dashboard": "विद्यार्थी डैशबोर्ड",
+    "nav.instructor_dashboard": "शिक्षक डैशबोर्ड",
+    "nav.admin_console": "एडमिन पैनल",
+    "nav.sign_out": "लॉग आउट",
+
+    // Hero Section
+    "hero.badge": "लाइव इंटरएक्टिव ऑनलाइन कोचिंग • सत्र 2026-27",
+    "hero.title_part1": "सीबीएसई और स्टेट बोर्ड",
+    "hero.title_part2": "कक्षा 9वीं से 12वीं में पाएं सफलता",
+    "hero.title_part3": "विशेषज्ञ शिक्षकों के साथ",
+    "hero.desc": "लाइव इंटरएक्टिव कक्षाएं, दैनिक 15 मिनट का डाउट सेशन, 100% एनसीईआरटी आधारित पाठ्यक्रम, और बोर्ड परीक्षा में टॉप करने हेतु हस्तलिखित फॉर्मूला शीट्स।",
+    "hero.btn_courses": "सभी कोर्सेस देखें",
+    "hero.btn_sale": "40% छूट का लाभ उठाएं",
+    "hero.card_live": "लाइव क्लासरूम चालू है",
+    "hero.card_course": "10वीं गणित: द्विघात समीकरण (शॉर्टकट ट्रिक्स)",
+    "hero.card_faculty": "शिक्षक: पवन गुप्ता सर • आज शाम 5:00 बजे",
+    "hero.card_enrolled": "650+ विद्यार्थी प्रतिदिन सीख रहे हैं",
+    "hero.feature_live": "100% लाइव क्लासेस",
+    "hero.feature_doubt": "1-ऑन-1 डाउट समाधान",
+    "hero.feature_ncert": "संपूर्ण NCERT हल",
+
+    // Stats Banner
+    "stats.students": "सक्रिय नामांकित विद्यार्थी",
+    "stats.courses": "सीबीएसई और स्टेट बोर्ड बैचेस",
+    "stats.instructors": "स्वर्ण पदक विजेता शिक्षक",
+    "stats.success": "बोर्ड परीक्षा सफलता दर",
+
+    // Categories
+    "cat.tag": "अध्ययन संकाय चुनें",
+    "cat.title": "प्रमुख श्रेणियां और बोर्ड कक्षाएं",
+    "cat.desc": "मानक एनसीईआरटी पाठ्यपुस्तकों पर आधारित संरचित सीबीएसई और स्टेट बोर्ड पाठ्यक्रम।",
+    "cat.browse_all": "सभी बैचेस देखें",
+    "cat.active_batches": "सक्रिय बैचेस",
+
+    // Featured Courses
+    "courses.tag": "लोकप्रिय कोर्सेस",
+    "courses.title": "हमारे सर्वश्रेष्ठ विशेष पाठ्यक्रम देखें",
+    "courses.desc": "सीबीएसई और स्टेट बोर्ड कक्षाओं के लिए सबसे अधिक मांग वाले पाठ्यक्रमों की सूची",
+    "courses.all": "सभी कोर्सेस",
+    "courses.class9": "कक्षा 9वीं",
+    "courses.class10": "कक्षा 10वीं",
+    "courses.class11": "कक्षा 11वीं",
+    "courses.class12": "कक्षा 12वीं",
+    "courses.add_to_cart": "कार्ट में जोड़ें",
+    "courses.in_cart": "कार्ट में मौजूद है",
+    "courses.view_all": "सभी 52+ लाइव कोर्सेस और बैचेस देखें",
+
+    // Why Choose Us
+    "why.tag": "फूके एजुकेशन क्यों चुनें",
+    "why.title": "बोर्ड परीक्षाओं की तैयारी का सबसे स्मार्ट और प्रभावी तरीका",
+    "why.desc": "हम अनुभवी विषय विशेषज्ञों, डिजिटल पेन-टैबलेट वाइटबोर्ड और व्यापक अध्ययन सामग्री का संयोजन प्रदान करते हैं।",
+    "why.usp1_title": "इंटरएक्टिव लाइव कक्षाएं",
+    "why.usp1_desc": "बिना किसी रिकॉर्डेड वीडियो डंपिंग के डिजिटल वाइटबोर्ड पर चरण-दर-चरण समाधान।",
+    "why.usp2_title": "15 मिनट का समर्पित डाउट रूम",
+    "why.usp2_desc": "प्रत्येक व्याख्यान के अंत में लाइव वॉयस और चैट द्वारा सीधे शिक्षकों से प्रश्न पूछें।",
+    "why.usp3_title": "अनुभवी एवं टॉपर्स निर्माता शिक्षक",
+    "why.usp3_desc": "10+ वर्षों के अनुभव वाले शिक्षकों से सीखें जिन्होंने राज्य और जिला टॉपर्स दिए हैं।",
+    "why.usp4_title": "हस्तलिखित फॉर्मूला पीडीएफ",
+    "why.usp4_desc": "त्वरित पुनरीक्षण के लिए अध्याय-वार फॉर्मूला सारांश और पिछले 10 वर्षों के हल प्रश्न पत्र।",
+
+    // Interactive Study Hub
+    "hub.tag": "इंटरएक्टिव ज्ञान केंद्र",
+    "hub.title": "60 सेकंड में अपनी बोर्ड परीक्षा तैयारी का मूल्यांकन करें",
+    "hub.desc": "वास्तविक कक्षा क्विज हल करें, फॉर्मूला शीट डाउनलोड करें और हमारे 45+15 शिक्षण मॉडल का अनुभव लें।",
+    "hub.question": "प्रश्न",
+    "hub.of": "का",
+    "hub.next": "अगला प्रश्न",
+    "hub.restart": "क्विज दोबारा शुरू करें",
+    "hub.explanation": "शिक्षक द्वारा स्पष्टीकरण:",
+    "hub.score": "स्कोर:",
+    "hub.model_title": "हस्ताक्षर 45+15 शिक्षण मॉडल",
+    "hub.model_sub": "लाइव डिजिटल टैबलेट शिक्षण बनाम रिकॉर्डेड वीडियो",
+    "hub.lecture_time": "45 मिनट",
+    "hub.lecture_title": "लाइव इंटरएक्टिव व्याख्यान",
+    "hub.lecture_desc": "पेन-टैबलेट द्वारा वाइटबोर्ड पर प्रत्येक सूत्र का विस्तार।",
+    "hub.doubt_time": "15 मिनट",
+    "hub.doubt_title": "1-ऑन-1 डाउट समाधान",
+    "hub.doubt_desc": "क्लास समाप्त होने से पहले सभी शंकाओं का लाइव समाधान।",
+    "hub.notes_tag": "मुफ़्त बोर्ड अध्ययन सामग्री",
+    "hub.notes_title": "NCERT फॉर्मूला चीट-शीट डाउनलोड करें",
+    "hub.notes_desc": "भोपाल के विषय विशेषज्ञों द्वारा 10वीं गणित और 12वीं भौतिकी-रसायन के 2-पृष्ठ के हस्तलिखित सारांश।",
+
+    // Instructors
+    "inst.tag": "विशेषज्ञ संकाय",
+    "inst.title": "सर्वश्रेष्ठ विषय विशेषज्ञों से सीधे सीखें",
+    "inst.desc": "हमारे शिक्षक गहरी विषय समझ, अवधारणा स्पष्टता और व्यक्तिगत मार्गदर्शन प्रदान करते हैं।",
+    "inst.view_profile": "पूरा प्रोफाइल देखें",
+
+    // Google Reviews
+    "reviews.tag": "गूगल और जस्टडायल सत्यापित समीक्षाएं",
+    "reviews.title": "बोर्ड टॉपर्स और अभिभावकों के वास्तविक अनुभव",
+    "reviews.desc": "मध्य प्रदेश और सीबीएसई स्कूलों के विद्यार्थियों और अभिभावकों की पारदर्शी प्रतिक्रियाएं पढ़ें।",
+    "reviews.score": "5.0",
+    "reviews.ratings_count": "21+ सत्यापित रेटिंग्स",
+    "reviews.recommended": "100% अनुशंसित",
+    "reviews.write": "समीक्षा लिखें",
+    "reviews.helpful": "मददगार",
+
+    // Wishlist & Cart
+    "wishlist.title": "आपकी पसंदीदा सूची (Wishlist)",
+    "wishlist.saved": "बाद में देखने के लिए सहेजे गए कोर्सेस",
+    "wishlist.empty": "आपकी पसंदीदा सूची खाली है",
+    "wishlist.empty_desc": "त्वरित पहुंच के लिए किसी भी कोर्स कार्ड पर हार्ट आइकन पर क्लिक करें!",
+    "wishlist.browse": "सभी बैचेस ब्राउज़ करें",
+    "wishlist.move_to_cart": "कार्ट में ले जाएं",
+    "wishlist.add_all": "सभी कोर्सेस कार्ट में जोड़ें",
+    "cart.title": "आपकी कार्ट (Shopping Cart)",
+    "cart.empty": "आपकी कार्ट खाली है",
+    "cart.empty_desc": "सीबीएसई और स्टेट बोर्ड कोचिंग कोर्सेस देखें और अपने अंक बढ़ाएं!",
+    "cart.subtotal": "उप-योग:",
+    "cart.total": "कुल राशि:",
+    "cart.checkout": "चेकआउट के लिए आगे बढ़ें",
+    "cart.apply_coupon": "लागू करें",
+    "cart.coupon_placeholder": "कूपन कोड (जैसे FREEDOM40)",
+
+    // Footer & Contact
+    "footer.ncert": "100% NCERT आधारित",
+    "footer.faculty": "स्वर्ण पदक विजेता शिक्षक",
+    "footer.notes": "मुफ़्त अध्ययन नोट्स",
+    "footer.rated": "5.0 ★ गूगल सत्यापित",
+    "footer.rights": "सर्वाधिकार सुरक्षित।",
+    "footer.made_by": "प्रेमपूर्वक निर्मित",
+    "contact.title": "फूके एजुकेशन भोपाल से संपर्क करें",
+    "contact.desk": "प्रवेश एवं सहायता डेस्क 2026-27",
+    "contact.helpline": "आधिकारिक हेल्पलाइन नंबर",
+    "contact.office": "मुख्यालय एवं स्टूडियो (भोपाल)",
+    "contact.send_inquiry": "प्रवेश संबंधी पूछताछ भेजें",
+    "contact.submit": "पूछताछ सबमिट करें",
+  }
+};
+
+export function getTranslation(lang: Language, key: string, fallback?: string): string {
+  const dict = translations[lang] || translations.en;
+  return dict[key] || fallback || key;
+}

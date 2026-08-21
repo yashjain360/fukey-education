@@ -16,8 +16,11 @@ import {
   ExternalLink
 } from "lucide-react";
 import { siteConfig } from "@/data/siteConfig";
+import { useTranslation } from "@/components/providers/LanguageContext";
 
 export default function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-[#050071] text-slate-300 pt-16 pb-8 border-t border-indigo-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -28,7 +31,7 @@ export default function Footer() {
               <ShieldCheck className="w-6 h-6 animate-icon-pulse" />
             </div>
             <div>
-              <div className="font-bold text-white text-sm">100% NCERT Aligned</div>
+              <div className="font-bold text-white text-sm">{t("footer.ncert", "100% NCERT Aligned")}</div>
               <div className="text-xs text-slate-400">CBSE &amp; State Board Standard</div>
             </div>
           </div>
@@ -38,7 +41,7 @@ export default function Footer() {
               <Award className="w-6 h-6 animate-icon-sparkle" />
             </div>
             <div>
-              <div className="font-bold text-white text-sm">Gold Medalist Faculty</div>
+              <div className="font-bold text-white text-sm">{t("footer.faculty", "Gold Medalist Faculty")}</div>
               <div className="text-xs text-slate-400">10+ Yrs Teaching Experience</div>
             </div>
           </div>
@@ -48,7 +51,7 @@ export default function Footer() {
               <BookCheck className="w-6 h-6 animate-icon-float" />
             </div>
             <div>
-              <div className="font-bold text-white text-sm">Free Study Notes</div>
+              <div className="font-bold text-white text-sm">{t("footer.notes", "Free Study Notes")}</div>
               <div className="text-xs text-slate-400">Color PDFs &amp; Formula Sheets</div>
             </div>
           </div>
@@ -58,7 +61,7 @@ export default function Footer() {
               <Sparkles className="w-6 h-6 animate-icon-sparkle" />
             </div>
             <div>
-              <div className="font-bold text-white text-sm">5.0 ★ Google Rated</div>
+              <div className="font-bold text-white text-sm">{t("footer.rated", "5.0 ★ Google Rated")}</div>
               <div className="text-xs text-slate-400">21+ Verified Student Reviews</div>
             </div>
           </div>
@@ -259,12 +262,12 @@ export default function Footer() {
         {/* Tier 3: Bottom Copyright & TheWebVale Branding */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <div>
-            © {new Date().getFullYear()} <span className="text-white font-semibold">Fukey Education Pvt. Ltd.</span> All rights reserved.
+            © {new Date().getFullYear()} <span className="text-white font-semibold">Fukey Education Pvt. Ltd.</span> {t("footer.rights", "All rights reserved.")}
           </div>
 
           {/* TheWebVale Branding */}
           <div className="flex items-center gap-1.5 text-xs text-slate-300 font-medium px-4 py-1.5 rounded-full bg-indigo-950/70 border border-indigo-900 shadow-inner">
-            <span>Made with</span>
+            <span>{t("footer.made_by", "Made with")}</span>
             <span className="text-rose-500 text-sm leading-none">❤️</span>
             <span>by</span>
             <a

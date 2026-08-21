@@ -5,12 +5,14 @@ import Link from "next/link";
 import { Heart, ArrowRight, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { coursesData, Course } from "@/data/coursesData";
 import { useCart } from "@/components/cart/CartContext";
+import { useTranslation } from "@/components/providers/LanguageContext";
 import { formatPrice } from "@/lib/utils";
 import { CourseCardSkeleton } from "@/components/ui/Skeleton";
 
 export default function FeaturedCourses() {
   const [selectedTab, setSelectedTab] = useState<string>("All Courses");
   const { addToCart, isInCart, toggleWishlist, isInWishlist, currency } = useCart();
+  const { t, language } = useTranslation();
   const [startIndex, setStartIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>(coursesData);
@@ -29,7 +31,13 @@ export default function FeaturedCourses() {
       });
   }, []);
 
-  const tabs = ["All Courses", "Class 9", "Class 10", "Class 11", "Class 12"];
+  const tabs = [
+    { label: t("courses.all", "All Courses"), value: "All Courses" },
+    { label: t("courses.class9", "Class 9"), value: "Class 9" },
+    { label: t("courses.class10", "Class 10"), value: "Class 10" },
+    { label: t("courses.class11", "Class 11"), value: "Class 11" },
+    { label: t("courses.class12", "Class 12"), value: "Class 12" },
+  ];
 
   const filteredCourses = courses.filter((c) => {
     if (selectedTab === "All Courses") return true;
@@ -50,18 +58,18 @@ export default function FeaturedCourses() {
   const visibleCourses = filteredCourses.slice(startIndex, startIndex + displayCount);
 
   return (
-    <section className="py-20 bg-white" data-aos="fade-up">
+    <section className="py-20 bg-white" data-aos="fade-up" id="featured-courses">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-10 space-y-3" data-aos="fade-up">
           <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-indigo-100/80 text-[#5751E1] font-extrabold text-xs uppercase tracking-wider">
-            Top Class Courses
+            {t("courses.tag", "Top Class Courses")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight">
-            Explore Our Worlds Featured Courses
+            {t("courses.title", "Explore Our Worlds Featured Courses")}
           </h2>
           <p className="text-sm text-slate-500 font-medium">
-            Check out the most demanding courses right now for CBSE &amp; State Board classes
+            {t("courses.desc", "Check out the most demanding courses right now for CBSE & State Board classes")}
           </p>
         </div>
 
@@ -69,18 +77,18 @@ export default function FeaturedCourses() {
         <div className="flex items-center justify-center gap-2 sm:gap-4 mb-12 overflow-x-auto pb-2" data-aos="fade-up">
           {tabs.map((tab) => (
             <button
-              key={tab}
+              key={tab.value}
               onClick={() => {
-                setSelectedTab(tab);
+                setSelectedTab(tab.value);
                 setStartIndex(0);
               }}
               className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer ${
-                selectedTab === tab
+                selectedTab === tab.value
                   ? "bg-[#5751E1] text-white shadow-md"
                   : "bg-slate-100 hover:bg-slate-200 text-slate-600"
               }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -145,7 +153,8 @@ export default function FeaturedCourses() {
                         </Link>
 
                         <div className="text-xs text-slate-500 font-medium">
-                          By <span className="text-slate-800 font-semibold">{course.instructor}</span>
+                          {language === "hi" ? "शिक्षक:" : "By"}{" "}
+                          <span className="text-slate-800 font-semibold">{course.instructor}</span>
                         </div>
                       </div>
 
@@ -162,11 +171,11 @@ export default function FeaturedCourses() {
                           {inCart ? (
                             <>
                               <Check className="w-3.5 h-3.5" />
-                              <span>In Cart</span>
+                              <span>{t("courses.in_cart", "In Cart")}</span>
                             </>
                           ) : (
                             <>
-                              <span>Add To Cart</span>
+                              <span>{t("courses.add_to_cart", "Add To Cart")}</span>
                               <ArrowRight className="w-3.5 h-3.5" />
                             </>
                           )}
@@ -215,7 +224,7 @@ export default function FeaturedCourses() {
             href="/courses"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-[#050071] hover:bg-indigo-900 text-white text-xs font-extrabold shadow-md transition-all hover:scale-105 active:scale-95"
           >
-            <span>View All 52+ Real Courses &amp; Batches</span>
+            <span>{t("courses.view_all", "View All 52+ Real Courses & Batches")}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import AOSProvider from "@/components/providers/AOSProvider";
+import { LanguageProvider } from "@/components/providers/LanguageContext";
 import { AuthProvider } from "@/components/auth/AuthContext";
 import { CartProvider } from "@/components/cart/CartContext";
 import { ModalProvider } from "@/components/ui/CustomModal";
@@ -25,7 +26,8 @@ export const metadata: Metadata = {
     "Class 12th Physics",
     "Class 12th Chemistry",
     "NCERT Solutions",
-    "Hindi Medium Coaching"
+    "Hindi Medium Coaching",
+    "Bhopal Live Classes"
   ],
   icons: {
     icon: "/favicon.ico",
@@ -50,24 +52,26 @@ export default function RootLayout({
       <body className="antialiased selection:bg-indigo-600 selection:text-white">
         <SmoothScrollProvider>
           <AOSProvider>
-            <AuthProvider>
-              <CartProvider>
-                <ModalProvider>
-                  <div className="relative z-10 flex min-h-screen flex-col justify-between">
-                    <div>
-                      <TopBar />
-                      <Navbar />
-                      <main>{children}</main>
+            <LanguageProvider>
+              <AuthProvider>
+                <CartProvider>
+                  <ModalProvider>
+                    <div className="relative z-10 flex min-h-screen flex-col justify-between">
+                      <div>
+                        <TopBar />
+                        <Navbar />
+                        <main>{children}</main>
+                      </div>
+                      <Footer />
                     </div>
-                    <Footer />
-                  </div>
-                  <CartDrawer />
-                  <WishlistDrawer />
-                  <AutoEngagementModal />
-                  <LayoutClientWrapper />
-                </ModalProvider>
-              </CartProvider>
-            </AuthProvider>
+                    <CartDrawer />
+                    <WishlistDrawer />
+                    <AutoEngagementModal />
+                    <LayoutClientWrapper />
+                  </ModalProvider>
+                </CartProvider>
+              </AuthProvider>
+            </LanguageProvider>
           </AOSProvider>
         </SmoothScrollProvider>
       </body>
