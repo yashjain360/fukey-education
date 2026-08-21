@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Sparkles, CheckCircle2, ShieldCheck, Play } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2, ShieldCheck } from "lucide-react";
 import { triggerConfetti } from "@/lib/confetti";
 
 export default function HeroSection() {
@@ -15,15 +15,23 @@ export default function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Headline & Action */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-6" data-aos="fade-right" data-aos-duration="800">
             {/* Live Online Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF2424] text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-red-500/20">
+            <div
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF2424] text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-red-500/20"
+              data-aos="zoom-in"
+              data-aos-delay="100"
+            >
               <span className="w-2 h-2 rounded-full bg-white animate-ping" />
               <span>Live Online Coaching</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#06042E] tracking-tight leading-[1.1]">
+            <h1
+              className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#06042E] tracking-tight leading-[1.1]"
+              data-aos="fade-up"
+              data-aos-delay="150"
+            >
               Classes For <br />
               <span className="bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] bg-clip-text text-transparent">
                 Class 9th to 12th
@@ -32,12 +40,16 @@ export default function HeroSection() {
             </h1>
 
             {/* Subheading */}
-            <p className="text-base sm:text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
+            <p
+              className="text-base sm:text-lg text-slate-600 font-medium leading-relaxed max-w-xl"
+              data-aos="fade-up"
+              data-aos-delay="200"
+            >
               Expert CBSE &amp; State Board Online Coaching for Classes 9–12. Learn Anytime, Anywhere with India&apos;s Top Faculty, Live Doubt Resolution, and Complete NCERT Notes.
             </p>
 
             {/* Key Benefit Checkmarks */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2" data-aos="fade-up" data-aos-delay="250">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span>100% NCERT Syllabus</span>
@@ -53,7 +65,7 @@ export default function HeroSection() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-4">
+            <div className="flex flex-wrap items-center gap-4 pt-4" data-aos="fade-up" data-aos-delay="300">
               <Link
                 href="/courses"
                 className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] hover:brightness-110 text-white font-extrabold text-sm shadow-xl shadow-indigo-950/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
@@ -72,7 +84,11 @@ export default function HeroSection() {
             </div>
 
             {/* Social Proof Bar */}
-            <div className="flex items-center gap-4 pt-4 border-t border-slate-200/60 text-slate-600">
+            <div
+              className="flex items-center gap-4 pt-4 border-t border-slate-200/60 text-slate-600"
+              data-aos="fade-up"
+              data-aos-delay="350"
+            >
               <div className="flex -space-x-2">
                 <div className="w-9 h-9 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center border-2 border-white">
                   K
@@ -98,10 +114,10 @@ export default function HeroSection() {
           </div>
 
           {/* Right Column: Hero Visual Graphic Banner */}
-          <div className="lg:col-span-5 relative">
+          <div className="lg:col-span-5 relative" data-aos="fade-left" data-aos-duration="850">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-gradient-to-tr from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-6 sm:p-8">
               {/* Tag */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-6" data-aos="zoom-in" data-aos-delay="200">
                 <div className="px-3 py-1 rounded-full bg-white/10 text-orange-300 font-bold text-xs border border-white/10 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Admissions Open 2026-27</span>
@@ -112,7 +128,7 @@ export default function HeroSection() {
               </div>
 
               {/* Center Graphic Card */}
-              <div className="space-y-4">
+              <div className="space-y-4" data-aos="zoom-in-up" data-aos-delay="300">
                 <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 space-y-2">
                   <div className="text-xs font-bold text-indigo-200">Featured Batch</div>
                   <div className="text-xl font-black text-white">Class 10th &amp; 12th Board Booster</div>

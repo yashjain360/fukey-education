@@ -2,95 +2,88 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Star, Award, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Award, Star, BookOpen } from "lucide-react";
 import { instructorsData } from "@/data/instructorsData";
 
 export default function InstructorsSection() {
   return (
-    <section className="py-20 bg-gradient-to-b from-slate-50 to-indigo-50/40 border-t border-slate-100">
+    <section className="py-20 bg-white" data-aos="fade-up">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Column: Heading & Description */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-indigo-100 text-[#5751E1] font-extrabold text-xs uppercase tracking-wider">
-              Skilled Introduce
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight leading-tight">
-              Our Top Class &amp; Expert Instructors In One Place
-            </h2>
-
-            <p className="text-sm text-slate-600 font-medium leading-relaxed">
-              Combines the ideas of empowered learning and top-tier instruction for students. Emphasizes both instructor expertise, proven track records of producing board toppers, and personalized student mentoring.
-            </p>
-
-            <div className="space-y-2.5 text-xs font-bold text-slate-700">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>M.Sc. &amp; Gold Medalist Subject Matter Experts</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>10+ Years of CBSE &amp; State Board Pedagogy</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>Dedicated 1-on-1 Doubt Solving Mentorship</span>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <Link
-                href="/instructors"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[#5751E1] hover:bg-indigo-700 text-white font-extrabold text-xs shadow-xl shadow-indigo-500/25 hover:scale-105 active:scale-95 transition-all"
-              >
-                <span>See All Instructors</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+        {/* Section Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3" data-aos="fade-up">
+          <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-indigo-100 text-[#5751E1] font-extrabold text-xs uppercase tracking-wider">
+            Faculty Directory
           </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight">
+            Learn From Expert Subject Specialists
+          </h2>
+          <p className="text-sm text-slate-500 font-medium">
+            Dedicated educators with 10+ years experience mentoring board toppers
+          </p>
+        </div>
 
-          {/* Right Column: Real Instructor Circles Grid */}
-          <div className="lg:col-span-7">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {instructorsData.slice(0, 4).map((inst) => (
-                <Link
-                  key={inst.id}
-                  href={`/instructors`}
-                  className="p-5 rounded-3xl bg-white border border-slate-100 hover:border-indigo-300 shadow-md hover:shadow-xl transition-all duration-300 flex items-center gap-4 group"
-                >
-                  <div className="w-20 h-20 rounded-full border-2 border-indigo-100 overflow-hidden flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform bg-indigo-50">
-                    <img
-                      src={inst.photo}
-                      alt={inst.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "https://fukeyeducation.com/uploads/website-images/frontend-avatar.png";
-                      }}
-                    />
-                  </div>
+        {/* Instructors Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {instructorsData.slice(0, 4).map((inst, idx) => (
+            <div
+              key={inst.id}
+              className="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+              data-aos="fade-up"
+              data-aos-delay={idx * 120}
+            >
+              {/* Photo */}
+              <div className="relative aspect-square bg-slate-100 overflow-hidden">
+                <img
+                  src={inst.image}
+                  alt={inst.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src =
+                      "https://fukeyeducation.com/uploads/website-images/frontend-avatar.png";
+                  }}
+                />
 
-                  <div className="min-w-0">
-                    <h3 className="font-extrabold text-slate-900 text-sm group-hover:text-[#5751E1] transition-colors truncate">
-                      {inst.name}
-                    </h3>
-                    <div className="text-[11px] text-slate-500 truncate mt-0.5">
-                      {inst.role}
-                    </div>
-                    <div className="flex items-center gap-2 mt-2 text-[11px]">
-                      <div className="flex items-center gap-1 text-amber-500 font-bold">
-                        <Star className="w-3 h-3 fill-current" />
-                        <span>{inst.rating}</span>
-                      </div>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-slate-500 font-medium">{inst.studentsCount}+ students</span>
-                    </div>
+                <div className="absolute top-3 left-3">
+                  <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white font-extrabold text-[10px] uppercase tracking-wider">
+                    {inst.department}
+                  </span>
+                </div>
+              </div>
+
+              {/* Bio Details */}
+              <div className="p-6 space-y-3">
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base group-hover:text-[#5751E1] transition-colors">
+                    {inst.name}
+                  </h3>
+                  <div className="text-xs text-slate-500 font-medium mt-0.5">
+                    {inst.designation}
                   </div>
-                </Link>
-              ))}
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-3 border-t border-slate-100">
+                  <div className="flex items-center gap-1 text-amber-500 font-bold">
+                    <Star className="w-3.5 h-3.5 fill-current" />
+                    <span>{inst.rating}</span>
+                  </div>
+                  <div className="text-slate-500 font-semibold">
+                    {inst.coursesCount} Active Batches
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-12" data-aos="fade-up" data-aos-delay="200">
+          <Link
+            href="/instructors"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-[#050071] hover:bg-indigo-900 text-white text-xs font-extrabold shadow-md"
+          >
+            <span>View All 8 Faculty Educators</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </section>
