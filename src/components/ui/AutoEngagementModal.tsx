@@ -79,10 +79,12 @@ export default function AutoEngagementModal() {
 
   const handleGoogleFastFill = async () => {
     const profile = await loginWithGoogle();
-    setStudentName(profile.name);
-    setStudentEmail(profile.email);
-    if (profile.phone) setStudentPhone(profile.phone);
-    triggerConfetti();
+    if (profile) {
+      setStudentName(profile.name);
+      setStudentEmail(profile.email);
+      if (profile.phone) setStudentPhone(profile.phone);
+      triggerConfetti();
+    }
   };
 
   const handleEnquirySubmit = async (e: React.FormEvent) => {

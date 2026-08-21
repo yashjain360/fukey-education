@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { UserProfile, DEMO_USER, setCookie, getCookie, removeCookie } from "@/lib/auth";
 import { triggerConfetti } from "@/lib/confetti";
-import GoogleOAuthModal from "./GoogleOAuthModal";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -11,7 +10,7 @@ interface AuthContextType {
   isGoogleModalOpen: boolean;
   openGoogleModal: () => void;
   closeGoogleModal: () => void;
-  loginWithGoogle: (customData?: Partial<UserProfile>) => Promise<UserProfile>;
+  loginWithGoogle: (customData?: Partial<UserProfile>) => Promise<UserProfile | void>;
   loginWithEmail: (email: string, name?: string, role?: "student" | "instructor" | "admin", phone?: string) => Promise<UserProfile>;
   logout: () => void;
   switchRole: (role: "student" | "instructor" | "admin") => void;
@@ -64,31 +63,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return userObj;
   };
 
-  const openGoogleModal = () => setIsGoogleModalOpen(true);
+  const redirectToGoogleOAuth = async (role = "student") => {
+    try {
+      const res = await fetch(`/api/auth/google/url?role=${encodeURIComponent(role)}`);
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Failed to initialize Google OAuth redirect", err);
+    }
+  };
+
+  const openGoogleModal = () => redirectToGoogleOAuth("student");
   const closeGoogleModal = () => setIsGoogleModalOpen(false);
 
   const loginWithGoogle = async (customData?: Partial<UserProfile>) => {
-    const googleUser: UserProfile = {
-      id: customData?.id || `usr_google_${Date.now()}`,
-      name: customData?.name || "Mayank Dubey",
-      email: customData?.email || "mayank@fukeyeducation.com",
-      role: customData?.role || "student",
-      phone: customData?.phone || "+91 88718 35015",
-      avatar: customData?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
-      enrolledCoursesCount: 2,
-      quizAttemptsCount: 5,
-      totalReviewsCount: 3300,
-      instructorCoursesCount: 2,
-      pendingCoursesCount: 0,
-    };
-
-    setIsGoogleModalOpen(false);
-    return await saveUserSession(googleUser);
+    if (customData?.email) {
+      const googleUser: UserProfile = {
+        id: customData?.id || `usr_google_${Date.now()}`,
+        name: customData?.name || "Student",
+        email: customData.email,
+        role: customData?.role || "student",
+        phone: customData?.phone || "+91 88718 35015",
+        avatar: customData?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+        enrolledCoursesCount: 2,
+        quizAttemptsCount: 5,
+        totalReviewsCount: 3300,
+        instructorCoursesCount: 2,
+        pendingCoursesCount: 0,
+      };
+      return await saveUserSession(googleUser);
+    }
+    // Direct redirect to Official Google
+    await redirectToGoogleOAuth("student");
   };
 
   const loginWithEmail = async (
     email: string,
-    name = "Mayank Dubey",
+    name = "Student",
     role: "student" | "instructor" | "admin" = "student",
     phone = "+91 88718 35015"
   ) => {
@@ -131,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: !!user,
         isGoogleModalOpen,
-        openGoogleModal: () => setIsGoogleModalOpen(true),
+        openGoogleModal: () => redirectToGoogleOAuth("student"),
         closeGoogleModal: () => setIsGoogleModalOpen(false),
         loginWithGoogle,
         loginWithEmail,
@@ -140,11 +153,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }}
     >
       {children}
-      <GoogleOAuthModal
-        isOpen={isGoogleModalOpen}
-        onClose={() => setIsGoogleModalOpen(false)}
-        onSelectAccount={(acc) => loginWithGoogle(acc)}
-      />
     </AuthContext.Provider>
   );
 };
