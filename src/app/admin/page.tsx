@@ -27,13 +27,17 @@ import {
   Eye,
   Check,
   X,
-  RefreshCw
+  RefreshCw,
+  Trash2,
+  FileCode,
+  PenTool
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { triggerConfetti } from "@/lib/confetti";
-import { coursesData } from "@/data/coursesData";
+import { coursesData, Course } from "@/data/coursesData";
 import { instructorsData } from "@/data/instructorsData";
+import { blogsData, BlogPost } from "@/data/blogsData";
 
 interface Lead {
   id: string;
@@ -66,7 +70,7 @@ interface Order {
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<"leads" | "orders" | "analytics" | "batches" | "faculty" | "broadcast">("leads");
+  const [activeTab, setActiveTab] = useState<"leads" | "orders" | "blogs" | "batches" | "faculty" | "broadcast">("leads");
 
   // Orders State
   const [orders, setOrders] = useState<Order[]>([]);
@@ -79,6 +83,31 @@ export default function AdminDashboardPage() {
   const [leadSearch, setLeadSearch] = useState("");
   const [classFilter, setClassFilter] = useState("All Classes");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
+
+  // Blogs State (Dynamic CRUD)
+  const [blogs, setBlogs] = useState<BlogPost[]>(blogsData);
+  const [isBlogsLoading, setIsBlogsLoading] = useState(true);
+  const [blogSearch, setBlogSearch] = useState("");
+  const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
+  const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
+  const [blogTitle, setBlogTitle] = useState("");
+  const [blogCategory, setBlogCategory] = useState("Academic Strategy & Board Prep");
+  const [blogAuthor, setBlogAuthor] = useState("Fukey Academic Team");
+  const [blogReadTime, setBlogReadTime] = useState("5 min read");
+  const [blogImage, setBlogImage] = useState("/images/blogs/blog_board-pariksha-ki-taiyari-kaise-karen.webp");
+  const [blogExcerpt, setBlogExcerpt] = useState("");
+  const [blogContent, setBlogContent] = useState("");
+  const [isSavingBlog, setIsSavingBlog] = useState(false);
+
+  // Courses State (Dynamic CRUD)
+  const [courses, setCourses] = useState<Course[]>(coursesData);
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [newCourseTitle, setNewCourseTitle] = useState("");
+  const [newCourseClass, setNewCourseClass] = useState("Class 10");
+  const [newCourseSubject, setNewCourseSubject] = useState("Mathematics");
+  const [newCourseInstructor, setNewCourseInstructor] = useState("Pawan Gupta");
+  const [newCoursePrice, setNewCoursePrice] = useState(1499);
+  const [isSavingCourse, setIsSavingCourse] = useState(false);
 
   // Modals State
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
@@ -104,62 +133,16 @@ export default function AdminDashboardPage() {
   const [isSendingBroadcast, setIsSendingBroadcast] = useState(false);
   const [broadcastSuccessCount, setBroadcastSuccessCount] = useState<number | null>(null);
 
-  // Fetch Orders & Leads
+  // Load All Dynamic Data
   const loadData = () => {
     setIsOrdersLoading(true);
     setIsLeadsLoading(true);
+    setIsBlogsLoading(true);
 
     fetch("/api/orders?all=true")
       .then((res) => res.json())
       .then((data) => {
-        if (data.orders && data.orders.length > 0) {
-          setOrders(data.orders);
-        } else {
-          setOrders([
-            {
-              no: 1,
-              invoice: "INV-2026-89412",
-              studentName: "Mayank Dubey",
-              studentEmail: "mayank@fukeyeducation.com",
-              studentPhone: "+91 88718 35015",
-              courseTitle: "MATHS 10TH (HINDI MEDIUM)",
-              paid: "₹1,499.00",
-              totalNumeric: 1499,
-              gateway: "Instant UPI / QR",
-              status: "Success",
-              date: "21 Aug 2026",
-              time: "11:15 AM",
-            },
-            {
-              no: 2,
-              invoice: "INV-2026-78105",
-              studentName: "Aman Sharma",
-              studentEmail: "aman.sharma@gmail.com",
-              studentPhone: "+91 98765 43210",
-              courseTitle: "SCIENCE 10TH (ENGLISH MEDIUM)",
-              paid: "₹1,499.00",
-              totalNumeric: 1499,
-              gateway: "Card / NetBanking",
-              status: "Success",
-              date: "20 Aug 2026",
-              time: "04:30 PM",
-            },
-            {
-              no: 3,
-              invoice: "INV-2026-64219",
-              studentName: "Pooja Verma",
-              studentEmail: "pooja.verma@yahoo.com",
-              studentPhone: "+91 98234 56789",
-              courseTitle: "CLASS 12 PHYSICS & CHEMISTRY",
-              paid: "₹2,998.00",
-              totalNumeric: 2998,
-              gateway: "Instant UPI / QR",
-              status: "Success",
-              date: "19 Aug 2026",
-              time: "02:10 PM",
-            }
-          ]);
-        }
+        if (data.orders && data.orders.length > 0) setOrders(data.orders);
       })
       .catch(() => {})
       .finally(() => setIsOrdersLoading(false));
@@ -167,67 +150,25 @@ export default function AdminDashboardPage() {
     fetch("/api/admin/leads")
       .then((res) => res.json())
       .then((data) => {
-        if (data.leads && data.leads.length > 0) {
-          setLeads(data.leads);
-        } else {
-          setLeads([
-            {
-              id: "ENQ-2026-90412",
-              name: "Rahul Verma",
-              phone: "+91 88718 35015",
-              email: "rahul.verma@gmail.com",
-              targetClass: "Class 10",
-              medium: "Hindi Medium",
-              source: "Auto Engagement Modal",
-              status: "New Lead",
-              notes: "Requested callback for Class 10th Maths batch timings and fee structure.",
-              date: "21 Aug 2026",
-              time: "11:40 AM",
-            },
-            {
-              id: "ENQ-2026-89104",
-              name: "Sneha Patel",
-              phone: "+91 70248 49838",
-              email: "sneha.p@yahoo.co.in",
-              targetClass: "Class 12",
-              medium: "English Medium",
-              source: "60-Second Board Readiness Quiz",
-              status: "Trial Scheduled",
-              notes: "Scored 3/3 in Physics Quiz. Trial class scheduled for Physics Derivations with Pawan Sir.",
-              date: "21 Aug 2026",
-              time: "10:15 AM",
-            },
-            {
-              id: "ENQ-2026-78321",
-              name: "Ankit Chouhan",
-              phone: "+91 98260 12345",
-              email: "ankit.bhopal@gmail.com",
-              targetClass: "Class 11",
-              medium: "Hindi & English",
-              source: "Bhopal Center Walk-in Inquiry",
-              status: "Contacted",
-              notes: "Spoke with father. Interested in 45+15 live classroom tablet pedagogy.",
-              date: "20 Aug 2026",
-              time: "05:50 PM",
-            },
-            {
-              id: "ENQ-2026-64190",
-              name: "Priyanka Mishra",
-              phone: "+91 94250 98765",
-              email: "priyanka.m@gmail.com",
-              targetClass: "Class 10",
-              medium: "Hindi Medium",
-              source: "Formula Sheet Download",
-              status: "Enrolled",
-              notes: "Successfully enrolled into Class 10th Board Booster Batch via UPI.",
-              date: "19 Aug 2026",
-              time: "01:20 PM",
-            }
-          ]);
-        }
+        if (data.leads && data.leads.length > 0) setLeads(data.leads);
       })
       .catch(() => {})
       .finally(() => setIsLeadsLoading(false));
+
+    fetch("/api/blogs")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.blogs && data.blogs.length > 0) setBlogs(data.blogs);
+      })
+      .catch(() => {})
+      .finally(() => setIsBlogsLoading(false));
+
+    fetch("/api/courses")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.courses && data.courses.length > 0) setCourses(data.courses);
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -311,6 +252,143 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Blog CRUD Operations
+  const handleOpenBlogModal = (blogToEdit?: BlogPost) => {
+    if (blogToEdit) {
+      setEditingBlog(blogToEdit);
+      setBlogTitle(blogToEdit.title);
+      setBlogCategory(blogToEdit.category);
+      setBlogAuthor(blogToEdit.author);
+      setBlogReadTime(blogToEdit.readTime);
+      setBlogImage(blogToEdit.image);
+      setBlogExcerpt(blogToEdit.excerpt);
+      setBlogContent(blogToEdit.content);
+    } else {
+      setEditingBlog(null);
+      setBlogTitle("");
+      setBlogCategory("Academic Strategy & Board Prep");
+      setBlogAuthor("Fukey Academic Team");
+      setBlogReadTime("5 min read");
+      setBlogImage("/images/blogs/blog_board-pariksha-ki-taiyari-kaise-karen.webp");
+      setBlogExcerpt("");
+      setBlogContent("");
+    }
+    setIsBlogModalOpen(true);
+  };
+
+  const handleSaveBlog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingBlog(true);
+
+    try {
+      if (editingBlog) {
+        // Update Blog
+        const res = await fetch("/api/blogs", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editingBlog.id,
+            title: blogTitle,
+            category: blogCategory,
+            author: blogAuthor,
+            readTime: blogReadTime,
+            image: blogImage,
+            excerpt: blogExcerpt,
+            content: blogContent,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setBlogs((prev) =>
+            prev.map((b) => (b.id === editingBlog.id ? { ...b, title: blogTitle, category: blogCategory, author: blogAuthor, excerpt: blogExcerpt, content: blogContent, image: blogImage, readTime: blogReadTime } : b))
+          );
+          setIsBlogModalOpen(false);
+          triggerConfetti();
+        }
+      } else {
+        // Create Blog
+        const res = await fetch("/api/blogs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: blogTitle,
+            category: blogCategory,
+            author: blogAuthor,
+            readTime: blogReadTime,
+            image: blogImage,
+            excerpt: blogExcerpt,
+            content: blogContent,
+          }),
+        });
+        const data = await res.json();
+        if (data.success && data.blog) {
+          setBlogs((prev) => [data.blog, ...prev]);
+          setIsBlogModalOpen(false);
+          triggerConfetti();
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSavingBlog(false);
+    }
+  };
+
+  const handleDeleteBlog = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this blog post?")) return;
+    try {
+      await fetch(`/api/blogs?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      setBlogs((prev) => prev.filter((b) => b.id !== id && b.slug !== id));
+      triggerConfetti();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Course Batch CRUD
+  const handleCreateCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingCourse(true);
+
+    try {
+      const res = await fetch("/api/courses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newCourseTitle,
+          class: newCourseClass,
+          classNum: parseInt(newCourseClass.replace(/[^0-9]/g, ""), 10) || 10,
+          subject: newCourseSubject,
+          instructor: newCourseInstructor,
+          price: Number(newCoursePrice),
+          originalPrice: Number(newCoursePrice) + 1000,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.course) {
+        setCourses((prev) => [data.course, ...prev]);
+        setIsCourseModalOpen(false);
+        setNewCourseTitle("");
+        triggerConfetti();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSavingCourse(false);
+    }
+  };
+
+  const handleDeleteCourse = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this course batch?")) return;
+    try {
+      await fetch(`/api/courses?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      setCourses((prev) => prev.filter((c) => c.id !== id && c.slug !== id));
+      triggerConfetti();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Send Broadcast via SMTP
   const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -325,7 +403,6 @@ export default function AdminDashboardPage() {
       recipients = ["mayank@fukeyeducation.com", "info@fukeyeducation.com"];
     }
 
-    // Deduplicate
     recipients = Array.from(new Set(recipients));
 
     try {
@@ -385,38 +462,16 @@ export default function AdminDashboardPage() {
     );
   });
 
-  // Export CSV
-  const handleExportCSV = () => {
-    if (activeTab === "leads") {
-      const headers = "Lead ID,Name,Phone,Email,Target Class,Medium,Source,Status,Date,Notes\n";
-      const rows = leads
-        .map(
-          (l) =>
-            `"${l.id}","${l.name}","${l.phone}","${l.email}","${l.targetClass}","${l.medium}","${l.source || ''}","${l.status}","${l.date}","${(l.notes || '').replace(/"/g, '""')}"`
-        )
-        .join("\n");
-      const blob = new Blob([headers + rows], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `fukey_leads_crm_${Date.now()}.csv`;
-      a.click();
-    } else {
-      const headers = "Invoice,Student Name,Email,Phone,Course,Amount,Gateway,Status,Date\n";
-      const rows = orders
-        .map(
-          (o) =>
-            `"${o.invoice}","${o.studentName || 'Student'}","${o.studentEmail || ''}","${o.studentPhone || ''}","${o.courseTitle || ''}","${o.paid}","${o.gateway}","${o.status}","${o.date}"`
-        )
-        .join("\n");
-      const blob = new Blob([headers + rows], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `fukey_orders_export_${Date.now()}.csv`;
-      a.click();
-    }
-  };
+  // Filtered Blogs
+  const filteredBlogs = blogs.filter((b) => {
+    const q = blogSearch.toLowerCase();
+    return (
+      !q ||
+      (b.title && b.title.toLowerCase().includes(q)) ||
+      (b.category && b.category.toLowerCase().includes(q)) ||
+      (b.author && b.author.toLowerCase().includes(q))
+    );
+  });
 
   return (
     <div className="bg-slate-50/70 min-h-screen py-8">
@@ -447,25 +502,25 @@ export default function AdminDashboardPage() {
               Fukey Education Platform Admin
             </h1>
             <p className="text-xs text-slate-300">
-              Live synchronization of website leads, trial callbacks, student enrollments, batches, and broadcast notifications.
+              Live synchronization of website leads, blog posts, course batches, financial receipts, and broadcast notices.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              onClick={() => handleOpenBlogModal()}
+              className="px-3.5 py-2 rounded-xl bg-[#5751E1] hover:bg-indigo-600 text-white font-bold text-xs shadow-md flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <PenTool className="w-3.5 h-3.5" />
+              <span>Write Blog</span>
+            </button>
+
             <button
               onClick={() => setIsAddLeadModalOpen(true)}
               className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Walk-in Lead</span>
-            </button>
-
-            <button
-              onClick={handleExportCSV}
-              className="px-3.5 py-2 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-bold text-xs shadow-md flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export {activeTab === "leads" ? "Leads" : "Orders"} CSV</span>
             </button>
 
             <button
@@ -530,24 +585,24 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* Card 3: Paid Enrollments */}
+          {/* Card 3: Dynamic Blogs Published */}
           <div
-            className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-2 group hover:border-indigo-300 transition-all cursor-pointer"
-            onClick={() => setActiveTab("orders")}
+            className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-2 group hover:border-sky-300 transition-all cursor-pointer"
+            onClick={() => setActiveTab("blogs")}
             data-aos="zoom-in"
             data-aos-delay="200"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Paid Enrollments</span>
-              <div className="w-10 h-10 rounded-2xl bg-indigo-100 text-[#5751E1] flex items-center justify-center">
-                <FileText className="w-5 h-5 animate-icon-float" />
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Published Blogs</span>
+              <div className="w-10 h-10 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center">
+                <PenTool className="w-5 h-5 animate-icon-float" />
               </div>
             </div>
             <div className="text-3xl font-black text-slate-900">
-              {orders.length}
+              {blogs.length}
             </div>
             <div className="text-[11px] font-semibold text-slate-500">
-              100% verified gateway receipts
+              100% Dynamic MongoDB backing
             </div>
           </div>
 
@@ -565,7 +620,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
             <div className="text-3xl font-black text-slate-900">
-              52
+              {courses.length}
             </div>
             <div className="text-[11px] font-semibold text-slate-500">
               Classes 9th to 12th CBSE &amp; MP Board
@@ -589,6 +644,23 @@ export default function AdminDashboardPage() {
               activeTab === "leads" ? "bg-orange-500 text-white" : "bg-slate-200 text-slate-700"
             }`}>
               {leads.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("blogs")}
+            className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === "blogs"
+                ? "bg-[#050071] text-white shadow-sm"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            <PenTool className="w-3.5 h-3.5" />
+            <span>📝 Blog &amp; Article CRUD</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+              activeTab === "blogs" ? "bg-sky-500 text-white" : "bg-slate-200 text-slate-700"
+            }`}>
+              {blogs.length}
             </span>
           </button>
 
@@ -618,7 +690,7 @@ export default function AdminDashboardPage() {
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>📚 Batch Catalog &amp; Seats</span>
+            <span>📚 Course &amp; Batch Manager</span>
           </button>
 
           <button
@@ -836,7 +908,102 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 2: PAID ENROLLMENTS & INVOICES */}
+        {/* TAB 2: BLOG & ARTICLE MANAGER (DYNAMIC CRUD) */}
+        {activeTab === "blogs" && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                  <span>Dynamic Blog &amp; Article Manager</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-700 text-xs font-black">
+                    MongoDB Backed
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Publish, edit, and manage board exam study guides, NCERT strategy articles, and career posts.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="relative flex-1 sm:w-64">
+                  <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={blogSearch}
+                    onChange={(e) => setBlogSearch(e.target.value)}
+                    placeholder="Search articles..."
+                    className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <button
+                  onClick={() => handleOpenBlogModal()}
+                  className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>New Post</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredBlogs.map((blog) => (
+                <div
+                  key={blog.id}
+                  className="p-5 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-xs flex flex-col justify-between group hover:border-indigo-300 transition-all"
+                >
+                  <div className="space-y-3">
+                    <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-slate-100">
+                      <img
+                        src={blog.image}
+                        alt={blog.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-white/90 text-[10px] font-black text-[#050071]">
+                        {blog.category}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="font-extrabold text-sm text-slate-900 line-clamp-2">{blog.title}</h3>
+                      <p className="text-xs text-slate-500 line-clamp-2 mt-1">{blog.excerpt}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <div className="text-slate-400 text-[11px]">By {blog.author}</div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleOpenBlogModal(blog)}
+                        className="p-1.5 rounded-lg bg-indigo-50 hover:bg-[#5751E1] hover:text-white text-[#5751E1] transition-colors cursor-pointer"
+                        title="Edit Blog"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteBlog(blog.id)}
+                        className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 transition-colors cursor-pointer"
+                        title="Delete Blog"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      <Link
+                        href={`/blog/${blog.slug}`}
+                        target="_blank"
+                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                        title="View Published Page"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: PAID ENROLLMENTS & INVOICES */}
         {activeTab === "orders" && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -947,7 +1114,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 3: BATCH CATALOG & CAPACITY */}
+        {/* TAB 4: BATCH CATALOG & CAPACITY */}
         {activeTab === "batches" && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -958,25 +1125,38 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
 
-              <span className="px-3.5 py-1 rounded-full bg-indigo-100 text-[#050071] font-black text-xs">
-                52 Active Batches
-              </span>
+              <button
+                onClick={() => setIsCourseModalOpen(true)}
+                className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Create Live Batch</span>
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {coursesData.slice(0, 6).map((course) => (
+              {courses.map((course) => (
                 <div
                   key={course.id}
-                  className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3 flex flex-col justify-between"
+                  className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3 flex flex-col justify-between group"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-extrabold uppercase">
                         {course.class}
                       </span>
-                      <span className="text-xs font-black text-[#050071]">
-                        ₹{course.price}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-[#050071]">
+                          ₹{course.price}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteCourse(course.id)}
+                          className="text-slate-400 hover:text-rose-600 p-1 transition-colors cursor-pointer"
+                          title="Delete Batch"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
                     <h3 className="font-extrabold text-sm text-slate-900 line-clamp-1">
@@ -1000,7 +1180,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 4: FACULTY WORKLOAD */}
+        {/* TAB 5: FACULTY WORKLOAD */}
         {activeTab === "faculty" && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
             <div>
@@ -1042,7 +1222,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 5: SMTP EMAIL BROADCAST CENTER */}
+        {/* TAB 6: SMTP EMAIL BROADCAST CENTER */}
         {activeTab === "broadcast" && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
             <div>
@@ -1142,7 +1322,231 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* MODAL 1: ADD WALK-IN LEAD */}
+        {/* MODAL: BLOG CREATE & EDIT */}
+        {isBlogModalOpen && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+            <div className="relative w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900">
+                    {editingBlog ? "Edit Board Strategy Article" : "Write & Publish New Article"}
+                  </h3>
+                  <p className="text-xs text-slate-500">Live dynamic publishing to Fukey Education knowledge base</p>
+                </div>
+                <button
+                  onClick={() => setIsBlogModalOpen(false)}
+                  className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveBlog} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Article Headline / Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={blogTitle}
+                    onChange={(e) => setBlogTitle(e.target.value)}
+                    placeholder="e.g. 5 Memory Tricks to Master Class 10th Trigonometry"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 font-medium"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Category</label>
+                    <select
+                      value={blogCategory}
+                      onChange={(e) => setBlogCategory(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 font-bold focus:outline-none"
+                    >
+                      <option value="Academic Strategy & Board Prep">Academic Strategy &amp; Board Prep</option>
+                      <option value="NCERT Syllabus">NCERT Syllabus</option>
+                      <option value="Study Strategies">Study Strategies</option>
+                      <option value="Career Guidance">Career Guidance</option>
+                      <option value="Inventions & GK">Inventions &amp; GK</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Author Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={blogAuthor}
+                      onChange={(e) => setBlogAuthor(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Read Time Estimate</label>
+                    <input
+                      type="text"
+                      value={blogReadTime}
+                      onChange={(e) => setBlogReadTime(e.target.value)}
+                      placeholder="e.g. 4 min read"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Cover Image URL</label>
+                    <input
+                      type="text"
+                      value={blogImage}
+                      onChange={(e) => setBlogImage(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Short Excerpt (SEO Summary)</label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={blogExcerpt}
+                    onChange={(e) => setBlogExcerpt(e.target.value)}
+                    placeholder="Brief 2-sentence synopsis for social sharing..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-500 font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Full Article Body &amp; Markdown</label>
+                  <textarea
+                    rows={8}
+                    required
+                    value={blogContent}
+                    onChange={(e) => setBlogContent(e.target.value)}
+                    placeholder="Write detailed subject concepts, study tips, or derivations..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-500 font-medium font-mono text-xs"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsBlogModalOpen(false)}
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingBlog}
+                    className="px-6 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                  >
+                    {isSavingBlog ? "Publishing..." : editingBlog ? "Save Changes" : "Publish Article"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: CREATE COURSE BATCH */}
+        {isCourseModalOpen && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+            <div className="relative w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="font-black text-base text-slate-900">Create New Academic Batch</h3>
+                <button onClick={() => setIsCourseModalOpen(false)} className="p-1.5 rounded-full bg-slate-100">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateCourse} className="space-y-3 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Batch Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={newCourseTitle}
+                    onChange={(e) => setNewCourseTitle(e.target.value)}
+                    placeholder="e.g. CLASS 10TH SCIENCE CRASH COURSE"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Class</label>
+                    <select
+                      value={newCourseClass}
+                      onChange={(e) => setNewCourseClass(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold"
+                    >
+                      <option value="Class 9">Class 9</option>
+                      <option value="Class 10">Class 10</option>
+                      <option value="Class 11">Class 11</option>
+                      <option value="Class 12">Class 12</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Subject</label>
+                    <input
+                      type="text"
+                      required
+                      value={newCourseSubject}
+                      onChange={(e) => setNewCourseSubject(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Instructor</label>
+                    <input
+                      type="text"
+                      required
+                      value={newCourseInstructor}
+                      onChange={(e) => setNewCourseInstructor(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Fee (₹ INR)</label>
+                    <input
+                      type="number"
+                      required
+                      value={newCoursePrice}
+                      onChange={(e) => setNewCoursePrice(Number(e.target.value))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsCourseModalOpen(false)}
+                    className="px-3 py-2 rounded-xl text-slate-600 font-bold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingCourse}
+                    className="px-5 py-2 rounded-xl bg-[#050071] text-white font-bold shadow-md"
+                  >
+                    {isSavingCourse ? "Saving..." : "Create Batch"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: ADD WALK-IN LEAD */}
         {isAddLeadModalOpen && (
           <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
             <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95">
@@ -1257,7 +1661,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* MODAL 2: EDIT LEAD NOTES */}
+        {/* MODAL: EDIT LEAD NOTES */}
         {isNotesModalOpen && selectedLeadForNotes && (
           <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
             <div className="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in">
@@ -1301,7 +1705,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* MODAL 3: INVOICE PREVIEW */}
+        {/* MODAL: INVOICE PREVIEW */}
         {isInvoiceModalOpen && selectedInvoice && (
           <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
             <div className="relative w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl border border-slate-200 space-y-6 animate-in fade-in">
@@ -1377,7 +1781,7 @@ export default function AdminDashboardPage() {
         {/* Subtle TheWebVale Portal Branding */}
         <div className="text-center pt-4">
           <div className="inline-flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-            <span>Admin Console &amp; Leads Hub Engineered with ❤️ by</span>
+            <span>Admin Console &amp; Dynamic Content Hub Engineered with ❤️ by</span>
             <a
               href="https://thewebvale.com"
               target="_blank"
