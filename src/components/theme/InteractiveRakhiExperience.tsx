@@ -32,11 +32,11 @@ export default function InteractiveRakhiExperience() {
 
   return (
     <>
-      {/* Floating Interactive Rakhi Charm (Bottom Right) */}
-      <aside aria-label="Festive Rakhi widget" className="fixed bottom-6 right-6 z-[99990]">
+      {/* Floating Interactive Rakhi Charm (Placed at Bottom Left so WhatsApp & AI Sahayak at Bottom Right are 100% visible) */}
+      <aside aria-label="Festive Rakhi widget" className="fixed bottom-6 left-6 z-40">
         <button
           onClick={() => setIsOpen(true)}
-          className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-[#0F766E] via-[#115E59] to-[#D97706] text-white font-black text-xs shadow-2xl shadow-teal-950/40 hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-amber-300/60"
+          className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-[#0F766E] via-[#115E59] to-[#D97706] text-white font-black text-xs shadow-2xl shadow-teal-950/40 hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-amber-300/70"
         >
           <span className="text-xl animate-bounce">🪢</span>
           <span className="tracking-wide">Tie a Rakhi</span>
