@@ -5,6 +5,7 @@ import AOSProvider from "@/components/providers/AOSProvider";
 import { AuthProvider } from "@/components/auth/AuthContext";
 import { CartProvider } from "@/components/cart/CartContext";
 import { ModalProvider } from "@/components/ui/CustomModal";
+import AutoEngagementModal from "@/components/ui/AutoEngagementModal";
 import TopBar from "@/components/layout/TopBar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -60,6 +61,7 @@ export default function RootLayout({
                     <Footer />
                   </div>
                   <CartDrawer />
+                  <AutoEngagementModal />
                   <LayoutClientWrapper />
                 </ModalProvider>
               </CartProvider>
