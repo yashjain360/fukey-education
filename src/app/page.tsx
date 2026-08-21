@@ -1,5 +1,3 @@
-import BlinkitFestiveHero from "@/components/home/BlinkitFestiveHero";
-import FestivePicksSection from "@/components/home/FestivePicksSection";
 import HeroSection from "@/components/home/HeroSection";
 import StatsBanner from "@/components/home/StatsBanner";
 import CategoriesSection from "@/components/home/CategoriesSection";
@@ -12,8 +10,6 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 export default function Home() {
   return (
     <div className="flex flex-col">
-      <BlinkitFestiveHero />
-      <FestivePicksSection />
       <HeroSection />
       <StatsBanner />
       <CategoriesSection />
