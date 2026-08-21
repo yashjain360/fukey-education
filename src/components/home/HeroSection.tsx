@@ -7,10 +7,13 @@ import { triggerConfetti } from "@/lib/confetti";
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-indigo-50/60 via-white to-slate-50/80 pt-12 pb-20 border-b border-slate-100">
-      {/* Subtle Background Glows */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-200/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl pointer-events-none" />
+    <section className="relative overflow-hidden bg-gradient-to-b from-orange-50/40 via-white to-indigo-50/30 pt-10 pb-20 border-b border-slate-100">
+      {/* Decorative Tricolor Gradient Waves */}
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-gradient-to-br from-orange-200/40 via-white to-emerald-200/40 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-indigo-200/30 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Tricolor top micro-bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 tricolor-ribbon" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -18,7 +21,7 @@ export default function HeroSection() {
           <div className="lg:col-span-7 space-y-6" data-aos="fade-right" data-aos-duration="800">
             {/* Live Online Badge */}
             <div
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF2424] text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-red-500/20"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF2424] text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-red-500/20 animate-pulse"
               data-aos="zoom-in"
               data-aos-delay="100"
             >
@@ -76,10 +79,10 @@ export default function HeroSection() {
 
               <button
                 onClick={triggerConfetti}
-                className="px-6 py-4 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm border-2 border-slate-200 shadow-sm hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                className="px-6 py-4 rounded-2xl bg-white hover:bg-orange-50 text-slate-800 font-bold text-sm border-2 border-orange-200 shadow-md hover:border-orange-400 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
               >
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>View Special Admissions Offers</span>
+                <Sparkles className="w-4 h-4 text-orange-500" />
+                <span>Claim 40% Freedom Sale</span>
               </button>
             </div>
 
@@ -116,6 +119,10 @@ export default function HeroSection() {
           {/* Right Column: Hero Visual Graphic Banner */}
           <div className="lg:col-span-5 relative" data-aos="fade-left" data-aos-duration="850">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-gradient-to-tr from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-6 sm:p-8">
+              {/* Saffron & Green Accent Glow */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 rounded-full blur-2xl" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl" />
+
               {/* Tag */}
               <div className="flex items-center justify-between mb-6" data-aos="zoom-in" data-aos-delay="200">
                 <div className="px-3 py-1 rounded-full bg-white/10 text-orange-300 font-bold text-xs border border-white/10 flex items-center gap-1.5">
@@ -148,8 +155,8 @@ export default function HeroSection() {
                     <div className="text-[11px] text-slate-300">NCERT Coverage</div>
                   </div>
                   <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-                    <div className="text-xl font-black text-emerald-300">Top Rank</div>
-                    <div className="text-[11px] text-slate-300">Board Results</div>
+                    <div className="text-xl font-black text-emerald-300">40% OFF</div>
+                    <div className="text-[11px] text-slate-300">Freedom Sale</div>
                   </div>
                 </div>
               </div>
