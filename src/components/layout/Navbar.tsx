@@ -52,11 +52,12 @@ export default function Navbar() {
   const navLinks = [
     { name: t("nav.home", "Home"), href: "/" },
     { name: t("nav.courses", "Courses"), href: "/courses" },
+    { name: t("nav.test_series", "Test Series"), href: "/test-series" },
+    { name: t("nav.notes", "Notes"), href: "/notes" },
     { name: t("nav.ebooks", "Ebooks"), href: "/ebooks" },
     { name: t("nav.instructors", "Instructors"), href: "/instructors" },
     { name: t("nav.about", "About Us"), href: "/about-us" },
     { name: t("nav.blog", "Blog"), href: "/blog" },
-    { name: t("nav.news", "News"), href: "/news" },
     { name: t("nav.contact", "Contact"), href: "/contact" },
   ];
 
