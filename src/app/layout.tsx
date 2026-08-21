@@ -4,6 +4,10 @@ import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { AuthProvider } from "@/components/auth/AuthContext";
 import { CartProvider } from "@/components/cart/CartContext";
 import { ModalProvider } from "@/components/ui/CustomModal";
+import { FestivalThemeProvider } from "@/components/theme/FestivalThemeContext";
+import FestivalMouseTrail from "@/components/theme/FestivalMouseTrail";
+import FestivalMovingBackground from "@/components/theme/FestivalMovingBackground";
+import FestivalThemeSwitcher from "@/components/theme/FestivalThemeSwitcher";
 import TopBar from "@/components/layout/TopBar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -45,22 +49,27 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased selection:bg-indigo-500 selection:text-white">
+      <body className="antialiased selection:bg-orange-500 selection:text-white">
         <SmoothScrollProvider>
           <AuthProvider>
             <CartProvider>
               <ModalProvider>
-                <div className="flex min-h-screen flex-col justify-between">
-                  <div>
-                    <TopBar />
-                    <Navbar />
-                    <main>{children}</main>
+                <FestivalThemeProvider>
+                  <FestivalMovingBackground />
+                  <FestivalMouseTrail />
+                  <div className="relative z-10 flex min-h-screen flex-col justify-between">
+                    <div>
+                      <TopBar />
+                      <Navbar />
+                      <main>{children}</main>
+                    </div>
+                    <Footer />
                   </div>
-                  <Footer />
-                </div>
-                <CartDrawer />
-                <FreedomSaleModal />
-                <LayoutClientWrapper />
+                  <CartDrawer />
+                  <FreedomSaleModal />
+                  <FestivalThemeSwitcher />
+                  <LayoutClientWrapper />
+                </FestivalThemeProvider>
               </ModalProvider>
             </CartProvider>
           </AuthProvider>
