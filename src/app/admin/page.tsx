@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ShieldCheck,
   TrendingUp,
@@ -73,9 +74,16 @@ interface Order {
 }
 
 export default function AdminDashboardPage() {
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
   type AdminTab = "leads" | "orders" | "blogs" | "batches" | "faculty" | "broadcast";
   const [activeTab, setActiveTab] = useState<AdminTab>("leads");
+
+  useEffect(() => {
+    if (!isAuthLoading && (!user || user.role !== "admin")) {
+      router.replace("/login?redirect=/admin");
+    }
+  }, [user, isAuthLoading, router]);
 
   const handleTabChange = (tab: AdminTab) => {
     setActiveTab(tab);
@@ -810,6 +818,15 @@ export default function AdminDashboardPage() {
     );
   });
 
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white space-y-4">
+        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs font-bold text-slate-400">Verifying Administrative Privileges...</p>
+      </div>
+    );
+  }
+
   if (!user || user.role !== "admin") {
     return (
       <div className="min-h-[75vh] flex items-center justify-center p-4 bg-slate-50">
@@ -824,7 +841,7 @@ export default function AdminDashboardPage() {
             </p>
           </div>
           <Link
-            href="/login"
+            href="/login?redirect=/admin"
             className="w-full block py-3.5 rounded-xl bg-[#050071] hover:bg-indigo-900 text-white font-black text-xs shadow-md transition-all hover:scale-105"
           >
             Sign In as Admin →

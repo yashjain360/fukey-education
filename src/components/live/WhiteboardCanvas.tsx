@@ -14,18 +14,31 @@ import {
 } from "lucide-react";
 import { triggerConfetti } from "@/lib/confetti";
 
+type WhiteboardMsg =
+  | { type: "stroke"; tool: "pen" | "highlighter" | "eraser"; color: string; size: number; points: [number, number][] }
+  | { type: "clear" };
+
 interface WhiteboardProps {
   isInstructor: boolean;
   roomId: string;
+  sendData: (topic: string, payload: unknown) => void;
+  onData: (topic: string, handler: (payload: unknown) => void) => () => void;
 }
 
-export default function WhiteboardCanvas({ isInstructor, roomId }: WhiteboardProps) {
+const BG_COLOR = "#0A0D1A";
+
+export default function WhiteboardCanvas({ isInstructor, roomId, sendData, onData }: WhiteboardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState<"pen" | "highlighter" | "eraser">("pen");
   const [color, setColor] = useState("#FFFFFF");
   const [brushSize, setBrushSize] = useState(3);
   const [hasContent, setHasContent] = useState(false);
+
+  // Last point, normalized to a 0..1 fraction of canvas width/height so a segment drawn on one
+  // participant's canvas replays correctly on another's, even if their canvases render at a
+  // different pixel size.
+  const lastPointRef = useRef<[number, number] | null>(null);
 
   const colors = [
     "#FFFFFF", // White
@@ -36,21 +49,10 @@ export default function WhiteboardCanvas({ isInstructor, roomId }: WhiteboardPro
     "#EF4444", // Red
   ];
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Set canvas dimensions
-    canvas.width = canvas.parentElement?.clientWidth || 900;
-    canvas.height = canvas.parentElement?.clientHeight || 600;
-
-    // Fill slate background
-    ctx.fillStyle = "#0A0D1A";
+  const paintIntro = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
+    ctx.fillStyle = BG_COLOR;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw subtle coordinate grid for math derivations
     ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
     ctx.lineWidth = 1;
     for (let x = 0; x < canvas.width; x += 40) {
@@ -66,7 +68,6 @@ export default function WhiteboardCanvas({ isInstructor, roomId }: WhiteboardPro
       ctx.stroke();
     }
 
-    // Default instructor welcome equation
     ctx.font = "bold 16px 'Plus Jakarta Sans', sans-serif";
     ctx.fillStyle = "#FBBF24";
     ctx.fillText("📌 LIVE CLASSROOM WHITEBOARD • CBSE & STATE BOARDS", 24, 36);
@@ -74,58 +75,110 @@ export default function WhiteboardCanvas({ isInstructor, roomId }: WhiteboardPro
     ctx.font = "14px monospace";
     ctx.fillStyle = "#94A3B8";
     ctx.fillText("Quadratic Formula: x = [-b ± √(b² - 4ac)] / 2a", 24, 64);
-  }, []);
-
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isInstructor) return; // Only instructor has edit control
-    setIsDrawing(true);
-    setHasContent(true);
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-
-    ctx.beginPath();
-    ctx.moveTo(clientX - rect.left, clientY - rect.top);
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !isInstructor) return;
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    canvas.width = canvas.parentElement?.clientWidth || 900;
+    canvas.height = canvas.parentElement?.clientHeight || 600;
 
-    if (tool === "eraser") {
-      ctx.strokeStyle = "#0A0D1A";
-      ctx.lineWidth = brushSize * 4;
+    paintIntro(ctx, canvas);
+  }, []);
+
+  const strokeSegment = (msg: Extract<WhiteboardMsg, { type: "stroke" }>) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+
+    const [[x0f, y0f], [x1f, y1f]] = msg.points;
+    const x0 = x0f * canvas.width;
+    const y0 = y0f * canvas.height;
+    const x1 = x1f * canvas.width;
+    const y1 = y1f * canvas.height;
+
+    if (msg.tool === "eraser") {
+      ctx.strokeStyle = BG_COLOR;
+      ctx.lineWidth = msg.size * 4;
       ctx.globalAlpha = 1.0;
-    } else if (tool === "highlighter") {
-      ctx.strokeStyle = color;
-      ctx.lineWidth = brushSize * 3;
+    } else if (msg.tool === "highlighter") {
+      ctx.strokeStyle = msg.color;
+      ctx.lineWidth = msg.size * 3;
       ctx.globalAlpha = 0.35;
     } else {
-      ctx.strokeStyle = color;
-      ctx.lineWidth = brushSize;
+      ctx.strokeStyle = msg.color;
+      ctx.lineWidth = msg.size;
       ctx.globalAlpha = 1.0;
     }
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.lineTo(clientX - rect.left, clientY - rect.top);
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
     ctx.stroke();
+    ctx.globalAlpha = 1.0;
+  };
+
+  // Students render whatever the instructor broadcasts; the instructor's own strokes are already
+  // drawn locally as they're made, so the instructor doesn't also apply its own broadcast.
+  useEffect(() => {
+    if (isInstructor) return;
+
+    return onData("whiteboard", (payload) => {
+      const msg = payload as WhiteboardMsg;
+      if (msg.type === "clear") {
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext("2d");
+        if (canvas && ctx) paintIntro(ctx, canvas);
+        setHasContent(false);
+      } else if (msg.type === "stroke") {
+        strokeSegment(msg);
+        setHasContent(true);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInstructor, onData]);
+
+  const pointFromEvent = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>): [number, number] | null => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    return [(clientX - rect.left) / canvas.width, (clientY - rect.top) / canvas.height];
+  };
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isInstructor) return; // Only instructor has edit control
+    setIsDrawing(true);
+    setHasContent(true);
+    lastPointRef.current = pointFromEvent(e);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !isInstructor) return;
+    const point = pointFromEvent(e);
+    if (!point || !lastPointRef.current) return;
+
+    const msg: WhiteboardMsg = {
+      type: "stroke",
+      tool,
+      color,
+      size: brushSize,
+      points: [lastPointRef.current, point],
+    };
+    strokeSegment(msg);
+    sendData("whiteboard", msg);
+    lastPointRef.current = point;
   };
 
   const stopDrawing = () => {
     setIsDrawing(false);
+    lastPointRef.current = null;
   };
 
   const handleClear = () => {
@@ -134,8 +187,9 @@ export default function WhiteboardCanvas({ isInstructor, roomId }: WhiteboardPro
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = "#0A0D1A";
+    ctx.fillStyle = BG_COLOR;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    sendData("whiteboard", { type: "clear" } as WhiteboardMsg);
   };
 
   const handleExportPNG = () => {

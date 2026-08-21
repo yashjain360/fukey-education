@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Send, MessageSquare, Pin, CheckCircle2, User, Sparkles } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Send, MessageSquare, Pin, CheckCircle2 } from "lucide-react";
 
 interface Message {
   id: string;
@@ -15,42 +15,36 @@ interface Message {
 interface LiveChatProps {
   currentUserName: string;
   isInstructor: boolean;
+  sendData: (topic: string, payload: unknown) => void;
+  onData: (topic: string, handler: (payload: unknown) => void) => () => void;
 }
 
-export default function LiveChatDrawer({ currentUserName, isInstructor }: LiveChatProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      sender: "Pawan Gupta (Faculty)",
-      isInstructor: true,
-      text: "Welcome to today's CBSE Quadratic Equations live batch! Keep your NCERT notebooks ready.",
-      time: "5:00 PM",
-      isPinned: true,
-    },
-    {
-      id: "2",
-      sender: "Mayank Dubey",
-      isInstructor: false,
-      text: "Sir, will we also solve 2024 board question 14 on discriminant?",
-      time: "5:03 PM",
-    },
-  ]);
-
+export default function LiveChatDrawer({ currentUserName, isInstructor, sendData, onData }: LiveChatProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMsg, setInputMsg] = useState("");
+
+  useEffect(() => {
+    return onData("chat", (payload) => {
+      setMessages((prev) => [...prev, payload as Message]);
+    });
+  }, [onData]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMsg.trim()) return;
 
     const newMsg: Message = {
-      id: Date.now().toString(),
+      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       sender: currentUserName,
       isInstructor,
       text: inputMsg.trim(),
       time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
     };
 
+    // LiveKit data messages don't loop back to the sender, so the sender's own message is appended
+    // locally in addition to being broadcast.
     setMessages((prev) => [...prev, newMsg]);
+    sendData("chat", newMsg);
     setInputMsg("");
   };
 
@@ -83,25 +77,31 @@ export default function LiveChatDrawer({ currentUserName, isInstructor }: LiveCh
 
       {/* Chat Messages List */}
       <div className="flex-1 overflow-y-auto space-y-3 py-2 text-xs">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`p-3 rounded-2xl space-y-1 ${
-              msg.isInstructor
-                ? "bg-indigo-900/50 border border-indigo-600/40 ml-2"
-                : "bg-slate-800/80 border border-slate-700/50 mr-2"
-            }`}
-          >
-            <div className="flex items-center justify-between text-[10px] text-slate-400">
-              <span className={`font-extrabold flex items-center gap-1 ${msg.isInstructor ? "text-amber-300" : "text-slate-200"}`}>
-                {msg.sender}
-                {msg.isInstructor && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
-              </span>
-              <span>{msg.time}</span>
-            </div>
-            <p className="text-slate-200 leading-relaxed">{msg.text}</p>
+        {messages.length === 0 ? (
+          <div className="text-[11px] text-slate-500 text-center py-6">
+            No messages yet — say hello to the class.
           </div>
-        ))}
+        ) : (
+          messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`p-3 rounded-2xl space-y-1 ${
+                msg.isInstructor
+                  ? "bg-indigo-900/50 border border-indigo-600/40 ml-2"
+                  : "bg-slate-800/80 border border-slate-700/50 mr-2"
+              }`}
+            >
+              <div className="flex items-center justify-between text-[10px] text-slate-400">
+                <span className={`font-extrabold flex items-center gap-1 ${msg.isInstructor ? "text-amber-300" : "text-slate-200"}`}>
+                  {msg.sender}
+                  {msg.isInstructor && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
+                </span>
+                <span>{msg.time}</span>
+              </div>
+              <p className="text-slate-200 leading-relaxed">{msg.text}</p>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Input Box */}

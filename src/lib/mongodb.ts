@@ -1,6 +1,11 @@
 import { MongoClient, Db } from "mongodb";
 
-const uri = process.env.MONGODB_URI || "mongodb+srv://yaashjainn:2CfKwxYEOFqjowmn@webverse.5exbv3u.mongodb.net/fukey_education?retryWrites=true&w=majority";
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error(
+    "MONGODB_URI is not set. Add it to .env.local — no hardcoded fallback connection string is used anymore."
+  );
+}
 const options = {};
 
 let client: MongoClient;

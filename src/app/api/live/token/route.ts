@@ -1,49 +1,78 @@
 import { NextResponse } from "next/server";
-import { AccessToken } from "livekit-server-sdk";
+import { getDatabase } from "@/lib/mongodb";
+import { requireUser, AuthError } from "@/lib/serverAuth";
+import { mintAccessToken } from "@/lib/livekitClient";
+
+/** Mirrors the matching rule api/live/classes GET uses for `enrolledSlugs`: a class is open to a
+ * student if it targets "all", targets one of the student's enrolled batch slugs, or is flagged as
+ * an open masterclass. */
+function studentCanJoin(liveClass: any, enrolledSlugs: string[]): boolean {
+  const targetBatches: string[] = liveClass.targetBatches || [];
+  const selectedStudents: string[] = liveClass.selectedStudents || [];
+
+  if (targetBatches.includes("all")) return true;
+  if (selectedStudents.includes("open_masterclass")) return true;
+  return targetBatches.some((b) => enrolledSlugs.includes(b));
+}
 
 export async function POST(request: Request) {
   try {
+    const user = await requireUser(request);
     const body = await request.json();
-    const { roomId, participantName, participantId, isInstructor } = body;
+    const roomId: string | undefined = body?.roomId;
 
-    if (!roomId || !participantName) {
-      return NextResponse.json({ success: false, error: "Room ID and Participant Name are required" }, { status: 400 });
+    if (!roomId) {
+      return NextResponse.json({ success: false, error: "roomId is required" }, { status: 400 });
     }
 
-    const apiKey = process.env.LIVEKIT_API_KEY || "devkey";
-    const apiSecret = process.env.LIVEKIT_API_SECRET || "secret_fukey_livekit_2026_dev_key";
-    const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || process.env.LIVEKIT_SERVER_URL || process.env.LIVEKIT_URL || "wss://meetings.thewebvale.com";
+    const db = await getDatabase();
+    const liveClass = await db.collection("live_classes").findOne({ roomId });
 
-    // Create Access Token
-    const identity = participantId || `user_${Math.random().toString(36).substring(2, 9)}`;
-    const at = new AccessToken(apiKey, apiSecret, {
-      identity,
-      name: participantName,
-      ttl: 60 * 60 * 4, // 4 hours valid
-    });
+    if (!liveClass) {
+      return NextResponse.json({ success: false, error: "Live class not found" }, { status: 404 });
+    }
 
-    // Grant room permissions
-    at.addGrant({
+    const isStaff = user.role === "instructor" || user.role === "admin";
+    // A non-admin instructor only gets host powers (roomAdmin/roomRecord) on their own class — an
+    // instructor who isn't this class's owner is treated as a regular participant, same enrollment
+    // gate as a student. Otherwise any instructor account could open and record any other
+    // instructor's classroom.
+    const isOwner = user.role === "admin" || (user.role === "instructor" && liveClass.instructorEmail === user.email);
+    const isInstructor = isStaff && isOwner;
+
+    if (!isInstructor) {
+      const enrollments = await db
+        .collection("enrollments")
+        .find({ studentEmail: user.email.toLowerCase().trim() })
+        .toArray();
+      const enrolledSlugs = enrollments.map((e: any) => e.courseSlug).filter(Boolean);
+
+      if (!studentCanJoin(liveClass, enrolledSlugs)) {
+        return NextResponse.json(
+          { success: false, error: "You are not enrolled in this class" },
+          { status: 403 }
+        );
+      }
+    }
+
+    const { token, wsUrl } = await mintAccessToken({
+      identity: user.id,
+      name: user.name,
       room: roomId,
-      roomJoin: true,
-      canPublish: isInstructor ? true : false, // students can publish when unmuted/doubt room
-      canPublishData: true,
-      canSubscribe: true,
-      roomAdmin: isInstructor ? true : false,
-      roomRecord: isInstructor ? true : false,
+      isInstructor,
+      canPublishMic: !isInstructor,
     });
-
-    const token = await at.toJwt();
 
     return NextResponse.json({
       success: true,
       token,
       wsUrl,
-      identity,
+      identity: user.id,
       roomId,
-      isInstructor: Boolean(isInstructor),
+      isInstructor,
     });
   } catch (error) {
-    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+    const status = error instanceof AuthError ? error.status : 500;
+    return NextResponse.json({ success: false, error: String((error as Error)?.message || error) }, { status });
   }
 }

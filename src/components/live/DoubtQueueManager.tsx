@@ -1,37 +1,70 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Clock, Hand, Mic, MicOff, Check, UserCheck, AlertCircle } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Clock, Hand, Mic, UserCheck } from "lucide-react";
 import { triggerConfetti } from "@/lib/confetti";
+
+type DoubtQueueMsg =
+  | { type: "raise-hand"; id: string; name: string; topic: string }
+  | { type: "lower-hand"; name: string }
+  | { type: "approve-speaker"; name: string }
+  | { type: "mute-speaker" }
+  | { type: "mode-switch"; mode: "lecture" | "doubt"; secondsRemaining: number };
 
 interface DoubtQueueProps {
   isInstructor: boolean;
   currentUserName: string;
+  sendData: (topic: string, payload: unknown) => void;
+  onData: (topic: string, handler: (payload: unknown) => void) => () => void;
 }
 
-export default function DoubtQueueManager({ isInstructor, currentUserName }: DoubtQueueProps) {
+const LECTURE_SECONDS = 45 * 60;
+const DOUBT_SECONDS = 15 * 60;
+
+export default function DoubtQueueManager({ isInstructor, currentUserName, sendData, onData }: DoubtQueueProps) {
   const [mode, setMode] = useState<"lecture" | "doubt">("lecture");
-  const [secondsRemaining, setSecondsRemaining] = useState(45 * 60); // 45 mins countdown
+  const [secondsRemaining, setSecondsRemaining] = useState(LECTURE_SECONDS);
   const [handRaised, setHandRaised] = useState(false);
   const [activeSpeaker, setActiveSpeaker] = useState<string | null>(null);
+  const [queue, setQueue] = useState<{ id: string; name: string; topic: string }[]>([]);
 
-  const [queue, setQueue] = useState<{ id: string; name: string; topic: string }[]>([
-    { id: "1", name: "Mayank Dubey", topic: "Discriminant negative case clarification" },
-    { id: "2", name: "Sneha Patel", topic: "Word problem on speed & time" },
-  ]);
+  // Each client ticks its own local countdown between broadcasts (avoids a re-render storm from
+  // every participant's timer firing a network message every second) but resyncs the instant a
+  // fresh mode-switch arrives, so nobody's timer can drift out of agreement.
+  const tickingRef = useRef(true);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setSecondsRemaining((prev) => {
-        if (prev <= 1) {
-          setMode("doubt");
-          return 15 * 60; // switch to 15 min doubt room
-        }
-        return prev - 1;
-      });
+      if (!tickingRef.current) return;
+      setSecondsRemaining((prev) => Math.max(0, prev - 1));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    return onData("doubt-queue", (payload) => {
+      const msg = payload as DoubtQueueMsg;
+      switch (msg.type) {
+        case "raise-hand":
+          setQueue((prev) => (prev.some((q) => q.name === msg.name) ? prev : [...prev, { id: msg.id, name: msg.name, topic: msg.topic }]));
+          break;
+        case "lower-hand":
+          setQueue((prev) => prev.filter((q) => q.name !== msg.name));
+          break;
+        case "approve-speaker":
+          setActiveSpeaker(msg.name);
+          setQueue((prev) => prev.filter((q) => q.name !== msg.name));
+          break;
+        case "mute-speaker":
+          setActiveSpeaker(null);
+          break;
+        case "mode-switch":
+          setMode(msg.mode);
+          setSecondsRemaining(msg.secondsRemaining);
+          break;
+      }
+    });
+  }, [onData]);
 
   const formatTimer = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -41,11 +74,14 @@ export default function DoubtQueueManager({ isInstructor, currentUserName }: Dou
 
   const handleToggleHand = () => {
     if (!handRaised) {
-      setQueue((prev) => [...prev, { id: Date.now().toString(), name: currentUserName, topic: "Doubt query" }]);
+      const entry = { id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`, name: currentUserName, topic: "Doubt query" };
+      setQueue((prev) => [...prev, entry]);
+      sendData("doubt-queue", { type: "raise-hand", ...entry } as DoubtQueueMsg);
       setHandRaised(true);
       triggerConfetti();
     } else {
       setQueue((prev) => prev.filter((q) => q.name !== currentUserName));
+      sendData("doubt-queue", { type: "lower-hand", name: currentUserName } as DoubtQueueMsg);
       setHandRaised(false);
     }
   };
@@ -53,8 +89,35 @@ export default function DoubtQueueManager({ isInstructor, currentUserName }: Dou
   const handleApproveSpeaker = (name: string) => {
     setActiveSpeaker(name);
     setQueue((prev) => prev.filter((q) => q.name !== name));
+    sendData("doubt-queue", { type: "approve-speaker", name } as DoubtQueueMsg);
     triggerConfetti();
   };
+
+  const handleMuteSpeaker = () => {
+    setActiveSpeaker(null);
+    sendData("doubt-queue", { type: "mute-speaker" } as DoubtQueueMsg);
+  };
+
+  const handleModeSwitch = () => {
+    const nextMode = mode === "lecture" ? "doubt" : "lecture";
+    const nextSeconds = nextMode === "doubt" ? DOUBT_SECONDS : LECTURE_SECONDS;
+    setMode(nextMode);
+    setSecondsRemaining(nextSeconds);
+    sendData("doubt-queue", { type: "mode-switch", mode: nextMode, secondsRemaining: nextSeconds } as DoubtQueueMsg);
+  };
+
+  // Instructor drives the countdown-triggered auto-switch and broadcasts it; students just receive.
+  useEffect(() => {
+    if (!isInstructor) return;
+    if (secondsRemaining > 0) return;
+
+    const nextMode = mode === "lecture" ? "doubt" : "lecture";
+    const nextSeconds = nextMode === "doubt" ? DOUBT_SECONDS : LECTURE_SECONDS;
+    setMode(nextMode);
+    setSecondsRemaining(nextSeconds);
+    sendData("doubt-queue", { type: "mode-switch", mode: nextMode, secondsRemaining: nextSeconds } as DoubtQueueMsg);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondsRemaining, isInstructor]);
 
   return (
     <div className="bg-slate-900 border border-indigo-900/60 rounded-3xl p-5 text-white space-y-4 shadow-xl">
@@ -89,7 +152,7 @@ export default function DoubtQueueManager({ isInstructor, currentUserName }: Dou
         {isInstructor && (
           <button
             type="button"
-            onClick={() => setMode((m) => (m === "lecture" ? "doubt" : "lecture"))}
+            onClick={handleModeSwitch}
             className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-[10px] font-bold transition-colors cursor-pointer"
           >
             Switch to {mode === "lecture" ? "15-Min Doubt" : "Lecture"}
@@ -106,7 +169,7 @@ export default function DoubtQueueManager({ isInstructor, currentUserName }: Dou
           </div>
           {isInstructor && (
             <button
-              onClick={() => setActiveSpeaker(null)}
+              onClick={handleMuteSpeaker}
               className="px-2 py-0.5 rounded-md bg-rose-600 text-white text-[10px] font-bold"
             >
               Mute

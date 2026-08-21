@@ -47,11 +47,17 @@ import CustomConfirmModal from "@/components/ui/CustomConfirmModal";
 import ToastNotification from "@/components/ui/ToastNotification";
 
 export default function InstructorDashboardPage() {
-  const { user, logout, switchRole } = useAuth();
+  const { user, logout, switchRole, isLoading: isAuthLoading } = useAuth();
   const { currency } = useCart();
-  type InstructorTab = "dashboard" | "courses" | "live" | "questions" | "students" | "earnings" | "wishlist" | "settings";
+  type InstructorTab = "dashboard" | "courses" | "live" | "recordings" | "questions" | "students" | "earnings" | "wishlist" | "settings";
   const [activeTab, setActiveTab] = useState<InstructorTab>("dashboard");
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthLoading && (!user || (user.role !== "instructor" && user.role !== "admin"))) {
+      router.replace("/login?redirect=/instructor/dashboard");
+    }
+  }, [user, isAuthLoading, router]);
 
   const handleTabChange = (tab: InstructorTab) => {
     setActiveTab(tab);
@@ -66,7 +72,7 @@ export default function InstructorDashboardPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const tabParam = new URLSearchParams(window.location.search).get("tab") as InstructorTab;
-      const validTabs: InstructorTab[] = ["dashboard", "courses", "live", "questions", "students", "earnings", "wishlist", "settings"];
+      const validTabs: InstructorTab[] = ["dashboard", "courses", "live", "recordings", "questions", "students", "earnings", "wishlist", "settings"];
       if (tabParam && validTabs.includes(tabParam)) {
         setActiveTab(tabParam);
       } else {
@@ -253,6 +259,7 @@ export default function InstructorDashboardPage() {
 
   // Live Class Scheduling State
   const [liveClasses, setLiveClasses] = useState<any[]>([]);
+  const [recordings, setRecordings] = useState<any[]>([]);
   const [isCreateLiveModalOpen, setIsCreateLiveModalOpen] = useState(false);
   const [newLiveTitle, setNewLiveTitle] = useState("");
   const [newLiveSubject, setNewLiveSubject] = useState("Mathematics");
@@ -303,6 +310,15 @@ export default function InstructorDashboardPage() {
         if (data.classes && data.classes.length > 0) setLiveClasses(data.classes);
       })
       .catch(() => {});
+
+    if (user.email) {
+      fetch(`/api/live/recordings?instructorEmail=${encodeURIComponent(user.email)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.recordings) setRecordings(data.recordings);
+        })
+        .catch(() => {});
+    }
 
     fetch(`/api/tests${instQuery}`)
       .then((res) => res.json())
@@ -428,7 +444,7 @@ export default function InstructorDashboardPage() {
       const roomId = `room-${newLiveSubject.toLowerCase().replace(/[^a-z0-9]/g, "")}-${newLiveClass.replace(/[^0-9]/g, "")}-${Date.now().toString(36)}`;
       const res = await fetch("/api/live/classes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user?.token ?? ""}` },
         body: JSON.stringify({
           roomId,
           title: newLiveTitle,
@@ -437,7 +453,8 @@ export default function InstructorDashboardPage() {
           targetBatches: [newLiveBatch],
           selectedStudents: [newLiveStudentTarget],
           medium: "Hindi & English",
-          instructor: user?.name || "Pawan Gupta",
+          // instructor/instructorEmail are derived server-side from the bearer token now — no need
+          // to send them.
           status: "LIVE_NOW",
           scheduledTime: newLiveScheduledTime,
         }),
@@ -472,7 +489,10 @@ export default function InstructorDashboardPage() {
 
         // 2. Background database sync
         try {
-          await fetch(`/api/live/classes?roomId=${encodeURIComponent(roomId)}`, { method: "DELETE" });
+          await fetch(`/api/live/classes?roomId=${encodeURIComponent(roomId)}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${user?.token ?? ""}` },
+          });
         } catch (err) {
           console.error("Live class deletion failed", err);
         }
@@ -576,6 +596,15 @@ export default function InstructorDashboardPage() {
     );
   });
 
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white space-y-4">
+        <div className="w-12 h-12 border-4 border-[#5751E1] border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs font-bold text-slate-400">Verifying Faculty Credentials...</p>
+      </div>
+    );
+  }
+
   if (!user || (user.role !== "instructor" && user.role !== "admin")) {
     return (
       <div className="min-h-[75vh] flex items-center justify-center p-4 bg-slate-50">
@@ -590,7 +619,7 @@ export default function InstructorDashboardPage() {
             </p>
           </div>
           <Link
-            href="/login"
+            href="/login?redirect=/instructor/dashboard"
             className="w-full block py-3.5 rounded-xl bg-[#050071] hover:bg-indigo-900 text-white font-black text-xs shadow-md transition-all hover:scale-105"
           >
             Sign In as Instructor →
@@ -647,13 +676,23 @@ export default function InstructorDashboardPage() {
               <span>Create Batch Test</span>
             </button>
 
-            <Link
-              href="/live/room-maths-10-quadratics"
-              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-black text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
-            >
-              <Video className="w-4 h-4 animate-icon-pulse" />
-              <span>Launch Live Studio</span>
-            </Link>
+            {liveClasses.some((c) => c.status === "LIVE_NOW") ? (
+              <Link
+                href={`/live/${liveClasses.find((c) => c.status === "LIVE_NOW")!.roomId}`}
+                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-black text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+              >
+                <Video className="w-4 h-4 animate-icon-pulse" />
+                <span>Re-enter Live Studio</span>
+              </Link>
+            ) : (
+              <button
+                onClick={handleOpenCreateLiveModal}
+                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-black text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <Video className="w-4 h-4" />
+                <span>Launch Live Studio</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -704,6 +743,18 @@ export default function InstructorDashboardPage() {
                 >
                   <Video className="w-4 h-4" />
                   <span>Live Classes Hub</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange("recordings")}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
+                    activeTab === "recordings"
+                      ? "bg-indigo-50 text-[#5751E1]"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <Clock className="w-4 h-4" />
+                  <span>Recordings ({recordings.length})</span>
                 </button>
 
                 <button
@@ -1004,75 +1055,120 @@ export default function InstructorDashboardPage() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {(liveClasses.length > 0 ? liveClasses : [
-                    {
-                      roomId: "room-maths-10-quadratics",
-                      title: "Class 10th Maths: Quadratic Equations & Board Short-cuts",
-                      subject: "Mathematics",
-                      targetClass: "Class 10",
-                      targetBatches: ["Class 10th Complete Mathematics"],
-                      selectedStudents: ["all_enrolled"],
-                      scheduledTime: "Today • 5:00 PM",
-                      status: "LIVE_NOW"
-                    },
-                    {
-                      roomId: "room-physics-12-optics",
-                      title: "Class 12th Physics: Ray Optics Derivations & Numerical Tricks",
-                      subject: "Physics",
-                      targetClass: "Class 12",
-                      targetBatches: ["All Enrolled Batches"],
-                      selectedStudents: ["all_enrolled"],
-                      scheduledTime: "Today • 6:30 PM",
-                      status: "UPCOMING"
-                    }
-                  ]).map((lc, idx) => (
-                    <div
-                      key={lc.roomId || idx}
-                      className="p-6 rounded-3xl bg-gradient-to-br from-[#050071] to-[#1C1A4A] text-white space-y-4 flex flex-col justify-between shadow-md"
-                    >
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase border border-emerald-400/30">
-                            {lc.status === "LIVE_NOW" ? "● Broadcasting Room" : "⏰ Scheduled Session"}
-                          </span>
-                          <button
-                            onClick={() => handleDeleteLiveClass(lc.roomId)}
-                            className="text-slate-400 hover:text-rose-400 p-1 transition-colors cursor-pointer"
-                            title="End / Delete Room"
+                {liveClasses.length === 0 ? (
+                  <div className="text-center py-14 px-4 rounded-3xl border-2 border-dashed border-slate-200 space-y-2">
+                    <Video className="w-8 h-8 text-slate-300 mx-auto" />
+                    <h3 className="text-sm font-black text-slate-900">No Live Classes Scheduled</h3>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                      Use "Schedule / Start Live Class" above to open a real broadcast studio for one of your batches.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {liveClasses.map((lc, idx) => (
+                      <div
+                        key={lc.roomId || idx}
+                        className="p-6 rounded-3xl bg-gradient-to-br from-[#050071] to-[#1C1A4A] text-white space-y-4 flex flex-col justify-between shadow-md"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase border border-emerald-400/30">
+                              {lc.status === "LIVE_NOW" ? "● Broadcasting Room" : "⏰ Scheduled Session"}
+                            </span>
+                            <button
+                              onClick={() => handleDeleteLiveClass(lc.roomId)}
+                              className="text-slate-400 hover:text-rose-400 p-1 transition-colors cursor-pointer"
+                              title="End / Delete Room"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <h3 className="font-extrabold text-base line-clamp-2">{lc.title}</h3>
+                          <div className="text-xs text-indigo-200">
+                            {lc.targetClass} • {lc.subject} • {lc.scheduledTime}
+                          </div>
+
+                          <div className="pt-2 flex flex-wrap gap-1.5 text-[10px]">
+                            <span className="px-2.5 py-0.5 rounded-md bg-white/10 text-slate-300">
+                              Batch: {lc.targetBatches?.[0] || "All Enrolled"}
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-md bg-white/10 text-emerald-300">
+                              Access: {lc.selectedStudents?.[0] === "open_masterclass" ? "Open Public" : "Enrolled Students"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                          <span className="text-xs text-slate-300">45-Min Lecture + 15-Min Doubts</span>
+                          <Link
+                            href={`/live/${lc.roomId}`}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white text-xs font-black transition-all hover:scale-105"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-
-                        <h3 className="font-extrabold text-base line-clamp-2">{lc.title}</h3>
-                        <div className="text-xs text-indigo-200">
-                          {lc.targetClass} • {lc.subject} • {lc.scheduledTime}
-                        </div>
-
-                        <div className="pt-2 flex flex-wrap gap-1.5 text-[10px]">
-                          <span className="px-2.5 py-0.5 rounded-md bg-white/10 text-slate-300">
-                            Batch: {lc.targetBatches?.[0] || "All Enrolled"}
-                          </span>
-                          <span className="px-2.5 py-0.5 rounded-md bg-white/10 text-emerald-300">
-                            Access: {lc.selectedStudents?.[0] === "open_masterclass" ? "Open Public" : "Enrolled Students"}
-                          </span>
+                            <Video className="w-3.5 h-3.5" />
+                            <span>Enter Studio</span>
+                          </Link>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-                      <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-                        <span className="text-xs text-slate-300">45-Min Lecture + 15-Min Doubts</span>
-                        <Link
-                          href={`/live/${lc.roomId || "room-maths-10-quadratics"}`}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white text-xs font-black transition-all hover:scale-105"
-                        >
-                          <Video className="w-3.5 h-3.5" />
-                          <span>Enter Studio</span>
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
+            {/* TAB 3B: RECORDINGS */}
+            {activeTab === "recordings" && (
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900">Cloud Recordings</h2>
+                  <p className="text-xs text-slate-500">Auto-recorded copies of your live classes, saved to GCS</p>
                 </div>
+
+                {recordings.length === 0 ? (
+                  <div className="text-center py-12 px-4 rounded-3xl border-2 border-dashed border-slate-200 space-y-2">
+                    <Clock className="w-8 h-8 text-slate-300 mx-auto" />
+                    <h3 className="text-sm font-black text-slate-900">No Recordings Yet</h3>
+                    <p className="text-xs text-slate-500">Start a recording from inside a live class to see it here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recordings.map((rec) => (
+                      <div key={rec._id || rec.roomId} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-[#5751E1] font-bold text-xs">
+                              {rec.targetClass} • {rec.subject}
+                            </span>
+                            <h3 className="font-extrabold text-sm text-slate-900 mt-1.5">{rec.liveClassTitle}</h3>
+                            <div className="text-xs text-slate-500">
+                              {rec.startedAt ? new Date(rec.startedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : ""}
+                              {rec.durationSec ? ` • ${Math.round(rec.durationSec / 60)} min` : ""}
+                            </div>
+                          </div>
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${
+                              rec.status === "ready"
+                                ? "bg-emerald-100 text-emerald-700"
+                                : rec.status === "failed"
+                                ? "bg-rose-100 text-rose-700"
+                                : "bg-amber-100 text-amber-700"
+                            }`}
+                          >
+                            {rec.status === "recording" ? "Recording…" : rec.status === "processing" ? "Processing…" : rec.status}
+                          </span>
+                        </div>
+
+                        {rec.status === "ready" && rec.videoUrl && (
+                          // eslint-disable-next-line jsx-a11y/media-has-caption
+                          <video controls src={rec.videoUrl} className="w-full rounded-xl bg-black" />
+                        )}
+                        {rec.status === "failed" && rec.error && (
+                          <p className="text-xs text-rose-600">{rec.error}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

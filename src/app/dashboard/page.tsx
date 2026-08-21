@@ -56,7 +56,7 @@ export default function StudentDashboardPage() {
   const { openModal } = useModal();
   const router = useRouter();
 
-  type TabType = "dashboard" | "courses" | "live" | "tests" | "doubts" | "orders" | "wishlist" | "settings";
+  type TabType = "dashboard" | "courses" | "live" | "recordings" | "tests" | "doubts" | "orders" | "wishlist" | "settings";
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
 
   const handleTabChange = (tab: TabType) => {
@@ -72,7 +72,7 @@ export default function StudentDashboardPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const tabParam = new URLSearchParams(window.location.search).get("tab") as TabType;
-      const validTabs: TabType[] = ["dashboard", "courses", "live", "tests", "doubts", "orders", "wishlist", "settings"];
+      const validTabs: TabType[] = ["dashboard", "courses", "live", "recordings", "tests", "doubts", "orders", "wishlist", "settings"];
       if (tabParam && validTabs.includes(tabParam)) {
         setActiveTab(tabParam);
       } else {
@@ -160,6 +160,7 @@ export default function StudentDashboardPage() {
   const [studentEnrollments, setStudentEnrollments] = useState<any[]>([]);
   const [testHistory, setTestHistory] = useState<any[]>([]);
   const [liveClasses, setLiveClasses] = useState<any[]>([]);
+  const [recordings, setRecordings] = useState<any[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -188,6 +189,14 @@ export default function StudentDashboardPage() {
               .then((res) => res.json())
               .then((lcData) => {
                 if (lcData.classes) setLiveClasses(lcData.classes);
+              })
+              .catch(() => {});
+
+            // Fetch past lectures (recordings) for the same enrolled batches
+            fetch(`/api/live/recordings${enrolledSlugs ? `?enrolledSlugs=${encodeURIComponent(enrolledSlugs)}` : ""}`)
+              .then((res) => res.json())
+              .then((recData) => {
+                if (recData.recordings) setRecordings(recData.recordings);
               })
               .catch(() => {});
           }
@@ -361,13 +370,23 @@ export default function StudentDashboardPage() {
               <span>Ask Faculty Doubt</span>
             </button>
 
-            <Link
-              href="/live/room-maths-10-quadratics"
-              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
-            >
-              <Video className="w-4 h-4 animate-icon-pulse" />
-              <span>Join Live Class</span>
-            </Link>
+            {liveClasses.some((c) => c.status === "LIVE_NOW") ? (
+              <Link
+                href={`/live/${liveClasses.find((c) => c.status === "LIVE_NOW")!.roomId}`}
+                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+              >
+                <Video className="w-4 h-4 animate-icon-pulse" />
+                <span>Join Live Class</span>
+              </Link>
+            ) : (
+              <button
+                onClick={() => handleTabChange("live")}
+                className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <Video className="w-4 h-4" />
+                <span>No Live Class Right Now</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -418,6 +437,18 @@ export default function StudentDashboardPage() {
                 >
                   <Video className="w-4 h-4" />
                   <span>Live Classes Hub</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange("recordings")}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
+                    activeTab === "recordings"
+                      ? "bg-indigo-50 text-[#5751E1]"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <Clock className="w-4 h-4" />
+                  <span>Past Lectures ({recordings.length})</span>
                 </button>
 
                 <button
@@ -542,29 +573,32 @@ export default function StudentDashboardPage() {
                   </div>
                 </div>
 
-                {/* Live Class Radar Card */}
-                <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                  <div className="space-y-2">
-                    <span className="px-3 py-1 rounded-full bg-red-500 text-white font-black text-[10px] uppercase tracking-wider animate-pulse flex items-center gap-1.5 w-fit">
-                      <span className="w-2 h-2 rounded-full bg-white animate-ping" />
-                      <span>Live Classroom Broadcasting Now</span>
-                    </span>
-                    <h3 className="text-xl sm:text-2xl font-black">
-                      Class 10th Maths: Quadratic Equations
-                    </h3>
-                    <p className="text-xs text-indigo-200">
-                      Senior Faculty: Pawan Gupta • 45-Min Lecture + 15-Min 1-on-1 Voice Doubt Room
-                    </p>
-                  </div>
+                {/* Live Class Radar Card — only shown when a batch of this student's is actually broadcasting */}
+                {liveClasses.some((c) => c.status === "LIVE_NOW") && (() => {
+                  const live = liveClasses.find((c) => c.status === "LIVE_NOW");
+                  return (
+                    <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                      <div className="space-y-2">
+                        <span className="px-3 py-1 rounded-full bg-red-500 text-white font-black text-[10px] uppercase tracking-wider animate-pulse flex items-center gap-1.5 w-fit">
+                          <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                          <span>Live Classroom Broadcasting Now</span>
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-black">{live.title}</h3>
+                        <p className="text-xs text-indigo-200">
+                          Senior Faculty: {live.instructor} • 45-Min Lecture + 15-Min 1-on-1 Voice Doubt Room
+                        </p>
+                      </div>
 
-                  <Link
-                    href="/live/room-maths-10-quadratics"
-                    className="px-6 py-3.5 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
-                  >
-                    <Video className="w-4 h-4" />
-                    <span>Join Live Lecture Room</span>
-                  </Link>
-                </div>
+                      <Link
+                        href={`/live/${live.roomId}`}
+                        className="px-6 py-3.5 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                      >
+                        <Video className="w-4 h-4" />
+                        <span>Join Live Lecture Room</span>
+                      </Link>
+                    </div>
+                  );
+                })()}
 
                 {/* Interactive Goal Tracker */}
                 <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
@@ -709,57 +743,97 @@ export default function StudentDashboardPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {(liveClasses.length > 0 ? liveClasses : [
-                    {
-                      roomId: "room-maths-10-quadratics",
-                      title: "Chapter 4: Quadratic Equations - Fast Track Shortcuts",
-                      subject: "Mathematics",
-                      targetClass: "Class 10th CBSE",
-                      instructor: "Pawan Gupta",
-                      scheduledTime: "Today 5:00 PM – 6:30 PM IST",
-                      status: "LIVE_NOW"
-                    },
-                    {
-                      roomId: "room-physics-12-optics",
-                      title: "Ray Optics Derivations & Board PYQs",
-                      subject: "Physics",
-                      targetClass: "Class 12th Board",
-                      instructor: "Arya Dubey",
-                      scheduledTime: "Today 6:30 PM – 8:00 PM IST",
-                      status: "UPCOMING"
-                    }
-                  ]).map((lc, idx) => (
-                    <div
-                      key={lc.roomId || idx}
-                      className="p-6 rounded-3xl bg-[#050071] text-white space-y-3 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-orange-300 font-extrabold uppercase tracking-wider">
-                            {lc.targetClass || "Class 10"} • {lc.subject}
-                          </span>
-                          {lc.status === "LIVE_NOW" && (
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">
-                              ● Live Now
+                  {liveClasses.length === 0 ? (
+                    <div className="text-center py-12 px-4 rounded-3xl border-2 border-dashed border-slate-200 space-y-2">
+                      <Video className="w-8 h-8 text-slate-300 mx-auto" />
+                      <h3 className="text-sm font-black text-slate-900">No Live Class Scheduled Right Now</h3>
+                      <p className="text-xs text-slate-500">Check back closer to your batch's scheduled time.</p>
+                    </div>
+                  ) : (
+                    liveClasses.map((lc, idx) => (
+                      <div
+                        key={lc.roomId || idx}
+                        className="p-6 rounded-3xl bg-[#050071] text-white space-y-3 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      >
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-orange-300 font-extrabold uppercase tracking-wider">
+                              {lc.targetClass || "Class 10"} • {lc.subject}
+                            </span>
+                            {lc.status === "LIVE_NOW" && (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">
+                                ● Live Now
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="text-lg sm:text-xl font-black">{lc.title}</h3>
+                          <div className="text-xs text-indigo-200">
+                            Faculty: {lc.instructor} • {lc.scheduledTime}
+                          </div>
+                        </div>
+
+                        <Link
+                          href={`/live/${lc.roomId}`}
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-md transition-all hover:scale-105 whitespace-nowrap cursor-pointer"
+                        >
+                          <Video className="w-4 h-4" />
+                          <span>Join Live Studio</span>
+                        </Link>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3B: PAST LECTURES (RECORDINGS) */}
+            {activeTab === "recordings" && (
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900">Past Lectures</h2>
+                  <p className="text-xs text-slate-500">Cloud recordings of live classes from your enrolled batches</p>
+                </div>
+
+                {recordings.length === 0 ? (
+                  <div className="text-center py-12 px-4 rounded-3xl border-2 border-dashed border-slate-200 space-y-2">
+                    <Clock className="w-8 h-8 text-slate-300 mx-auto" />
+                    <h3 className="text-sm font-black text-slate-900">No Recordings Yet</h3>
+                    <p className="text-xs text-slate-500">Recordings of your live classes will show up here once a session ends.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recordings.map((rec) => (
+                      <div key={rec._id || rec.roomId} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-[#5751E1] font-bold text-xs">
+                              {rec.targetClass} • {rec.subject}
+                            </span>
+                            <h3 className="font-extrabold text-sm text-slate-900 mt-1.5">{rec.liveClassTitle}</h3>
+                            <div className="text-xs text-slate-500">
+                              Faculty: {rec.instructor} •{" "}
+                              {rec.startedAt ? new Date(rec.startedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : ""}
+                            </div>
+                          </div>
+                          {rec.status !== "ready" && (
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${
+                                rec.status === "failed" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"
+                              }`}
+                            >
+                              {rec.status === "recording" ? "Recording…" : rec.status === "processing" ? "Processing…" : "Failed"}
                             </span>
                           )}
                         </div>
-                        <h3 className="text-lg sm:text-xl font-black">{lc.title}</h3>
-                        <div className="text-xs text-indigo-200">
-                          Faculty: {lc.instructor} • {lc.scheduledTime}
-                        </div>
-                      </div>
 
-                      <Link
-                        href={`/live/${lc.roomId || "room-maths-10-quadratics"}`}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-md transition-all hover:scale-105 whitespace-nowrap cursor-pointer"
-                      >
-                        <Video className="w-4 h-4" />
-                        <span>Join Live Studio</span>
-                      </Link>
-                    </div>
-                  ))}
-                </div>
+                        {rec.status === "ready" && rec.videoUrl && (
+                          // eslint-disable-next-line jsx-a11y/media-has-caption
+                          <video controls src={rec.videoUrl} className="w-full rounded-xl bg-black" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

@@ -11,6 +11,10 @@ export interface UserProfile {
   totalReviewsCount?: number;
   instructorCoursesCount?: number;
   pendingCoursesCount?: number;
+  /** Opaque session token minted by POST /api/auth/session, echoed back to the client and persisted
+   * in the session cookie/localStorage. The only server-verifiable proof of identity this app has —
+   * send it as `Authorization: Bearer <token>` on any route that calls requireUser(). */
+  token?: string;
 }
 
 export function setCookie(name: string, value: string, days = 30) {

@@ -1,21 +1,26 @@
 import { NextResponse } from "next/server";
+import { randomBytes } from "node:crypto";
 import { getDatabase } from "@/lib/mongodb";
 import { sendWelcomeEmail, sendLoginAlertEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, name, role, phone, avatar, isNewRegistration } = body;
+    const { email, name, phone, avatar, isNewRegistration } = body;
 
     if (!email) {
       return NextResponse.json({ success: false, error: "Email is required" }, { status: 400 });
     }
 
     const db = await getDatabase();
-    const token = `fk_sess_${Math.random().toString(36).substring(2)}_${Date.now()}`;
+    const token = `fk_sess_${randomBytes(24).toString("hex")}`;
 
     const existingUser = await db.collection("users").findOne({ email: email.toLowerCase().trim() });
-    const userRole = role || existingUser?.role || "student";
+    // Role is never taken from the client: an existing user keeps whatever role is already in the
+    // DB, and a brand-new signup always starts as "student". Promoting someone to instructor/admin
+    // is a deliberate DB update, not something a signup request body can request for itself — this
+    // used to let any visitor POST {role:"admin"} and get it.
+    const userRole = existingUser?.role || "student";
 
     const userRecord = {
       email: email.toLowerCase().trim(),

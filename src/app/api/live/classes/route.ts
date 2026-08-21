@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
+import { requireUser, requireInstructor, AuthError } from "@/lib/serverAuth";
 
 export async function GET(request: Request) {
   try {
@@ -42,45 +43,7 @@ export async function GET(request: Request) {
       query.targetBatches = { $in: ["all", targetBatch] };
     }
 
-    let classes = await db.collection("live_classes").find(query).sort({ createdAt: -1 }).toArray();
-
-    // If empty, initialize default live classes
-    if (classes.length === 0) {
-      const initialClasses = [
-        {
-          roomId: "room-maths-10-quadratics",
-          title: "Class 10th Maths: Quadratic Equations & Board Short-cuts",
-          subject: "Mathematics",
-          targetClass: "Class 10",
-          medium: "Hindi & English",
-          instructor: "Pawan Gupta",
-          instructorAvatar: "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-06-15-02-14-08-1645.webp",
-          status: "LIVE_NOW",
-          scheduledTime: "Today • 5:00 PM",
-          participantsCount: 42,
-          isRecording: true,
-          mode: "45_15_HYBRID",
-          createdAt: new Date(),
-        },
-        {
-          roomId: "room-physics-12-optics",
-          title: "Class 12th Physics: Ray Optics Derivations & Numerical Tricks",
-          subject: "Physics",
-          targetClass: "Class 12",
-          medium: "English Medium",
-          instructor: "Arya Dubey",
-          instructorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80",
-          status: "UPCOMING",
-          scheduledTime: "Today • 6:30 PM",
-          participantsCount: 28,
-          isRecording: false,
-          mode: "45_15_HYBRID",
-          createdAt: new Date(),
-        }
-      ];
-      await db.collection("live_classes").insertMany(initialClasses);
-      classes = await db.collection("live_classes").find({}).sort({ createdAt: -1 }).toArray();
-    }
+    const classes = await db.collection("live_classes").find(query).sort({ createdAt: -1 }).toArray();
 
     return NextResponse.json({ success: true, count: classes.length, classes });
   } catch (error) {
@@ -90,6 +53,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const user = await requireUser(request);
+    requireInstructor(user);
+
     const body = await request.json();
     const db = await getDatabase();
 
@@ -102,12 +68,16 @@ export async function POST(request: Request) {
       targetBatches: body.targetBatches || ["all"],
       selectedStudents: body.selectedStudents || ["all"],
       medium: body.medium || "Hindi & English",
-      instructor: body.instructor || "Pawan Gupta",
-      instructorAvatar: body.instructorAvatar || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-06-15-02-14-08-1645.webp",
+      // instructor/instructorEmail come from the authenticated caller, not the request body — this
+      // is also what /api/live/recordings/start uses to verify a "start recording" request comes
+      // from the class's own owner.
+      instructor: user.name,
+      instructorEmail: user.email,
+      instructorAvatar: body.instructorAvatar || undefined,
       status: body.status || "LIVE_NOW",
       scheduledTime: body.scheduledTime || "Live Now",
       participantsCount: 1,
-      isRecording: true,
+      isRecording: false,
       mode: "45_15_HYBRID",
       createdAt: new Date(),
     };
@@ -115,12 +85,16 @@ export async function POST(request: Request) {
     await db.collection("live_classes").insertOne(newClass);
     return NextResponse.json({ success: true, liveClass: newClass });
   } catch (error) {
-    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+    const status = error instanceof AuthError ? error.status : 500;
+    return NextResponse.json({ success: false, error: String((error as Error)?.message || error) }, { status });
   }
 }
 
 export async function PATCH(request: Request) {
   try {
+    const user = await requireUser(request);
+    requireInstructor(user);
+
     const body = await request.json();
     const { roomId, ...updates } = body;
     if (!roomId) return NextResponse.json({ success: false, error: "roomId is required" }, { status: 400 });
@@ -133,12 +107,16 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true, updated: updates });
   } catch (error) {
-    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+    const status = error instanceof AuthError ? error.status : 500;
+    return NextResponse.json({ success: false, error: String((error as Error)?.message || error) }, { status });
   }
 }
 
 export async function DELETE(request: Request) {
   try {
+    const user = await requireUser(request);
+    requireInstructor(user);
+
     const { searchParams } = new URL(request.url);
     const roomId = searchParams.get("roomId");
     if (!roomId) return NextResponse.json({ success: false, error: "roomId is required" }, { status: 400 });
@@ -148,6 +126,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true, deletedRoomId: roomId });
   } catch (error) {
-    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+    const status = error instanceof AuthError ? error.status : 500;
+    return NextResponse.json({ success: false, error: String((error as Error)?.message || error) }, { status });
   }
 }
