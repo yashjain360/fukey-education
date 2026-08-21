@@ -74,7 +74,33 @@ interface Order {
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<"leads" | "orders" | "blogs" | "batches" | "faculty" | "broadcast">("leads");
+  type AdminTab = "leads" | "orders" | "blogs" | "batches" | "faculty" | "broadcast";
+  const [activeTab, setActiveTab] = useState<AdminTab>("leads");
+
+  const handleTabChange = (tab: AdminTab) => {
+    setActiveTab(tab);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("tab", tab);
+      window.history.replaceState(null, "", url.toString());
+      localStorage.setItem("fukey_admin_active_tab", tab);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tabParam = new URLSearchParams(window.location.search).get("tab") as AdminTab;
+      const validTabs: AdminTab[] = ["leads", "orders", "blogs", "batches", "faculty", "broadcast"];
+      if (tabParam && validTabs.includes(tabParam)) {
+        setActiveTab(tabParam);
+      } else {
+        const savedTab = localStorage.getItem("fukey_admin_active_tab") as AdminTab;
+        if (savedTab && validTabs.includes(savedTab)) {
+          setActiveTab(savedTab);
+        }
+      }
+    }
+  }, []);
 
   // Tab Pagination States
   const [leadsPage, setLeadsPage] = useState(1);
@@ -902,7 +928,7 @@ export default function AdminDashboardPage() {
           {/* Card 2: Website Leads Pipeline */}
           <div
             className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-2 group hover:border-orange-300 transition-all cursor-pointer"
-            onClick={() => setActiveTab("leads")}
+            onClick={() => handleTabChange("leads")}
             data-aos="zoom-in"
             data-aos-delay="150"
           >
@@ -923,7 +949,7 @@ export default function AdminDashboardPage() {
           {/* Card 3: Dynamic Blogs Published */}
           <div
             className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-2 group hover:border-sky-300 transition-all cursor-pointer"
-            onClick={() => setActiveTab("blogs")}
+            onClick={() => handleTabChange("blogs")}
             data-aos="zoom-in"
             data-aos-delay="200"
           >
@@ -944,7 +970,7 @@ export default function AdminDashboardPage() {
           {/* Card 4: Active Batches */}
           <div
             className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-2 group hover:border-purple-300 transition-all cursor-pointer"
-            onClick={() => setActiveTab("batches")}
+            onClick={() => handleTabChange("batches")}
             data-aos="zoom-in"
             data-aos-delay="250"
           >
@@ -966,7 +992,7 @@ export default function AdminDashboardPage() {
         {/* Master Admin Interactive Tabs Bar */}
         <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center gap-2">
           <button
-            onClick={() => setActiveTab("leads")}
+            onClick={() => handleTabChange("leads")}
             className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === "leads"
                 ? "bg-[#050071] text-white shadow-sm"
@@ -983,7 +1009,7 @@ export default function AdminDashboardPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("blogs")}
+            onClick={() => handleTabChange("blogs")}
             className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === "blogs"
                 ? "bg-[#050071] text-white shadow-sm"
@@ -1000,7 +1026,7 @@ export default function AdminDashboardPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("orders")}
+            onClick={() => handleTabChange("orders")}
             className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === "orders"
                 ? "bg-[#050071] text-white shadow-sm"
@@ -1017,7 +1043,7 @@ export default function AdminDashboardPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("batches")}
+            onClick={() => handleTabChange("batches")}
             className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === "batches"
                 ? "bg-[#050071] text-white shadow-sm"
@@ -1029,7 +1055,7 @@ export default function AdminDashboardPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("faculty")}
+            onClick={() => handleTabChange("faculty")}
             className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === "faculty"
                 ? "bg-[#050071] text-white shadow-sm"
@@ -1041,7 +1067,7 @@ export default function AdminDashboardPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("broadcast")}
+            onClick={() => handleTabChange("broadcast")}
             className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === "broadcast"
                 ? "bg-[#050071] text-white shadow-sm"

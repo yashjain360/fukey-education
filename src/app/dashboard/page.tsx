@@ -56,9 +56,33 @@ export default function StudentDashboardPage() {
   const { openModal } = useModal();
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<
-    "dashboard" | "courses" | "live" | "tests" | "doubts" | "orders" | "wishlist" | "settings"
-  >("dashboard");
+  type TabType = "dashboard" | "courses" | "live" | "tests" | "doubts" | "orders" | "wishlist" | "settings";
+  const [activeTab, setActiveTab] = useState<TabType>("dashboard");
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("tab", tab);
+      window.history.replaceState(null, "", url.toString());
+      localStorage.setItem("fukey_student_active_tab", tab);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tabParam = new URLSearchParams(window.location.search).get("tab") as TabType;
+      const validTabs: TabType[] = ["dashboard", "courses", "live", "tests", "doubts", "orders", "wishlist", "settings"];
+      if (tabParam && validTabs.includes(tabParam)) {
+        setActiveTab(tabParam);
+      } else {
+        const savedTab = localStorage.getItem("fukey_student_active_tab") as TabType;
+        if (savedTab && validTabs.includes(savedTab)) {
+          setActiveTab(savedTab);
+        }
+      }
+    }
+  }, []);
 
   // Tab Pagination States
   const [coursesPage, setCoursesPage] = useState(1);
@@ -361,7 +385,7 @@ export default function StudentDashboardPage() {
 
               <nav className="space-y-1">
                 <button
-                  onClick={() => setActiveTab("dashboard")}
+                  onClick={() => handleTabChange("dashboard")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "dashboard"
                       ? "bg-indigo-50 text-[#5751E1]"
@@ -373,7 +397,7 @@ export default function StudentDashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab("courses")}
+                  onClick={() => handleTabChange("courses")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "courses"
                       ? "bg-indigo-50 text-[#5751E1]"
@@ -385,7 +409,7 @@ export default function StudentDashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab("live")}
+                  onClick={() => handleTabChange("live")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "live"
                       ? "bg-indigo-50 text-[#5751E1]"
@@ -397,7 +421,7 @@ export default function StudentDashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab("tests")}
+                  onClick={() => handleTabChange("tests")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "tests"
                       ? "bg-indigo-50 text-[#5751E1]"
@@ -409,7 +433,7 @@ export default function StudentDashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab("doubts")}
+                  onClick={() => handleTabChange("doubts")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "doubts"
                       ? "bg-indigo-50 text-[#5751E1]"
@@ -421,7 +445,7 @@ export default function StudentDashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab("orders")}
+                  onClick={() => handleTabChange("orders")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "orders"
                       ? "bg-indigo-50 text-[#5751E1]"
@@ -433,7 +457,7 @@ export default function StudentDashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab("wishlist")}
+                  onClick={() => handleTabChange("wishlist")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "wishlist"
                       ? "bg-indigo-50 text-[#5751E1]"
@@ -453,7 +477,7 @@ export default function StudentDashboardPage() {
               </div>
 
               <button
-                onClick={() => setActiveTab("settings")}
+                onClick={() => handleTabChange("settings")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                   activeTab === "settings"
                     ? "bg-indigo-50 text-[#5751E1]"
