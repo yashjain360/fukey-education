@@ -7,17 +7,17 @@ import { triggerConfetti } from "@/lib/confetti";
 interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
-  loginWithGoogle: () => void;
-  loginAsDemo: (role?: "student" | "instructor") => void;
+  loginWithGoogle: (customData?: Partial<UserProfile>) => UserProfile;
+  loginAsDemo: (role?: "student" | "instructor" | "admin") => void;
   loginWithEmail: (email: string, name?: string) => void;
   logout: () => void;
-  switchRole: (role: "student" | "instructor") => void;
+  switchRole: (role: "student" | "instructor" | "admin") => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(DEMO_USER); // Default logged in as Mayank Dubey per screenshot
+  const [user, setUser] = useState<UserProfile | null>(DEMO_USER);
 
   useEffect(() => {
     try {
@@ -31,14 +31,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e) {}
   }, []);
 
-  const loginWithGoogle = () => {
+  const loginWithGoogle = (customData?: Partial<UserProfile>) => {
     const googleUser: UserProfile = {
       id: "google-mayank-1039",
-      name: "Mayank Dubey",
-      email: "mayank@fukeyeducation.com",
-      role: "student",
+      name: customData?.name || "Mayank Dubey",
+      email: customData?.email || "mayank@fukeyeducation.com",
+      role: customData?.role || "student",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
-      phone: "+91 88718 35015",
+      phone: customData?.phone || "+91 88718 35015",
       enrolledCoursesCount: 2,
       quizAttemptsCount: 5,
       totalReviewsCount: 3300,
@@ -49,10 +49,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("fukey_auth_user", JSON.stringify(googleUser));
     setCookie("fukey_session", JSON.stringify(googleUser));
     triggerConfetti();
+    return googleUser;
   };
 
-  const loginAsDemo = (role: "student" | "instructor" = "student") => {
-    const updated = { ...DEMO_USER, role };
+  const loginAsDemo = (role: "student" | "instructor" | "admin" = "student") => {
+    const updated = { ...DEMO_USER, role: role as any };
     setUser(updated);
     localStorage.setItem("fukey_auth_user", JSON.stringify(updated));
     setCookie("fukey_session", JSON.stringify(updated));
@@ -71,9 +72,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     triggerConfetti();
   };
 
-  const switchRole = (role: "student" | "instructor") => {
+  const switchRole = (role: "student" | "instructor" | "admin") => {
     if (user) {
-      const updated = { ...user, role };
+      const updated = { ...user, role: role as any };
       setUser(updated);
       localStorage.setItem("fukey_auth_user", JSON.stringify(updated));
       triggerConfetti();
