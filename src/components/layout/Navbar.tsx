@@ -21,7 +21,7 @@ import GlobalSearchModal from "./GlobalSearchModal";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { cart, wishlist, setIsCartOpen } = useCart();
+  const { cart, wishlist, setIsCartOpen, setIsWishlistOpen } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -61,15 +61,15 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full ${
+        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
           isScrolled
-            ? "bg-white/95 shadow-sm py-3 border-b border-slate-200"
+            ? "bg-white/95 backdrop-blur-md shadow-md py-3 border-b border-slate-200"
             : "bg-white py-4 border-b border-slate-100"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5 group transition-transform hover:scale-105 active:scale-95">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#050071] via-[#5751E1] to-[#FF2424] p-0.5 shadow-sm flex items-center justify-center">
               <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
                 <GraduationCap className="w-6 h-6 text-[#050071]" />
@@ -94,7 +94,7 @@ export default function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-sm font-semibold relative py-1 ${
+                  className={`text-sm font-semibold relative py-1 transition-all hover:scale-105 active:scale-95 ${
                     isActive ? "text-[#5751E1]" : "text-slate-700 hover:text-[#5751E1]"
                   }`}
                 >
@@ -112,7 +112,7 @@ export default function Navbar() {
             {/* Search Input Trigger */}
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200/80 text-slate-500 text-xs border border-slate-200/60"
+              className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200/80 text-slate-500 text-xs border border-slate-200/60 transition-all hover:scale-105 active:scale-95 cursor-pointer"
               title="Search (Cmd + K)"
             >
               <Search className="w-3.5 h-3.5 text-indigo-600" />
@@ -122,29 +122,29 @@ export default function Navbar() {
               </kbd>
             </button>
 
-            {/* Wishlist Icon */}
-            <Link
-              href="/courses"
-              className="relative p-2 rounded-full text-slate-600 hover:text-rose-500 hover:bg-rose-50"
-              title="Wishlist"
+            {/* Wishlist Icon Button */}
+            <button
+              onClick={() => setIsWishlistOpen(true)}
+              className="relative p-2 rounded-full text-slate-600 hover:text-rose-500 hover:bg-rose-50 transition-all hover:scale-110 active:scale-90 cursor-pointer"
+              title="View Wishlist"
             >
               <Heart className="w-5 h-5" />
               {wishlist.length > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4.5 h-4.5 bg-rose-500 text-white rounded-full text-[10px] font-black flex items-center justify-center animate-bounce">
                   {wishlist.length}
                 </span>
               )}
-            </Link>
+            </button>
 
             {/* Cart Icon Button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 rounded-full text-slate-600 hover:text-indigo-600 hover:bg-indigo-50"
+              className="relative p-2 rounded-full text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all hover:scale-110 active:scale-90 cursor-pointer"
               title="Shopping Cart"
             >
               <ShoppingCart className="w-5 h-5" />
               {cart.length > 0 && (
-                <span className="absolute top-1 right-1 w-4.5 h-4.5 bg-[#FF2424] text-white rounded-full text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4.5 h-4.5 bg-[#FF2424] text-white rounded-full text-[10px] font-black flex items-center justify-center animate-bounce">
                   {cart.length}
                 </span>
               )}
@@ -155,7 +155,7 @@ export default function Navbar() {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[#050071] text-white text-xs font-bold shadow-sm hover:bg-[#5751E1] transition-colors"
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[#050071] text-white text-xs font-bold shadow-sm hover:bg-[#5751E1] transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 >
                   <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-black">
                     {user?.name?.charAt(0) || "M"}
@@ -165,7 +165,7 @@ export default function Navbar() {
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 space-y-1">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 space-y-1 animate-in fade-in zoom-in-95 duration-150">
                     <div className="px-3 py-2 border-b border-slate-100">
                       <div className="text-xs font-black text-slate-900">{user?.name}</div>
                       <div className="text-[11px] text-slate-500 truncate">{user?.email}</div>
@@ -204,7 +204,7 @@ export default function Navbar() {
                           logout();
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Sign Out</span>
@@ -216,7 +216,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white text-xs font-bold shadow-sm"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white text-xs font-bold shadow-sm transition-all hover:scale-105 active:scale-95"
               >
                 <User className="w-3.5 h-3.5" />
                 <span>Student Portal</span>
@@ -226,7 +226,7 @@ export default function Navbar() {
             {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="xl:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              className="xl:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -258,14 +258,14 @@ export default function Navbar() {
               <Link
                 href="/dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full text-center py-2.5 rounded-xl bg-[#050071] text-white text-xs font-bold"
+                className="w-full text-center py-2.5 rounded-xl bg-[#050071] text-white text-xs font-bold transition-transform active:scale-95"
               >
                 Student Dashboard
               </Link>
               <Link
                 href="/admin"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full text-center py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold"
+                className="w-full text-center py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold transition-transform active:scale-95"
               >
                 Admin Console
               </Link>

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Course } from "@/data/coursesData";
-import { siteConfig } from "@/data/siteConfig";
+import { triggerConfetti } from "@/lib/confetti";
 
 export interface CartItem {
   course: Course;
@@ -15,6 +15,7 @@ interface CartContextType {
   currency: "INR" | "USD";
   language: "en" | "hi";
   isCartOpen: boolean;
+  isWishlistOpen: boolean;
   appliedCoupon: string | null;
   discountAmount: number;
   subtotal: number;
@@ -23,9 +24,11 @@ interface CartContextType {
   removeFromCart: (courseId: string) => void;
   clearCart: () => void;
   toggleWishlist: (course: Course) => void;
+  removeFromWishlist: (courseId: string) => void;
   isInWishlist: (courseId: string) => boolean;
   isInCart: (courseId: string) => boolean;
   setIsCartOpen: (open: boolean) => void;
+  setIsWishlistOpen: (open: boolean) => void;
   setCurrency: (c: "INR" | "USD") => void;
   setLanguage: (l: "en" | "hi") => void;
   applyCoupon: (code: string) => { success: boolean; message: string };
@@ -40,6 +43,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currency, setCurrency] = useState<"INR" | "USD">("INR");
   const [language, setLanguage] = useState<"en" | "hi">("en");
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
   // Load from local storage
@@ -73,6 +77,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isInCart(course.id)) {
       setCart((prev) => [...prev, { course, addedAt: Date.now() }]);
       setIsCartOpen(true);
+      triggerConfetti();
     }
   };
 
@@ -90,7 +95,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setWishlist((prev) => prev.filter((c) => c.id !== course.id));
     } else {
       setWishlist((prev) => [...prev, course]);
+      triggerConfetti();
     }
+  };
+
+  const removeFromWishlist = (courseId: string) => {
+    setWishlist((prev) => prev.filter((c) => c.id !== courseId));
   };
 
   const isInWishlist = (courseId: string) => {
@@ -105,8 +115,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   let discountAmount = 0;
   if (appliedCoupon === "FREEDOM40" || appliedCoupon === "FUKEYEDU") {
-    // 40% discount or special 10% extra
-    discountAmount = Math.round(subtotal * 0.15); // additional promotional coupon
+    discountAmount = Math.round(subtotal * 0.15);
   }
 
   const total = Math.max(0, subtotal - discountAmount);
@@ -134,6 +143,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currency,
         language,
         isCartOpen,
+        isWishlistOpen,
         appliedCoupon,
         discountAmount,
         subtotal,
@@ -142,9 +152,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         removeFromCart,
         clearCart,
         toggleWishlist,
+        removeFromWishlist,
         isInWishlist,
         isInCart,
         setIsCartOpen,
+        setIsWishlistOpen,
         setCurrency,
         setLanguage,
         applyCoupon,

@@ -50,10 +50,10 @@ export default function FeaturedCourses() {
   const visibleCourses = filteredCourses.slice(startIndex, startIndex + displayCount);
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white" data-aos="fade-up">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
+        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3" data-aos="fade-up">
           <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-indigo-100/80 text-[#5751E1] font-extrabold text-xs uppercase tracking-wider">
             Top Class Courses
           </div>
@@ -66,7 +66,7 @@ export default function FeaturedCourses() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-12 overflow-x-auto pb-2">
+        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-12 overflow-x-auto pb-2" data-aos="fade-up">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -74,7 +74,7 @@ export default function FeaturedCourses() {
                 setSelectedTab(tab);
                 setStartIndex(0);
               }}
-              className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all ${
+              className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                 selectedTab === tab
                   ? "bg-[#5751E1] text-white shadow-md"
                   : "bg-slate-100 hover:bg-slate-200 text-slate-600"
@@ -95,21 +95,23 @@ export default function FeaturedCourses() {
         ) : (
           <div className="relative">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {visibleCourses.map((course) => {
+              {visibleCourses.map((course, idx) => {
                 const inCart = isInCart(course.id);
                 const inWishlist = isInWishlist(course.id);
 
                 return (
                   <div
                     key={course.id}
-                    className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
+                    className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group"
+                    data-aos="fade-up"
+                    data-aos-delay={idx * 100}
                   >
                     {/* Uncut Real Course Thumbnail Banner */}
                     <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
                       <img
                         src={course.thumbnail}
                         alt={course.title}
-                        className="w-full h-full object-contain p-1"
+                        className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
                             "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png";
@@ -118,7 +120,7 @@ export default function FeaturedCourses() {
 
                       <button
                         onClick={() => toggleWishlist(course)}
-                        className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
+                        className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all hover:scale-120 active:scale-90 cursor-pointer ${
                           inWishlist
                             ? "bg-rose-500 text-white"
                             : "bg-white/90 hover:bg-white text-slate-700"
@@ -137,7 +139,7 @@ export default function FeaturedCourses() {
                         </div>
 
                         <Link href={`/course/${course.slug}`}>
-                          <h3 className="font-extrabold text-slate-900 text-sm hover:text-[#5751E1] line-clamp-2">
+                          <h3 className="font-extrabold text-slate-900 text-sm hover:text-[#5751E1] line-clamp-2 transition-colors">
                             {course.title}
                           </h3>
                         </Link>
@@ -151,7 +153,7 @@ export default function FeaturedCourses() {
                       <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                         <button
                           onClick={() => addToCart(course)}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
+                          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                             inCart
                               ? "bg-emerald-600 text-white"
                               : "bg-[#FF2424] hover:bg-red-700 text-white shadow-sm"
@@ -190,7 +192,7 @@ export default function FeaturedCourses() {
               <button
                 onClick={handlePrev}
                 disabled={startIndex === 0}
-                className="p-3 rounded-full bg-slate-100 hover:bg-[#5751E1] hover:text-white disabled:opacity-40 disabled:hover:bg-slate-100 disabled:hover:text-slate-700 text-slate-700 shadow-sm"
+                className="p-3 rounded-full bg-slate-100 hover:bg-[#5751E1] hover:text-white disabled:opacity-40 disabled:hover:bg-slate-100 disabled:hover:text-slate-700 text-slate-700 shadow-sm transition-all hover:scale-110 active:scale-90 cursor-pointer"
                 aria-label="Previous courses"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -198,7 +200,7 @@ export default function FeaturedCourses() {
               <button
                 onClick={handleNext}
                 disabled={startIndex >= maxIndex}
-                className="p-3 rounded-full bg-slate-100 hover:bg-[#5751E1] hover:text-white disabled:opacity-40 disabled:hover:bg-slate-100 disabled:hover:text-slate-700 text-slate-700 shadow-sm"
+                className="p-3 rounded-full bg-slate-100 hover:bg-[#5751E1] hover:text-white disabled:opacity-40 disabled:hover:bg-slate-100 disabled:hover:text-slate-700 text-slate-700 shadow-sm transition-all hover:scale-110 active:scale-90 cursor-pointer"
                 aria-label="Next courses"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -208,10 +210,10 @@ export default function FeaturedCourses() {
         )}
 
         {/* View All CTA */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-8" data-aos="fade-up">
           <Link
             href="/courses"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-[#050071] hover:bg-indigo-900 text-white text-xs font-extrabold shadow-md"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-[#050071] hover:bg-indigo-900 text-white text-xs font-extrabold shadow-md transition-all hover:scale-105 active:scale-95"
           >
             <span>View All 52+ Real Courses &amp; Batches</span>
             <ArrowRight className="w-4 h-4" />

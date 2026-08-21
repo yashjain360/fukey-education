@@ -10,6 +10,7 @@ import TopBar from "@/components/layout/TopBar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
+import WishlistDrawer from "@/components/cart/WishlistDrawer";
 import LayoutClientWrapper from "@/components/layout/LayoutClientWrapper";
 
 export const metadata: Metadata = {
@@ -61,6 +62,7 @@ export default function RootLayout({
                     <Footer />
                   </div>
                   <CartDrawer />
+                  <WishlistDrawer />
                   <AutoEngagementModal />
                   <LayoutClientWrapper />
                 </ModalProvider>
