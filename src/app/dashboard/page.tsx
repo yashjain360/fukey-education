@@ -149,7 +149,18 @@ export default function StudentDashboardPage() {
       fetch(`/api/enrollments?email=${encodeURIComponent(user.email)}`)
         .then((res) => res.json())
         .then((data) => {
-          if (data.enrollments) setStudentEnrollments(data.enrollments);
+          if (data.enrollments) {
+            setStudentEnrollments(data.enrollments);
+            const enrolledSlugs = data.enrollments.map((e: any) => e.courseSlug).filter(Boolean).join(",");
+
+            // Fetch batch-targeted live classes
+            fetch(`/api/live/classes${enrolledSlugs ? `?enrolledSlugs=${encodeURIComponent(enrolledSlugs)}` : ""}`)
+              .then((res) => res.json())
+              .then((lcData) => {
+                if (lcData.classes) setLiveClasses(lcData.classes);
+              })
+              .catch(() => {});
+          }
         })
         .catch(() => {});
 
@@ -168,14 +179,14 @@ export default function StudentDashboardPage() {
           if (data.history) setTestHistory(data.history);
         })
         .catch(() => {});
+    } else {
+      fetch("/api/live/classes")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.classes && data.classes.length > 0) setLiveClasses(data.classes);
+        })
+        .catch(() => {});
     }
-
-    fetch("/api/live/classes")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.classes && data.classes.length > 0) setLiveClasses(data.classes);
-      })
-      .catch(() => {});
   }, [user?.email]);
 
   const handleLogout = () => {

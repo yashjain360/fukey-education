@@ -16,9 +16,11 @@ import {
   Lock
 } from "lucide-react";
 import { MockTest, sampleTests } from "@/data/testsData";
+import { useAuth } from "@/components/auth/AuthContext";
 import Pagination from "@/components/ui/Pagination";
 
 export default function TestSeriesCatalogPage() {
+  const { user } = useAuth();
   const [tests, setTests] = useState<MockTest[]>(sampleTests);
   const [selectedClass, setSelectedClass] = useState("All");
   const [selectedSubject, setSelectedSubject] = useState("All");
@@ -27,13 +29,38 @@ export default function TestSeriesCatalogPage() {
   const [itemsPerPage, setItemsPerPage] = useState(6);
 
   useEffect(() => {
-    fetch("/api/tests")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.tests && data.tests.length > 0) setTests(data.tests);
-      })
-      .catch(() => {});
-  }, []);
+    if (user?.email) {
+      fetch(`/api/enrollments?email=${encodeURIComponent(user.email)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          const enrolledSlugs = data.enrollments && Array.isArray(data.enrollments)
+            ? data.enrollments.map((e: any) => e.courseSlug).filter(Boolean).join(",")
+            : "";
+
+          fetch(`/api/tests${enrolledSlugs ? `?enrolledSlugs=${encodeURIComponent(enrolledSlugs)}` : ""}`)
+            .then((res) => res.json())
+            .then((testData) => {
+              if (testData.tests && testData.tests.length > 0) setTests(testData.tests);
+            })
+            .catch(() => {});
+        })
+        .catch(() => {
+          fetch("/api/tests")
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.tests && data.tests.length > 0) setTests(data.tests);
+            })
+            .catch(() => {});
+        });
+    } else {
+      fetch("/api/tests")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.tests && data.tests.length > 0) setTests(data.tests);
+        })
+        .catch(() => {});
+    }
+  }, [user?.email]);
 
   const filteredTests = useMemo(() => {
     return tests.filter((t) => {

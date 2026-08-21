@@ -5,6 +5,12 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const roomId = searchParams.get("roomId");
+    const instructor = searchParams.get("instructor");
+    const instructorEmail = searchParams.get("instructorEmail");
+    const enrolledSlugs = searchParams.get("enrolledSlugs");
+    const targetBatch = searchParams.get("targetBatch") || searchParams.get("batch");
+    const targetClass = searchParams.get("class");
+
     const db = await getDatabase();
 
     if (roomId) {
@@ -13,7 +19,30 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Classroom not found" }, { status: 404 });
     }
 
-    let classes = await db.collection("live_classes").find({}).sort({ createdAt: -1 }).toArray();
+    const query: any = {};
+    if (targetClass && targetClass !== "All") query.targetClass = targetClass;
+
+    // Faculty filter
+    if (instructor || instructorEmail) {
+      const orList: any[] = [];
+      if (instructor) orList.push({ instructor: new RegExp(instructor, "i") });
+      if (instructorEmail) orList.push({ instructorEmail: instructorEmail.toLowerCase() });
+      if (orList.length > 0) query.$or = orList;
+    }
+
+    // Student filter
+    if (enrolledSlugs) {
+      const slugList = enrolledSlugs.split(",").map((s) => s.trim().replace(/^[-]+|[-]+$/g, "")).filter(Boolean);
+      query.$or = [
+        { targetBatches: "all" },
+        { targetBatches: { $in: ["all", ...slugList] } },
+        { selectedStudents: "open_masterclass" }
+      ];
+    } else if (targetBatch && targetBatch !== "all") {
+      query.targetBatches = { $in: ["all", targetBatch] };
+    }
+
+    let classes = await db.collection("live_classes").find(query).sort({ createdAt: -1 }).toArray();
 
     // If empty, initialize default live classes
     if (classes.length === 0) {

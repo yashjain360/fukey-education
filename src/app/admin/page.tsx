@@ -1884,14 +1884,22 @@ export default function AdminDashboardPage() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">Instructor</label>
-                    <input
-                      type="text"
-                      required
+                    <label className="block font-bold text-slate-700 mb-1">Lead Faculty Educator</label>
+                    <select
                       value={newCourseInstructor}
                       onChange={(e) => setNewCourseInstructor(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
-                    />
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
+                    >
+                      {instructors.map((inst) => (
+                        <option key={inst.id} value={inst.name}>
+                          {inst.name} ({inst.department || inst.role})
+                        </option>
+                      ))}
+                      <option value="Pawan Gupta">Pawan Gupta (Mathematics)</option>
+                      <option value="Kratika Rathore">Kratika Rathore (Chemistry)</option>
+                      <option value="Arya Dubey">Arya Dubey (Physics)</option>
+                      <option value="Vivek Dubey">Vivek Dubey (Biology)</option>
+                    </select>
                   </div>
 
                   <div>

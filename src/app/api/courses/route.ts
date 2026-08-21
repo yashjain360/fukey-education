@@ -9,13 +9,26 @@ export async function GET(request: Request) {
     const lang = searchParams.get("lang");
     const subject = searchParams.get("subject");
     const slug = searchParams.get("slug");
+    const instructor = searchParams.get("instructor");
+    const instructorEmail = searchParams.get("instructorEmail");
+    const slugs = searchParams.get("slugs");
 
     const db = await getDatabase();
     const query: Record<string, any> = {};
-    if (slug) query.slug = slug;
+    if (slug) query.slug = slug.replace(/^[-]+|[-]+$/g, "");
+    if (slugs) {
+      const slugArr = slugs.split(",").map((s) => s.trim().replace(/^[-]+|[-]+$/g, "")).filter(Boolean);
+      if (slugArr.length > 0) query.slug = { $in: slugArr };
+    }
     if (cls && cls !== "All") query.class = cls;
     if (lang && lang !== "All") query.language = lang;
     if (subject && subject !== "All") query.subject = subject;
+    if (instructor || instructorEmail) {
+      const orConditions: any[] = [];
+      if (instructor) orConditions.push({ instructor: new RegExp(instructor, "i") });
+      if (instructorEmail) orConditions.push({ instructorEmail: instructorEmail.toLowerCase() });
+      if (orConditions.length > 0) query.$or = orConditions;
+    }
 
     let courses = await db.collection("courses").find(query).toArray();
 

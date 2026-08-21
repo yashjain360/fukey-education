@@ -205,22 +205,55 @@ export default function InstructorDashboardPage() {
   const [newLiveScheduledTime, setNewLiveScheduledTime] = useState("Today • 5:00 PM IST");
   const [isCreatingLive, setIsCreatingLive] = useState(false);
 
+  // Faculty Batch Tests State
+  const [facultyTests, setFacultyTests] = useState<any[]>([]);
+  const [isCreateTestModalOpen, setIsCreateTestModalOpen] = useState(false);
+  const [newTestTitle, setNewTestTitle] = useState("");
+  const [newTestClass, setNewTestClass] = useState("Class 10");
+  const [newTestSubject, setNewTestSubject] = useState("Mathematics");
+  const [newTestBatch, setNewTestBatch] = useState("all");
+  const [newTestDuration, setNewTestDuration] = useState(60);
+  const [newTestMarks, setNewTestMarks] = useState(40);
+  const [newTestQText, setNewTestQText] = useState("");
+  const [newTestOpt0, setNewTestOpt0] = useState("");
+  const [newTestOpt1, setNewTestOpt1] = useState("");
+  const [newTestOpt2, setNewTestOpt2] = useState("");
+  const [newTestOpt3, setNewTestOpt3] = useState("");
+  const [newTestCorrect, setNewTestCorrect] = useState(0);
+  const [newTestExplanation, setNewTestExplanation] = useState("");
+  const [isSubmittingTest, setIsSubmittingTest] = useState(false);
+
   useEffect(() => {
-    fetch("/api/courses")
+    if (!user) return;
+    const isMasterAdmin = user.role === "admin";
+    const instQuery = isMasterAdmin ? "" : `?instructor=${encodeURIComponent(user.name || "")}&instructorEmail=${encodeURIComponent(user.email || "")}`;
+
+    fetch(`/api/courses${instQuery}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.courses && data.courses.length > 0) setCourses(data.courses);
+        if (data.courses && data.courses.length > 0) {
+          setCourses(data.courses);
+          setNewLiveBatch(data.courses[0]?.slug || "All Enrolled Batches");
+          setNewTestBatch(data.courses[0]?.slug || "all");
+        }
       })
       .catch(() => {})
       .finally(() => setIsLoading(false));
 
-    fetch("/api/live/classes")
+    fetch(`/api/live/classes${instQuery}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.classes && data.classes.length > 0) setLiveClasses(data.classes);
       })
       .catch(() => {});
-  }, []);
+
+    fetch(`/api/tests${instQuery}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.tests && data.tests.length > 0) setFacultyTests(data.tests);
+      })
+      .catch(() => {});
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -253,6 +286,71 @@ export default function InstructorDashboardPage() {
 
   const handleRemoveFeature = (idx: number) => {
     setFeatures((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleOpenCreateTestModal = () => {
+    setNewTestTitle("");
+    setNewTestClass("Class 10");
+    setNewTestSubject("Mathematics");
+    setNewTestBatch(courses[0]?.slug || "all");
+    setNewTestDuration(60);
+    setNewTestMarks(40);
+    setNewTestQText("");
+    setNewTestOpt0("");
+    setNewTestOpt1("");
+    setNewTestOpt2("");
+    setNewTestOpt3("");
+    setNewTestCorrect(0);
+    setNewTestExplanation("");
+    setIsCreateTestModalOpen(true);
+  };
+
+  const handleCreateTestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTestTitle.trim()) return;
+    setIsSubmittingTest(true);
+
+    try {
+      const selectedBatchCourse = courses.find((c) => c.slug === newTestBatch);
+      const testPayload = {
+        title: newTestTitle.trim(),
+        class: newTestClass,
+        subject: newTestSubject,
+        targetBatch: newTestBatch,
+        courseSlug: newTestBatch,
+        instructorName: user?.name || "Senior Faculty",
+        instructorEmail: user?.email || "",
+        duration: Number(newTestDuration),
+        totalMarks: Number(newTestMarks),
+        questions: newTestQText.trim() ? [
+          {
+            id: 1,
+            question: newTestQText.trim(),
+            options: [newTestOpt0 || "Option A", newTestOpt1 || "Option B", newTestOpt2 || "Option C", newTestOpt3 || "Option D"],
+            correctAnswer: Number(newTestCorrect),
+            explanation: newTestExplanation.trim() || "Correct answer explanation based on NCERT guidelines.",
+            marks: Number(newTestMarks)
+          }
+        ] : undefined
+      };
+
+      const res = await fetch("/api/tests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(testPayload),
+      });
+
+      const data = await res.json();
+      if (data.success && data.test) {
+        setFacultyTests((prev) => [data.test, ...prev]);
+        setIsCreateTestModalOpen(false);
+        triggerConfetti();
+      }
+    } catch (err) {
+      console.error("Test creation failed", err);
+    } finally {
+      setIsSubmittingTest(false);
+    }
   };
 
   const handleOpenCreateLiveModal = () => {
@@ -470,6 +568,14 @@ export default function InstructorDashboardPage() {
             >
               <Plus className="w-4 h-4" />
               <span>Create New Course</span>
+            </button>
+
+            <button
+              onClick={handleOpenCreateTestModal}
+              className="px-5 py-3 rounded-2xl bg-[#5751E1] hover:bg-indigo-600 text-white font-black text-xs shadow-lg shadow-indigo-900/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Award className="w-4 h-4 text-amber-300" />
+              <span>Create Batch Test</span>
             </button>
 
             <Link
@@ -1454,18 +1560,18 @@ export default function InstructorDashboardPage() {
           </div>
         )}
 
-        {/* MODAL: SCHEDULE & LAUNCH LIVE CLASS */}
+        {/* MODAL: SCHEDULE LIVE CLASS STUDIO */}
         {isCreateLiveModalOpen && (
           <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
-            <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in max-h-[90vh] overflow-y-auto">
+            <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="space-y-0.5">
                   <h3 className="font-black text-base text-slate-900 flex items-center gap-2">
-                    <Video className="w-4 h-4 text-[#FF2424]" />
-                    <span>Schedule / Launch Live Class Studio</span>
+                    <Video className="w-5 h-5 text-[#FF2424]" />
+                    <span>Schedule / Start Live Interactive Class</span>
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Configure classroom targeting, select eligible batch and student cohorts
+                    Broadcast high-definition video lecture with live doubt resolution
                   </p>
                 </div>
                 <button
@@ -1478,18 +1584,18 @@ export default function InstructorDashboardPage() {
 
               <form onSubmit={handleCreateLiveSubmit} className="space-y-3.5 text-xs">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Lecture Topic / Chapter Headline</label>
+                  <label className="block font-bold text-slate-700 mb-1">Session / Lecture Title</label>
                   <input
                     type="text"
                     required
                     value={newLiveTitle}
                     onChange={(e) => setNewLiveTitle(e.target.value)}
-                    placeholder="e.g. Chapter 4: Quadratic Equations - Fast Track Shortcuts"
+                    placeholder="e.g. Class 10th Maths: Quadratic Formula Derivations"
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Target Class</label>
                     <select
@@ -1532,7 +1638,7 @@ export default function InstructorDashboardPage() {
                     {courses
                       .filter((c) => !newLiveClass || c.class === newLiveClass)
                       .map((c) => (
-                        <option key={c.id} value={c.title}>
+                        <option key={c.id} value={c.slug}>
                           {c.title}
                         </option>
                       ))}
@@ -1594,6 +1700,180 @@ export default function InstructorDashboardPage() {
                   >
                     <Video className="w-3.5 h-3.5" />
                     <span>{isCreatingLive ? "Creating Studio..." : "Create & Launch Studio"}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: CREATE BATCH MOCK TEST */}
+        {isCreateTestModalOpen && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
+            <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in my-8">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="space-y-0.5">
+                  <h3 className="font-black text-base text-slate-900 flex items-center gap-2">
+                    <Award className="w-5 h-5 text-indigo-600" />
+                    <span>Create Batch Mock Exam &amp; Quiz</span>
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Publish chapter mock tests with anti-cheating &amp; automated scorecards
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsCreateTestModalOpen(false)}
+                  className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateTestSubmit} className="space-y-3 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Test Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={newTestTitle}
+                    onChange={(e) => setNewTestTitle(e.target.value)}
+                    placeholder="e.g. Unit 1: Quadratic Equations Practice Test"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Target Class</label>
+                    <select
+                      value={newTestClass}
+                      onChange={(e) => setNewTestClass(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
+                    >
+                      <option value="Class 9">Class 9</option>
+                      <option value="Class 10">Class 10</option>
+                      <option value="Class 11">Class 11</option>
+                      <option value="Class 12">Class 12</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Subject</label>
+                    <select
+                      value={newTestSubject}
+                      onChange={(e) => setNewTestSubject(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
+                    >
+                      <option value="Mathematics">Mathematics</option>
+                      <option value="Science">Science</option>
+                      <option value="Physics">Physics</option>
+                      <option value="Chemistry">Chemistry</option>
+                      <option value="Biology">Biology</option>
+                      <option value="Accountancy">Accountancy</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Target Course / Batch</label>
+                  <select
+                    value={newTestBatch}
+                    onChange={(e) => setNewTestBatch(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
+                  >
+                    <option value="all">All Enrolled Students (Public Mock Test)</option>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.slug}>
+                        {c.title} ({c.class})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Duration (Minutes)</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="180"
+                      required
+                      value={newTestDuration}
+                      onChange={(e) => setNewTestDuration(Number(e.target.value))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Total Marks</label>
+                    <input
+                      type="number"
+                      min="5"
+                      max="100"
+                      required
+                      value={newTestMarks}
+                      onChange={(e) => setNewTestMarks(Number(e.target.value))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 space-y-2">
+                  <div className="font-bold text-slate-800">Sample Question Preview</div>
+                  <input
+                    type="text"
+                    value={newTestQText}
+                    onChange={(e) => setNewTestQText(e.target.value)}
+                    placeholder="Question: What is the discriminant formula for ax² + bx + c = 0?"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      value={newTestOpt0}
+                      onChange={(e) => setNewTestOpt0(e.target.value)}
+                      placeholder="Option A (e.g. b² - 4ac)"
+                      className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 font-medium"
+                    />
+                    <input
+                      type="text"
+                      value={newTestOpt1}
+                      onChange={(e) => setNewTestOpt1(e.target.value)}
+                      placeholder="Option B (e.g. 2a - b)"
+                      className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 font-medium"
+                    />
+                    <input
+                      type="text"
+                      value={newTestOpt2}
+                      onChange={(e) => setNewTestOpt2(e.target.value)}
+                      placeholder="Option C (e.g. 4ac - b²)"
+                      className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 font-medium"
+                    />
+                    <input
+                      type="text"
+                      value={newTestOpt3}
+                      onChange={(e) => setNewTestOpt3(e.target.value)}
+                      placeholder="Option D (e.g. -b / 2a)"
+                      className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end gap-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateTestModalOpen(false)}
+                    className="px-3.5 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingTest}
+                    className="px-5 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold shadow-md transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{isSubmittingTest ? "Publishing Test..." : "Publish Batch Test"}</span>
                   </button>
                 </div>
               </form>
