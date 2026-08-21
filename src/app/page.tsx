@@ -3,6 +3,7 @@ import StatsBanner from "@/components/home/StatsBanner";
 import CategoriesSection from "@/components/home/CategoriesSection";
 import FeaturedCourses from "@/components/home/FeaturedCourses";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
+import InteractiveStudyHub from "@/components/home/InteractiveStudyHub";
 import InstructorsSection from "@/components/home/InstructorsSection";
 import GallerySection from "@/components/home/GallerySection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
@@ -15,6 +16,7 @@ export default function Home() {
       <CategoriesSection />
       <FeaturedCourses />
       <WhyChooseUs />
+      <InteractiveStudyHub />
       <InstructorsSection />
       <GallerySection />
       <TestimonialsSection />

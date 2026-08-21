@@ -12,7 +12,8 @@ import {
   Award,
   BookCheck,
   Sparkles,
-  Heart
+  Star,
+  ExternalLink
 } from "lucide-react";
 import { siteConfig } from "@/data/siteConfig";
 
@@ -24,7 +25,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pb-12 border-b border-indigo-900/60">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-orange-400">
-              <ShieldCheck className="w-6 h-6" />
+              <ShieldCheck className="w-6 h-6 animate-icon-pulse" />
             </div>
             <div>
               <div className="font-bold text-white text-sm">100% NCERT Aligned</div>
@@ -34,7 +35,7 @@ export default function Footer() {
 
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-emerald-400">
-              <Award className="w-6 h-6" />
+              <Award className="w-6 h-6 animate-icon-sparkle" />
             </div>
             <div>
               <div className="font-bold text-white text-sm">Gold Medalist Faculty</div>
@@ -44,7 +45,7 @@ export default function Footer() {
 
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-sky-400">
-              <BookCheck className="w-6 h-6" />
+              <BookCheck className="w-6 h-6 animate-icon-float" />
             </div>
             <div>
               <div className="font-bold text-white text-sm">Free Study Notes</div>
@@ -54,11 +55,11 @@ export default function Footer() {
 
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-pink-400">
-              <Sparkles className="w-6 h-6" />
+              <Sparkles className="w-6 h-6 animate-icon-sparkle" />
             </div>
             <div>
-              <div className="font-bold text-white text-sm">24/7 Doubt Support</div>
-              <div className="text-xs text-slate-400">Live Q&amp;A &amp; Dedicated Groups</div>
+              <div className="font-bold text-white text-sm">5.0 ★ Google Rated</div>
+              <div className="text-xs text-slate-400">21+ Verified Student Reviews</div>
             </div>
           </div>
         </div>
@@ -67,8 +68,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 py-12 border-b border-indigo-900/60">
           {/* Col 1 & 2: Brand Story */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-white to-slate-200 p-0.5 flex items-center justify-center">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-white to-slate-200 p-0.5 flex items-center justify-center transition-transform group-hover:scale-105">
                 <GraduationCap className="w-6 h-6 text-[#050071]" />
               </div>
               <div className="font-extrabold text-2xl tracking-tight text-white">
@@ -76,14 +77,14 @@ export default function Footer() {
               </div>
             </Link>
 
-            <p className="text-sm text-slate-300 leading-relaxed max-w-sm">
+            <p className="text-sm text-slate-300 leading-relaxed max-w-sm font-medium">
               Empowering Class 9th to 12th students with high-yield live online coaching, expert faculty mentorship, comprehensive Hindi &amp; English study material, and proven board exam strategies.
             </p>
 
             <div className="pt-2 space-y-2 text-xs text-slate-300">
-              <div className="flex items-center gap-2.5">
-                <MapPin className="w-4 h-4 text-orange-400 flex-shrink-0" />
-                <span>{siteConfig.address}</span>
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{siteConfig.address}</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-orange-400 flex-shrink-0" />
@@ -93,9 +94,15 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <a href={`tel:${siteConfig.supportPhone.replace(/\s+/g, '')}`} className="hover:text-white transition-colors">
-                  {siteConfig.supportPhone}
-                </a>
+                <div className="flex items-center gap-2">
+                  <a href={`tel:${siteConfig.supportPhone.replace(/\s+/g, '')}`} className="hover:text-white transition-colors">
+                    {siteConfig.supportPhone}
+                  </a>
+                  <span>/</span>
+                  <a href={`tel:${siteConfig.alternatePhone.replace(/\s+/g, '')}`} className="hover:text-white transition-colors">
+                    {siteConfig.alternatePhone}
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -105,7 +112,7 @@ export default function Footer() {
                 href={siteConfig.socials.facebook}
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-lg bg-indigo-900 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg bg-indigo-900 hover:bg-indigo-700 text-white flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                 aria-label="Facebook"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -116,7 +123,7 @@ export default function Footer() {
                 href={siteConfig.socials.instagram}
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-lg bg-indigo-900 hover:bg-pink-600 text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg bg-indigo-900 hover:bg-pink-600 text-white flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                 aria-label="Instagram"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -127,7 +134,7 @@ export default function Footer() {
                 href={siteConfig.socials.youtube}
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-lg bg-indigo-900 hover:bg-red-600 text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg bg-indigo-900 hover:bg-red-600 text-white flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                 aria-label="YouTube"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -138,7 +145,7 @@ export default function Footer() {
                 href={siteConfig.socials.linkedin}
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-lg bg-indigo-900 hover:bg-blue-600 text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg bg-indigo-900 hover:bg-blue-600 text-white flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                 aria-label="LinkedIn"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -237,7 +244,7 @@ export default function Footer() {
                 />
                 <button
                   type="submit"
-                  className="absolute right-1 top-1 bottom-1 px-3 bg-[#5751E1] hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center transition-colors"
+                  className="absolute right-1 top-1 bottom-1 px-3 bg-[#5751E1] hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer hover:scale-105 active:scale-95"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </button>

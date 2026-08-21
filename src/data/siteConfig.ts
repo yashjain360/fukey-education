@@ -1,30 +1,41 @@
 export const siteConfig = {
-  "name": "Fukey Education",
-  "tagline": "Online Courses, eBooks & Expert Instructors for Every Learner",
-  "supportEmail": "info@fukeyeducation.com",
-  "supportPhone": "+91 88718 35015",
-  "whatsappUrl": "https://wa.link/4x8l4t",
-  "whatsappNumber": "+918871835015",
-  "address": "Fukey Education Academic Towers, Civil Lines, Madhya Pradesh, India",
-  "socials": {
-    "facebook": "https://www.facebook.com/people/Fukey-Education/61566895426833/",
-    "instagram": "https://www.instagram.com/fukey_education/",
-    "youtube": "https://www.youtube.com/@FukeyEducation",
-    "linkedin": "https://www.linkedin.com/in/fukey-education-4744323b9"
+  name: "Fukey Education",
+  tagline: "Live Interactive CBSE & State Board Online Coaching for Classes 9th–12th",
+  supportEmail: "info@fukeyeducation.com",
+  supportPhone: "+91 88718 35015",
+  alternatePhone: "+91 70248 49838",
+  whatsappUrl: "https://wa.link/4x8l4t",
+  whatsappNumber: "+918871835015",
+  address: "Guru Kripa Tower, Near Vishal Mega Mart, Shalimar Garden, Kolar Road, Bhopal, Madhya Pradesh 462042",
+  foundedYear: "2022",
+  googleRating: "5.0",
+  googleReviewsCount: "21+",
+  socials: {
+    facebook: "https://www.facebook.com/people/Fukey-Education/61566895426833/",
+    instagram: "https://www.instagram.com/fukey_education/",
+    youtube: "https://www.youtube.com/@FukeyEducation",
+    linkedin: "https://www.linkedin.com/in/fukey-education-4744323b9",
+    googleBusiness: "https://maps.google.com/?q=Fukey+Education+Bhopal",
   },
-  "stats": {
-    "activeStudents": "650+",
-    "facultyCourses": "50+",
-    "bestProfessors": "25+",
-    "awardsAchieved": "12+"
+  stats: {
+    activeStudents: "650+",
+    totalCourses: "52+",
+    expertInstructors: "8+",
+    successRate: "98.6%",
+    liveHoursTaught: "12,500+",
   },
-  "saleOffer": {
-    "title": "Happy Independence Day!",
-    "subtitle": "Celebrate freedom with knowledge! Grab our biggest Freedom Sale discount on all courses.",
-    "discountText": "40% OFF",
-    "discountPercent": 40,
-    "couponCode": "FREEDOM40",
-    "originalPrice": 2499,
-    "offerPrice": 1499
+  teachingModel: {
+    lectureMinutes: 45,
+    doubtSolvingMinutes: 15,
+    platform: "Live Pen-Tablet Screen Sharing via Fukey App",
+  },
+  saleOffer: {
+    title: "Session 2026-27 Board Enrollment Offer",
+    subtitle: "Unlock complete syllabus coverage, daily live batches, and NCERT formula cheat-sheets with 40% discount.",
+    discountText: "40% OFF",
+    discountPercent: 40,
+    couponCode: "FREEDOM40",
+    originalPrice: 2499,
+    offerPrice: 1499,
   }
 };
