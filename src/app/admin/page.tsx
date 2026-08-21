@@ -2241,11 +2241,20 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
+                <Link
+                  href={`/invoice/${selectedInvoice.invoice || selectedInvoice.no}`}
+                  target="_blank"
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Open Full Invoice</span>
+                </Link>
                 <button
                   onClick={() => window.print()}
-                  className="px-5 py-2.5 rounded-xl bg-[#050071] hover:bg-indigo-900 text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95"
+                  className="px-5 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  Print Receipt
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Print / Save PDF</span>
                 </button>
               </div>
             </div>

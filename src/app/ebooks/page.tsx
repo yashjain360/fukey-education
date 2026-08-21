@@ -5,6 +5,9 @@ import Link from "next/link";
 import { Download, BookOpen, Search, Star, CheckCircle2 } from "lucide-react";
 import { ebooksData, Ebook } from "@/data/ebooksData";
 import Pagination from "@/components/ui/Pagination";
+import { triggerConfetti } from "@/lib/confetti";
+import { downloadStudyNote } from "@/lib/pdfDownloader";
+import ToastNotification from "@/components/ui/ToastNotification";
 
 export default function EbooksPage() {
   const [ebooks, setEbooks] = useState<Ebook[]>(ebooksData);
@@ -12,6 +15,14 @@ export default function EbooksPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleDownload = (eb: Ebook) => {
+    triggerConfetti();
+    downloadStudyNote(eb.title, eb.subject, eb.class);
+    setToastMessage(`Downloading "${eb.title}" e-book PDF...`);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   const subjects = ["All", "Mathematics", "Science", "Physics", "Chemistry", "Social Science"];
 
@@ -123,9 +134,7 @@ export default function EbooksPage() {
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs font-bold text-[#050071]">{ebook.class}</span>
                 <button
-                  onClick={() => {
-                    alert(`Downloading "${ebook.title}"...`);
-                  }}
+                  onClick={() => handleDownload(ebook)}
                   className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -147,6 +156,12 @@ export default function EbooksPage() {
           }}
           onItemsPerPageChange={(size) => setItemsPerPage(size)}
           pageSizeOptions={[6, 12, 24]}
+        />
+
+        {/* Toast Notification */}
+        <ToastNotification
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
         />
       </div>
     </div>

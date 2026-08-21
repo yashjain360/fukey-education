@@ -33,6 +33,7 @@ import { useCart } from "@/components/cart/CartContext";
 import { useAuth } from "@/components/auth/AuthContext";
 import { formatPrice } from "@/lib/utils";
 import { triggerConfetti } from "@/lib/confetti";
+import { downloadStudyNote } from "@/lib/pdfDownloader";
 
 export default function CourseDetailPage() {
   const params = useParams();
@@ -115,6 +116,9 @@ export default function CourseDetailPage() {
   };
 
   const handleDownloadNotes = () => {
+    if (course) {
+      downloadStudyNote(course.title, course.subject, course.class);
+    }
     setNotesDownloaded(true);
     triggerConfetti();
     setTimeout(() => setNotesDownloaded(false), 3000);

@@ -1211,16 +1211,14 @@ export default function InstructorDashboardPage() {
 
                         <div className="flex items-center gap-3">
                           <span className="font-black text-base text-[#050071]">{formatPrice(p.amount, currency)}</span>
-                          <button
-                            onClick={() => {
-                              triggerConfetti();
-                              showToast(`Downloading Payout Settlement receipt for ${p.id}...`);
-                            }}
+                          <Link
+                            href={`/receipt/${p.id}`}
+                            target="_blank"
                             className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                           >
                             <Receipt className="w-3.5 h-3.5" />
-                            <span>Receipt</span>
-                          </button>
+                            <span>View / Download Receipt</span>
+                          </Link>
                         </div>
                       </div>
                     ))}

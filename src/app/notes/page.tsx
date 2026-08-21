@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { triggerConfetti } from "@/lib/confetti";
 import Pagination from "@/components/ui/Pagination";
+import { downloadStudyNote } from "@/lib/pdfDownloader";
+import ToastNotification from "@/components/ui/ToastNotification";
 
 interface ChapterNote {
   id: string;
@@ -34,6 +36,7 @@ export default function NotesLibraryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/notes")
@@ -41,7 +44,7 @@ export default function NotesLibraryPage() {
       .then((data) => {
         if (data.notes) setNotes(data.notes);
       })
-      .catch(() => {});
+      .catch((err) => console.error("Notes fetch error:", err));
   }, []);
 
   const filteredNotes = useMemo(() => {
@@ -65,14 +68,24 @@ export default function NotesLibraryPage() {
     return filteredNotes.slice(start, start + itemsPerPage);
   }, [filteredNotes, currentPage, itemsPerPage]);
 
-  const handleDownload = (title: string) => {
+  const handleDownload = (note: ChapterNote) => {
     triggerConfetti();
-    alert(`Downloading "${title}" PDF...`);
+    downloadStudyNote(note.title, note.subject, note.class);
+    setToastMessage(`Downloading "${note.title}" PDF study notes...`);
+    setTimeout(() => setToastMessage(null), 3500);
   };
 
   return (
     <div className="bg-slate-50/50 min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
+        {/* Toast Notification */}
+        {toastMessage && (
+          <ToastNotification
+            message={toastMessage}
+            onClose={() => setToastMessage(null)}
+          />
+        )}
+
         {/* Banner */}
         <div
           className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl relative overflow-hidden"
@@ -155,7 +168,7 @@ export default function NotesLibraryPage() {
                 </span>
 
                 <button
-                  onClick={() => handleDownload(note.title)}
+                  onClick={() => handleDownload(note)}
                   className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
