@@ -95,18 +95,12 @@ export default function CheckoutPage() {
             <div>Order ID: <span className="font-mono text-indigo-700">{confirmedOrderId || "INV-2026-89412"}</span></div>
             <div>Access link &amp; batch schedule sent to <span className="text-indigo-800 font-bold">{email}</span> and WhatsApp <span className="text-indigo-800 font-bold">{phone}</span></div>
           </div>
-          <div className="grid grid-cols-2 gap-3 pt-2">
+          <div className="pt-2">
             <Link
               href="/dashboard"
-              className="w-full block py-3 rounded-xl bg-[#050071] hover:bg-indigo-900 text-white font-bold text-xs transition-colors"
+              className="w-full block py-3.5 rounded-xl bg-[#050071] hover:bg-indigo-900 text-white font-black text-xs transition-all shadow-md hover:scale-102"
             >
-              Student Portal
-            </Link>
-            <Link
-              href="/admin"
-              className="w-full block py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
-            >
-              Admin View
+              Go to Student Dashboard &amp; Start Learning →
             </Link>
           </div>
         </div>

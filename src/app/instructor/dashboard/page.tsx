@@ -227,16 +227,6 @@ export default function InstructorDashboardPage() {
     router.push("/login");
   };
 
-  const handleSwitchToStudent = () => {
-    switchRole("student");
-    router.push("/dashboard");
-  };
-
-  const handleSwitchToAdmin = () => {
-    switchRole("admin");
-    router.push("/admin");
-  };
-
   const handleOpenReplyModal = (q: any) => {
     setSelectedQuestion(q);
     setReplyText("");
@@ -419,6 +409,30 @@ export default function InstructorDashboardPage() {
     );
   });
 
+  if (!user || (user.role !== "instructor" && user.role !== "admin")) {
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center p-4 bg-slate-50">
+        <div className="w-full max-w-md bg-white rounded-3xl p-8 border border-slate-200 shadow-xl text-center space-y-5">
+          <div className="w-16 h-16 rounded-full bg-orange-100 text-orange-600 mx-auto flex items-center justify-center">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="text-xl font-black text-slate-900">Faculty Credentials Required</h2>
+            <p className="text-xs text-slate-500">
+              This area is restricted to verified Fukey Education faculty and instructors.
+            </p>
+          </div>
+          <Link
+            href="/login"
+            className="w-full block py-3.5 rounded-xl bg-[#050071] hover:bg-indigo-900 text-white font-black text-xs shadow-md transition-all hover:scale-105"
+          >
+            Sign In as Instructor →
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-slate-50/60 min-h-screen pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
@@ -437,10 +451,10 @@ export default function InstructorDashboardPage() {
 
             <div className="space-y-1 text-center sm:text-left">
               <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                {user?.name || "Pawan Gupta"}
+                {user?.name || "Faculty Member"}
               </h1>
               <div className="text-xs text-indigo-200 font-medium">
-                {user?.email || "pawan@fukeyeducation.com"}
+                {user?.email || "faculty@fukeyeducation.com"}
               </div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-bold border border-orange-400/30">
                 <ShieldCheck className="w-3 h-3 text-orange-400" />
@@ -465,20 +479,6 @@ export default function InstructorDashboardPage() {
               <Video className="w-4 h-4 animate-icon-pulse" />
               <span>Launch Live Studio</span>
             </Link>
-
-            <button
-              onClick={handleSwitchToStudent}
-              className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs transition-colors cursor-pointer"
-            >
-              Student View
-            </button>
-
-            <button
-              onClick={handleSwitchToAdmin}
-              className="px-4 py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 font-bold text-xs transition-colors cursor-pointer"
-            >
-              Master Admin
-            </button>
           </div>
         </div>
 

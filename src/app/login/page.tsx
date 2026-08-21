@@ -7,8 +7,8 @@ import { GraduationCap, Lock, Mail, ArrowRight, ShieldCheck, User } from "lucide
 import { useAuth } from "@/components/auth/AuthContext";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("mayank@fukeyeducation.com");
-  const [password, setPassword] = useState("••••••••");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState<"student" | "instructor" | "admin">("student");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { openGoogleModal, loginWithEmail } = useAuth();
@@ -16,12 +16,14 @@ export default function LoginPage() {
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim()) return;
     setIsLoggingIn(true);
     try {
-      const loggedUser = await loginWithEmail(email, email.split("@")[0], role);
-      if (role === "admin") {
+      const loggedUser = await loginWithEmail(email.trim(), email.split("@")[0], role);
+      const effectiveRole = loggedUser?.role || role;
+      if (effectiveRole === "admin") {
         router.push("/admin");
-      } else if (role === "instructor") {
+      } else if (effectiveRole === "instructor") {
         router.push("/instructor/dashboard");
       } else {
         router.push("/dashboard");

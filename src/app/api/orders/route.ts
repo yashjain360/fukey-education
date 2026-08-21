@@ -54,13 +54,40 @@ export async function POST(request: Request) {
 
     await db.collection("orders").insertOne(newOrder);
 
+    // Auto-create enrollment in MongoDB for the student
+    const itemsList = Array.isArray(body.items) ? body.items : [body.items || newOrder.courseTitle];
+    for (const item of itemsList) {
+      const itemTitle = typeof item === "string" ? item : item.title || item.name || newOrder.courseTitle;
+      const itemSlug = typeof item === "object" && item.slug ? item.slug : (body.courseSlug || itemTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+
+      await db.collection("enrollments").updateOne(
+        {
+          studentEmail: newOrder.studentEmail.toLowerCase().trim(),
+          courseSlug: itemSlug,
+        },
+        {
+          $set: {
+            studentEmail: newOrder.studentEmail.toLowerCase().trim(),
+            studentName: newOrder.studentName,
+            courseSlug: itemSlug,
+            courseTitle: itemTitle,
+            assignedBy: "self_checkout",
+            status: "ACTIVE",
+            enrolledAt: new Date(),
+          },
+          $setOnInsert: { createdAt: new Date() },
+        },
+        { upsert: true }
+      );
+    }
+
     // Update user record with the new order and profile
     await db.collection("users").updateOne(
-      { email: newOrder.studentEmail },
+      { email: newOrder.studentEmail.toLowerCase().trim() },
       {
         $set: {
           name: newOrder.studentName,
-          email: newOrder.studentEmail,
+          email: newOrder.studentEmail.toLowerCase().trim(),
           phone: newOrder.studentPhone,
           updatedAt: new Date(),
         },

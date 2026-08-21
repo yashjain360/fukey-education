@@ -13,21 +13,6 @@ export interface UserProfile {
   pendingCoursesCount?: number;
 }
 
-export const DEMO_USER: UserProfile = {
-  id: "user-mayank-1039",
-  name: "Mayank Dubey",
-  email: "mayank@fukeyeducation.com",
-  role: "student",
-  phone: "+91 88718 35015",
-  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
-  bio: "CBSE Class 12 & Competitive Aspirant / Educator at Fukey Education",
-  enrolledCoursesCount: 2,
-  quizAttemptsCount: 5,
-  totalReviewsCount: 3300,
-  instructorCoursesCount: 2,
-  pendingCoursesCount: 0,
-};
-
 export function setCookie(name: string, value: string, days = 30) {
   if (typeof document === "undefined") return;
   const date = new Date();

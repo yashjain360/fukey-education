@@ -6,7 +6,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "topbar.admissions": "Admissions Open for Classes 9th to 12th Live Online Batches",
     "topbar.boards": "CBSE & State Boards 2026-27",
     "topbar.helpline": "Official Helpline:",
-    
+
     // Navbar
     "nav.home": "Home",
     "nav.courses": "Courses",
@@ -139,7 +139,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "footer.notes": "Free Study Notes",
     "footer.rated": "5.0 ★ Google Rated",
     "footer.rights": "All rights reserved.",
-    "footer.made_by": "Made with ❤️ by",
+    "footer.made_by": "Made with",
     "contact.title": "Contact Fukey Education Bhopal",
     "contact.desk": "Admissions Desk & Support 2026-27",
     "contact.helpline": "Official Helplines",

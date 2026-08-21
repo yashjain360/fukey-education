@@ -131,7 +131,8 @@ export default function StudentDashboardPage() {
     }
   ]);
 
-  // Test History & Live Classes State
+  // Real Student Enrollments & Orders State from MongoDB
+  const [studentEnrollments, setStudentEnrollments] = useState<any[]>([]);
   const [testHistory, setTestHistory] = useState<any[]>([]);
   const [liveClasses, setLiveClasses] = useState<any[]>([]);
 
@@ -143,12 +144,31 @@ export default function StudentDashboardPage() {
       })
       .catch(() => {});
 
-    fetch(`/api/tests/history?email=${encodeURIComponent(user?.email || "mayank@fukeyeducation.com")}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.history && data.history.length > 0) setTestHistory(data.history);
-      })
-      .catch(() => {});
+    if (user?.email) {
+      // 1. Fetch real student enrollments
+      fetch(`/api/enrollments?email=${encodeURIComponent(user.email)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.enrollments) setStudentEnrollments(data.enrollments);
+        })
+        .catch(() => {});
+
+      // 2. Fetch real student orders
+      fetch(`/api/orders?email=${encodeURIComponent(user.email)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.orders && data.orders.length > 0) setOrders(data.orders);
+        })
+        .catch(() => {});
+
+      // 3. Fetch student test history
+      fetch(`/api/tests/history?email=${encodeURIComponent(user.email)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.history) setTestHistory(data.history);
+        })
+        .catch(() => {});
+    }
 
     fetch("/api/live/classes")
       .then((res) => res.json())
@@ -161,16 +181,6 @@ export default function StudentDashboardPage() {
   const handleLogout = () => {
     logout();
     router.push("/login");
-  };
-
-  const handleSwitchToInstructor = () => {
-    switchRole("instructor");
-    router.push("/instructor/dashboard");
-  };
-
-  const handleSwitchToAdmin = () => {
-    switchRole("admin");
-    router.push("/admin");
   };
 
   const handleToggleGoal = (id: string) => {
@@ -233,12 +243,36 @@ export default function StudentDashboardPage() {
     }
   };
 
-  const enrolledCourses = courses.slice(0, 2);
+  const enrolledCourses = studentEnrollments;
+
+  if (!user) {
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center p-4 bg-slate-50">
+        <div className="w-full max-w-md bg-white rounded-3xl p-8 border border-slate-200 shadow-xl text-center space-y-5">
+          <div className="w-16 h-16 rounded-full bg-indigo-100 text-[#050071] mx-auto flex items-center justify-center">
+            <GraduationCap className="w-8 h-8" />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="text-xl font-black text-slate-900">Student Portal Sign In Required</h2>
+            <p className="text-xs text-slate-500">
+              Please sign in with your student credentials to view your enrolled batches, live lectures, and reports.
+            </p>
+          </div>
+          <Link
+            href="/login"
+            className="w-full block py-3.5 rounded-xl bg-[#050071] hover:bg-indigo-900 text-white font-black text-xs shadow-md transition-all hover:scale-105"
+          >
+            Sign In to Student Dashboard →
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-slate-50/60 min-h-screen pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
-        {/* Top Header Banner with Dynamic Role Switchers */}
+        {/* Top Header Banner */}
         <div
           className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] border border-indigo-900 shadow-xl p-6 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-6"
           data-aos="fade-down"
@@ -260,7 +294,7 @@ export default function StudentDashboardPage() {
             <div className="space-y-1 text-center sm:text-left">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  {profileName}
+                  {user.name || profileName}
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-400/30 flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-emerald-400" />
@@ -268,7 +302,7 @@ export default function StudentDashboardPage() {
                 </span>
               </div>
               <div className="text-xs text-indigo-200 font-medium">
-                {profileEmail} • {profilePhone}
+                {user.email || profileEmail} • {user.phone || profilePhone}
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-indigo-800/60 text-indigo-200 text-[10px] font-bold">
                 <span>{targetBoard} {targetClass} • {medium}</span>
@@ -276,7 +310,7 @@ export default function StudentDashboardPage() {
             </div>
           </div>
 
-          {/* Quick Universal Role Switchers */}
+          {/* Quick Actions */}
           <div className="relative z-10 flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => setAskDoubtOpen(true)}
@@ -293,20 +327,6 @@ export default function StudentDashboardPage() {
               <Video className="w-4 h-4 animate-icon-pulse" />
               <span>Join Live Class</span>
             </Link>
-
-            <button
-              onClick={handleSwitchToInstructor}
-              className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors cursor-pointer"
-            >
-              Faculty Portal
-            </button>
-
-            <button
-              onClick={handleSwitchToAdmin}
-              className="px-4 py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 font-bold text-xs transition-colors cursor-pointer"
-            >
-              Master Admin
-            </button>
           </div>
         </div>
 
@@ -573,40 +593,63 @@ export default function StudentDashboardPage() {
                   <p className="text-xs text-slate-500">Access video lectures, formula sheets, and chapter tests</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {enrolledCourses
-                    .slice((coursesPage - 1) * 4, coursesPage * 4)
-                    .map((c) => (
-                      <div key={c.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-[#5751E1] font-bold">
-                            {c.class} • {c.subject}
-                          </span>
-                          <span className="text-emerald-600 font-bold">● Active</span>
-                        </div>
-                        <h3 className="font-extrabold text-sm text-slate-900">{c.title}</h3>
-                        <div className="text-xs text-slate-500">Faculty: {c.instructor}</div>
+                {enrolledCourses.length === 0 ? (
+                  <div className="text-center py-12 px-4 rounded-3xl border-2 border-dashed border-slate-200 space-y-4">
+                    <div className="w-14 h-14 rounded-full bg-indigo-50 text-indigo-600 mx-auto flex items-center justify-center">
+                      <BookOpen className="w-7 h-7" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-base font-black text-slate-900">No Enrolled Batches Yet</h3>
+                      <p className="text-xs text-slate-500 max-w-md mx-auto">
+                        You have not been enrolled in any academic batches yet. Browse verified CBSE and State Board courses to get started.
+                      </p>
+                    </div>
+                    <Link
+                      href="/courses"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs shadow-md transition-all hover:scale-105"
+                    >
+                      <GraduationCap className="w-4 h-4" />
+                      <span>Browse Available Batches</span>
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      {enrolledCourses
+                        .slice((coursesPage - 1) * 4, coursesPage * 4)
+                        .map((c) => (
+                          <div key={c.id || c.courseSlug} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-[#5751E1] font-bold">
+                                {c.class || "Class 10"} • {c.subject || "Academic"}
+                              </span>
+                              <span className="text-emerald-600 font-bold">● Active</span>
+                            </div>
+                            <h3 className="font-extrabold text-sm text-slate-900">{c.courseTitle || c.title}</h3>
+                            <div className="text-xs text-slate-500">Faculty: {c.instructor || "Senior Faculty"}</div>
 
-                        <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
-                          <Link
-                            href={`/course/${c.slug}`}
-                            className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center gap-1.5"
-                          >
-                            <Play className="w-3.5 h-3.5 fill-current" />
-                            <span>Enter Classroom</span>
-                          </Link>
-                        </div>
-                      </div>
-                    ))}
-                </div>
+                            <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+                              <Link
+                                href={`/course/${c.courseSlug || c.slug || "class-10th-complete-mathematics"}`}
+                                className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center gap-1.5"
+                              >
+                                <Play className="w-3.5 h-3.5 fill-current" />
+                                <span>Enter Classroom</span>
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
 
-                <Pagination
-                  currentPage={coursesPage}
-                  totalItems={enrolledCourses.length}
-                  itemsPerPage={4}
-                  onPageChange={(page) => setCoursesPage(page)}
-                  pageSizeOptions={[4, 8, 12]}
-                />
+                    <Pagination
+                      currentPage={coursesPage}
+                      totalItems={enrolledCourses.length}
+                      itemsPerPage={4}
+                      onPageChange={(page) => setCoursesPage(page)}
+                      pageSizeOptions={[4, 8, 12]}
+                    />
+                  </>
+                )}
               </div>
             )}
 

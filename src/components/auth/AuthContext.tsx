@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { UserProfile, DEMO_USER, setCookie, getCookie, removeCookie } from "@/lib/auth";
+import { UserProfile, setCookie, getCookie, removeCookie } from "@/lib/auth";
 import { triggerConfetti } from "@/lib/confetti";
 
 interface AuthContextType {
@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   useEffect(() => {
-    // 1. Check cookies first, fallback to localStorage, fallback to initial Mayank session
+    // Check cookies first, fallback to localStorage
     try {
       const sessionCookie = getCookie("fukey_session");
       const savedUser = localStorage.getItem("fukey_auth_user");
@@ -36,28 +36,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(parsed);
         setCookie("fukey_session", JSON.stringify(parsed));
       } else {
-        setUser(DEMO_USER);
-        setCookie("fukey_session", JSON.stringify(DEMO_USER));
-        localStorage.setItem("fukey_auth_user", JSON.stringify(DEMO_USER));
+        setUser(null);
       }
     } catch (e) {
-      setUser(DEMO_USER);
+      setUser(null);
     }
   }, []);
 
   const saveUserSession = async (userObj: UserProfile) => {
-    setUser(userObj);
-    localStorage.setItem("fukey_auth_user", JSON.stringify(userObj));
-    setCookie("fukey_session", JSON.stringify(userObj), 30);
-
-    // Sync to MongoDB users collection
+    // Sync to MongoDB users collection & retrieve verified role
     try {
-      await fetch("/api/auth/session", {
+      const res = await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userObj),
       });
+      const data = await res.json();
+      if (data.success && data.user) {
+        userObj = { ...userObj, ...data.user };
+      }
     } catch (err) {}
+
+    setUser(userObj);
+    localStorage.setItem("fukey_auth_user", JSON.stringify(userObj));
+    setCookie("fukey_session", JSON.stringify(userObj), 30);
 
     triggerConfetti();
     return userObj;

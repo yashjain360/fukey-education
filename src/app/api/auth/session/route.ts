@@ -14,20 +14,21 @@ export async function POST(request: Request) {
     const db = await getDatabase();
     const token = `fk_sess_${Math.random().toString(36).substring(2)}_${Date.now()}`;
 
+    const existingUser = await db.collection("users").findOne({ email: email.toLowerCase().trim() });
+    const userRole = existingUser?.role || role || "student";
+
     const userRecord = {
-      email,
-      name: name || email.split("@")[0],
-      role: role || "student",
-      phone: phone || "+91 88718 35015",
-      avatar: avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      email: email.toLowerCase().trim(),
+      name: name || existingUser?.name || email.split("@")[0],
+      role: userRole,
+      phone: phone || existingUser?.phone || "+91 88718 35015",
+      avatar: avatar || existingUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
       lastLogin: new Date(),
       token,
     };
 
-    const existingUser = await db.collection("users").findOne({ email });
-
     await db.collection("users").updateOne(
-      { email },
+      { email: email.toLowerCase().trim() },
       {
         $set: userRecord,
         $setOnInsert: { createdAt: new Date(), orders: [] },
