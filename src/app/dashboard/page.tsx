@@ -47,6 +47,7 @@ import { useCart } from "@/components/cart/CartContext";
 import { coursesData, Course } from "@/data/coursesData";
 import { triggerConfetti } from "@/lib/confetti";
 import { formatPrice } from "@/lib/utils";
+import Pagination from "@/components/ui/Pagination";
 
 export default function StudentDashboardPage() {
   const { user, logout, switchRole } = useAuth();
@@ -57,6 +58,12 @@ export default function StudentDashboardPage() {
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "courses" | "live" | "tests" | "doubts" | "orders" | "wishlist" | "settings"
   >("dashboard");
+
+  // Tab Pagination States
+  const [coursesPage, setCoursesPage] = useState(1);
+  const [doubtsPage, setDoubtsPage] = useState(1);
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [wishlistPage, setWishlistPage] = useState(1);
 
   // Dynamic state
   const [courses, setCourses] = useState<Course[]>(coursesData);
@@ -549,29 +556,39 @@ export default function StudentDashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {enrolledCourses.map((c) => (
-                    <div key={c.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-[#5751E1] font-bold">
-                          {c.class} • {c.subject}
-                        </span>
-                        <span className="text-emerald-600 font-bold">● Active</span>
-                      </div>
-                      <h3 className="font-extrabold text-sm text-slate-900">{c.title}</h3>
-                      <div className="text-xs text-slate-500">Faculty: {c.instructor}</div>
+                  {enrolledCourses
+                    .slice((coursesPage - 1) * 4, coursesPage * 4)
+                    .map((c) => (
+                      <div key={c.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-[#5751E1] font-bold">
+                            {c.class} • {c.subject}
+                          </span>
+                          <span className="text-emerald-600 font-bold">● Active</span>
+                        </div>
+                        <h3 className="font-extrabold text-sm text-slate-900">{c.title}</h3>
+                        <div className="text-xs text-slate-500">Faculty: {c.instructor}</div>
 
-                      <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
-                        <Link
-                          href={`/course/${c.slug}`}
-                          className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center gap-1.5"
-                        >
-                          <Play className="w-3.5 h-3.5 fill-current" />
-                          <span>Enter Classroom</span>
-                        </Link>
+                        <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+                          <Link
+                            href={`/course/${c.slug}`}
+                            className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center gap-1.5"
+                          >
+                            <Play className="w-3.5 h-3.5 fill-current" />
+                            <span>Enter Classroom</span>
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
+                <Pagination
+                  currentPage={coursesPage}
+                  totalItems={enrolledCourses.length}
+                  itemsPerPage={4}
+                  onPageChange={(page) => setCoursesPage(page)}
+                  pageSizeOptions={[4, 8, 12]}
+                />
               </div>
             )}
 
@@ -658,31 +675,41 @@ export default function StudentDashboardPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {doubtList.map((d) => (
-                    <div key={d.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
-                          {d.subject}
-                        </span>
-                        <span className="text-slate-400 text-[11px]">{d.time}</span>
+                  {doubtList
+                    .slice((doubtsPage - 1) * 4, doubtsPage * 4)
+                    .map((d) => (
+                      <div key={d.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                            {d.subject}
+                          </span>
+                          <span className="text-slate-400 text-[11px]">{d.time}</span>
+                        </div>
+
+                        <p className="text-xs font-bold text-slate-900">Q: {d.question}</p>
+
+                        {d.answer ? (
+                          <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1">
+                            <div className="font-bold text-emerald-800">Faculty Response:</div>
+                            <div>{d.answer}</div>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-amber-700 font-semibold flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 text-amber-500 animate-spin" />
+                            <span>Assigned to faculty lead for step-by-step resolution...</span>
+                          </div>
+                        )}
                       </div>
-
-                      <p className="text-xs font-bold text-slate-900">Q: {d.question}</p>
-
-                      {d.answer ? (
-                        <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1">
-                          <div className="font-bold text-emerald-800">Faculty Response:</div>
-                          <div>{d.answer}</div>
-                        </div>
-                      ) : (
-                        <div className="text-[11px] text-amber-700 font-semibold flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-amber-500 animate-spin" />
-                          <span>Assigned to faculty lead for step-by-step resolution...</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
+                <Pagination
+                  currentPage={doubtsPage}
+                  totalItems={doubtList.length}
+                  itemsPerPage={4}
+                  onPageChange={(page) => setDoubtsPage(page)}
+                  pageSizeOptions={[4, 8, 12]}
+                />
               </div>
             )}
 
@@ -695,35 +722,45 @@ export default function StudentDashboardPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {orders.map((o) => (
-                    <div key={o.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-slate-600">{o.id}</span>
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] uppercase">
-                            {o.status}
-                          </span>
+                  {orders
+                    .slice((ordersPage - 1) * 4, ordersPage * 4)
+                    .map((o) => (
+                      <div key={o.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-slate-600">{o.id}</span>
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] uppercase">
+                              {o.status}
+                            </span>
+                          </div>
+                          <h4 className="font-extrabold text-sm text-slate-900">{o.course}</h4>
+                          <div className="text-xs text-slate-500">{o.date} • {o.paymentMode}</div>
                         </div>
-                        <h4 className="font-extrabold text-sm text-slate-900">{o.course}</h4>
-                        <div className="text-xs text-slate-500">{o.date} • {o.paymentMode}</div>
-                      </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="font-black text-base text-[#050071]">{formatPrice(o.amount, currency)}</span>
-                        <button
-                          onClick={() => {
-                            triggerConfetti();
-                            alert(`Downloading GST Invoice receipt for ${o.id}...`);
-                          }}
-                          className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Receipt className="w-3.5 h-3.5" />
-                          <span>Invoice PDF</span>
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <span className="font-black text-base text-[#050071]">{formatPrice(o.amount, currency)}</span>
+                          <button
+                            onClick={() => {
+                              triggerConfetti();
+                              alert(`Downloading GST Invoice receipt for ${o.id}...`);
+                            }}
+                            className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Receipt className="w-3.5 h-3.5" />
+                            <span>Invoice PDF</span>
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
+                <Pagination
+                  currentPage={ordersPage}
+                  totalItems={orders.length}
+                  itemsPerPage={4}
+                  onPageChange={(page) => setOrdersPage(page)}
+                  pageSizeOptions={[4, 8, 12]}
+                />
               </div>
             )}
 
@@ -736,29 +773,39 @@ export default function StudentDashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {courses.slice(0, 3).map((c) => (
-                    <div
-                      key={c.id}
-                      className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between"
-                    >
-                      <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
-                        <img src={c.thumbnail} alt={c.title} className="w-full h-full object-contain p-1" />
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white text-[#050071] font-extrabold text-[10px] uppercase">
-                          {c.class}
-                        </span>
-                      </div>
-                      <div className="p-5 space-y-3">
-                        <h3 className="font-extrabold text-sm text-slate-900 line-clamp-2">{c.title}</h3>
-                        <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
-                          <span className="font-black text-[#050071]">{formatPrice(c.price, currency)}</span>
-                          <Link href={`/course/${c.slug}`} className="text-[#5751E1] font-bold hover:underline">
-                            Enroll Now
-                          </Link>
+                  {courses
+                    .slice((wishlistPage - 1) * 6, wishlistPage * 6)
+                    .map((c) => (
+                      <div
+                        key={c.id}
+                        className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between"
+                      >
+                        <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
+                          <img src={c.thumbnail} alt={c.title} className="w-full h-full object-contain p-1" />
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white text-[#050071] font-extrabold text-[10px] uppercase">
+                            {c.class}
+                          </span>
+                        </div>
+                        <div className="p-5 space-y-3">
+                          <h3 className="font-extrabold text-sm text-slate-900 line-clamp-2">{c.title}</h3>
+                          <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                            <span className="font-black text-[#050071]">{formatPrice(c.price, currency)}</span>
+                            <Link href={`/course/${c.slug}`} className="text-[#5751E1] font-bold hover:underline">
+                              Enroll Now
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
+                <Pagination
+                  currentPage={wishlistPage}
+                  totalItems={courses.length}
+                  itemsPerPage={6}
+                  onPageChange={(page) => setWishlistPage(page)}
+                  pageSizeOptions={[6, 12, 18]}
+                />
               </div>
             )}
 

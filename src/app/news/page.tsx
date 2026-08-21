@@ -1,11 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { Bell, Calendar, ArrowRight, Sparkles, ExternalLink, ShieldCheck } from "lucide-react";
 import { blogsData } from "@/data/blogsData";
+import Pagination from "@/components/ui/Pagination";
 
 export default function NewsPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+
   const newsItems = [
     {
       id: "news-1",
@@ -31,7 +35,36 @@ export default function NewsPage() {
       desc: "Comprehensive guidance handbook for Class 12 Biology and NEET aspirants detailing state-wise quota seat allocations.",
       href: "/blog",
     },
+    {
+      id: "news-4",
+      title: "MP Board Class 10 & 12 Special Examination Enrollment Window Opens",
+      badge: "State Board Notice",
+      date: "15 Aug 2026",
+      desc: "Detailed guidelines on practical assessment schedules and admit card verification protocols.",
+      href: "/courses",
+    },
+    {
+      id: "news-5",
+      title: "National Talent Search Examination (NTSE) Stage 1 Notification Released",
+      badge: "Scholarship & Olympiad",
+      date: "12 Aug 2026",
+      desc: "State-level merit quota criteria, syllabus blueprint, and preparation schedule for 10th graders.",
+      href: "/test-series",
+    },
+    {
+      id: "news-6",
+      title: "KVPY & INSPIRE Fellowships: Essential Criteria for Senior Science Aspirants",
+      badge: "Science Fellowship",
+      date: "10 Aug 2026",
+      desc: "DST guidelines for research-oriented Class 11 and 12 Physics, Chemistry, and Math students.",
+      href: "/notes",
+    }
   ];
+
+  const paginatedNews = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return newsItems.slice(start, start + itemsPerPage);
+  }, [newsItems, currentPage, itemsPerPage]);
 
   return (
     <div className="bg-slate-50/50 min-h-screen py-10">
@@ -57,7 +90,7 @@ export default function NewsPage() {
 
         {/* Live News Bulletins */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {newsItems.map((item, idx) => (
+          {paginatedNews.map((item, idx) => (
             <div
               key={item.id}
               className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between space-y-4"
@@ -97,6 +130,19 @@ export default function NewsPage() {
             </div>
           ))}
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={newsItems.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            window.scrollTo({ top: 100, behavior: "smooth" });
+          }}
+          onItemsPerPageChange={(size) => setItemsPerPage(size)}
+          pageSizeOptions={[3, 6, 12]}
+        />
       </div>
     </div>
   );

@@ -1,29 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { Download, BookOpen, Search, Star, CheckCircle2 } from "lucide-react";
 import { ebooksData, Ebook } from "@/data/ebooksData";
+import Pagination from "@/components/ui/Pagination";
 
 export default function EbooksPage() {
   const [ebooks, setEbooks] = useState<Ebook[]>(ebooksData);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
 
   const subjects = ["All", "Mathematics", "Science", "Physics", "Chemistry", "Social Science"];
 
-  const filteredEbooks = ebooks.filter((eb) => {
-    if (selectedCategory !== "All" && eb.subject !== selectedCategory) return false;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      return (
-        eb.title.toLowerCase().includes(q) ||
-        eb.subject.toLowerCase().includes(q) ||
-        eb.class.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
+  const filteredEbooks = useMemo(() => {
+    return ebooks.filter((eb) => {
+      if (selectedCategory !== "All" && eb.subject !== selectedCategory) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        return (
+          eb.title.toLowerCase().includes(q) ||
+          eb.subject.toLowerCase().includes(q) ||
+          eb.class.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [ebooks, selectedCategory, searchQuery]);
+
+  const paginatedEbooks = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredEbooks.slice(start, start + itemsPerPage);
+  }, [filteredEbooks, currentPage, itemsPerPage]);
 
   return (
     <div className="bg-slate-50/50 min-h-screen py-10">
@@ -82,7 +92,7 @@ export default function EbooksPage() {
 
         {/* eBooks Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEbooks.map((ebook, idx) => (
+          {paginatedEbooks.map((ebook, idx) => (
             <div
               key={ebook.id}
               className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between space-y-4"
@@ -125,6 +135,19 @@ export default function EbooksPage() {
             </div>
           ))}
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredEbooks.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            window.scrollTo({ top: 100, behavior: "smooth" });
+          }}
+          onItemsPerPageChange={(size) => setItemsPerPage(size)}
+          pageSizeOptions={[6, 12, 24]}
+        />
       </div>
     </div>
   );

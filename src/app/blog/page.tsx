@@ -1,15 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Calendar, User, ArrowRight, Search, BookOpen, Clock, Tag } from "lucide-react";
 import { BlogPost, blogsData } from "@/data/blogsData";
+import Pagination from "@/components/ui/Pagination";
 
 export default function BlogPage() {
   const [blogs, setBlogs] = useState<BlogPost[]>(blogsData);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
 
   const categories = [
     "All",
@@ -32,18 +35,25 @@ export default function BlogPage() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const filteredBlogs = blogs.filter((b) => {
-    if (selectedCategory !== "All" && b.category !== selectedCategory) return false;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      return (
-        b.title.toLowerCase().includes(q) ||
-        b.excerpt.toLowerCase().includes(q) ||
-        b.author.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
+  const filteredBlogs = useMemo(() => {
+    return blogs.filter((b) => {
+      if (selectedCategory !== "All" && b.category !== selectedCategory) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        return (
+          b.title.toLowerCase().includes(q) ||
+          b.excerpt.toLowerCase().includes(q) ||
+          b.author.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [blogs, selectedCategory, searchQuery]);
+
+  const paginatedBlogs = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredBlogs.slice(start, start + itemsPerPage);
+  }, [filteredBlogs, currentPage, itemsPerPage]);
 
   return (
     <div className="bg-slate-50/50 min-h-screen py-10">
@@ -100,17 +110,17 @@ export default function BlogPage() {
           </div>
         </div>
 
-        {/* Blog Grid */}
+        {/* Blog Post Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredBlogs.map((blog, idx) => (
+          {paginatedBlogs.map((blog, idx) => (
             <article
-              key={blog.id || idx}
-              className="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:border-indigo-300"
+              key={blog.id}
+              className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:border-indigo-300"
               data-aos="fade-up"
               data-aos-delay={(idx % 3) * 100}
             >
-              <div className="space-y-4">
-                <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden">
+              <div>
+                <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
                   <img
                     src={blog.image}
                     alt={blog.title}
@@ -120,13 +130,13 @@ export default function BlogPage() {
                         "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80";
                     }}
                   />
-                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-xs text-[#050071] font-extrabold text-[10px] uppercase shadow-xs">
+                  <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-xs text-[#050071] font-extrabold text-[10px] uppercase shadow-xs">
                     {blog.category}
                   </span>
                 </div>
 
-                <div className="p-6 pt-0 space-y-3">
-                  <div className="flex items-center gap-4 text-[11px] text-slate-400 font-medium">
+                <div className="p-6 space-y-3">
+                  <div className="flex items-center gap-4 text-slate-400 text-xs font-semibold">
                     <div className="flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-indigo-500" />
                       <span>{blog.date}</span>
@@ -168,6 +178,19 @@ export default function BlogPage() {
             </article>
           ))}
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredBlogs.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            window.scrollTo({ top: 120, behavior: "smooth" });
+          }}
+          onItemsPerPageChange={(size) => setItemsPerPage(size)}
+          pageSizeOptions={[6, 12, 24]}
+        />
       </div>
     </div>
   );

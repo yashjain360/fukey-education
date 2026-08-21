@@ -8,6 +8,7 @@ import { coursesData, Course } from "@/data/coursesData";
 import { useCart } from "@/components/cart/CartContext";
 import { formatPrice } from "@/lib/utils";
 import { CourseCardSkeleton } from "@/components/ui/Skeleton";
+import Pagination from "@/components/ui/Pagination";
 
 function CoursesContent() {
   const searchParams = useSearchParams();
@@ -26,6 +27,8 @@ function CoursesContent() {
   const [selectedSubject, setSelectedSubject] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("latest");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(9);
 
   const { addToCart, isInCart, toggleWishlist, isInWishlist, currency } = useCart();
 
@@ -77,6 +80,11 @@ function CoursesContent() {
         return 0;
       });
   }, [courses, selectedClasses, selectedLanguage, selectedSubject, searchQuery, sortBy]);
+
+  const paginatedCourses = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredCourses.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredCourses, currentPage, itemsPerPage]);
 
   const uniqueSubjects = [
     "All",
@@ -230,122 +238,156 @@ function CoursesContent() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                  className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
                 >
-                  <option value="latest">Sort By: Latest to Oldest</option>
-                  <option value="rating">Sort By: Top Rated</option>
+                  <option value="latest">Latest Batches</option>
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
+                  <option value="popular">Most Popular</option>
                 </select>
               </div>
+
+              {(selectedClasses.length > 0 || selectedLanguage !== "All" || selectedSubject !== "All" || searchQuery) && (
+                <button
+                  onClick={() => {
+                    setSelectedClasses([]);
+                    setSelectedLanguage("All");
+                    setSelectedSubject("All");
+                    setSearchQuery("");
+                  }}
+                  className="text-xs font-bold text-rose-600 hover:underline text-left cursor-pointer"
+                >
+                  Reset All Filters
+                </button>
+              )}
             </div>
 
-            {/* Courses Grid / Skeleton */}
+            {/* Course Grid */}
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <CourseCardSkeleton key={i} />
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <CourseCardSkeleton key={n} />
                 ))}
               </div>
             ) : filteredCourses.length === 0 ? (
-              <div className="bg-white rounded-3xl p-16 text-center border border-slate-200 space-y-3">
-                <BookOpen className="w-12 h-12 text-indigo-400 mx-auto opacity-60" />
-                <div className="text-lg font-bold text-slate-800">No courses match your criteria</div>
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-3">
+                <BookOpen className="w-12 h-12 text-slate-300 mx-auto" />
+                <h3 className="font-extrabold text-slate-800 text-base">No Matching Courses Found</h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  Try unchecking some filters or searching for another subject or teacher.
+                  Try clearing your search query or selecting a different class or language filter.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCourses.map((course, idx) => {
-                  const inCart = isInCart(course.id);
-                  const inWishlist = isInWishlist(course.id);
+              <div>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {paginatedCourses.map((course, idx) => {
+                    const inCart = isInCart(course.id);
+                    const inWish = isInWishlist(course.id);
 
-                  return (
-                    <div
-                      key={course.id}
-                      className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
-                      data-aos="fade-up"
-                      data-aos-delay={(idx % 6) * 80}
-                    >
-                      {/* Uncut Real Course Thumbnail Banner */}
-                      <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
-                        <img
-                          src={course.thumbnail}
-                          alt={course.title}
-                          className="w-full h-full object-contain p-1"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src =
-                              "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png";
-                          }}
-                        />
+                    return (
+                      <div
+                        key={course.id}
+                        className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:border-indigo-300"
+                        data-aos="fade-up"
+                        data-aos-delay={(idx % 6) * 80}
+                      >
+                        {/* Course Thumbnail */}
+                        <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
+                          <img
+                            src={course.thumbnail || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png"}
+                            alt={course.title}
+                            className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png";
+                            }}
+                          />
 
-                        <button
-                          onClick={() => toggleWishlist(course)}
-                          className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
-                            inWishlist
-                              ? "bg-rose-500 text-white"
-                              : "bg-white/90 hover:bg-white text-slate-700"
-                          }`}
-                        >
-                          <Heart className={`w-3.5 h-3.5 ${inWishlist ? "fill-current" : ""}`} />
-                        </button>
-                      </div>
+                          <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[#050071] font-extrabold text-[10px] uppercase shadow-xs">
+                            {course.class}
+                          </span>
 
-                      {/* Course Details */}
-                      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                        <div className="space-y-2">
-                          <div className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
-                            {course.subject}: {course.class}
-                          </div>
-
-                          <Link href={`/course/${course.slug}`}>
-                            <h3 className="font-bold text-slate-900 text-sm hover:text-[#5751E1] line-clamp-2">
-                              {course.title}
-                            </h3>
-                          </Link>
-
-                          <div className="text-xs text-slate-500">
-                            By <span className="text-slate-800 font-semibold">{course.instructor}</span>
-                          </div>
-                        </div>
-
-                        {/* Price & Action Row */}
-                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                           <button
-                            onClick={() => addToCart(course)}
-                            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer ${
-                              inCart
-                                ? "bg-emerald-600 text-white"
-                                : "bg-[#FF2424] hover:bg-red-700 text-white shadow-sm"
+                            onClick={() => toggleWishlist(course)}
+                            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-xs transition-all cursor-pointer ${
+                              inWish
+                                ? "bg-rose-500 text-white shadow-md"
+                                : "bg-white/80 text-slate-600 hover:bg-white hover:text-rose-500"
                             }`}
                           >
-                            {inCart ? (
-                              <>
-                                <Check className="w-3.5 h-3.5" />
-                                <span>In Cart</span>
-                              </>
-                            ) : (
-                              <>
-                                <span>Add To Cart</span>
-                                <ArrowRight className="w-3.5 h-3.5" />
-                              </>
-                            )}
+                            <Heart className={`w-3.5 h-3.5 ${inWish ? "fill-current" : ""}`} />
                           </button>
+                        </div>
 
-                          <div className="text-right">
-                            <div className="font-black text-sm text-[#050071]">
-                              {formatPrice(course.price, currency)}
+                        {/* Card Body */}
+                        <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-[11px] font-bold text-indigo-600">
+                              <span>{course.subject}</span>
+                              <span className="text-slate-400 font-medium">{course.language}</span>
                             </div>
-                            <div className="text-[10px] text-slate-400 line-through">
-                              {formatPrice(course.originalPrice, currency)}
+
+                            <Link href={`/course/${course.slug}`}>
+                              <h3 className="font-extrabold text-slate-900 text-sm hover:text-[#5751E1] line-clamp-2 transition-colors">
+                                {course.title}
+                              </h3>
+                            </Link>
+
+                            <div className="text-xs text-slate-500 font-medium">
+                              By <span className="text-slate-800 font-semibold">{course.instructor}</span>
+                            </div>
+                          </div>
+
+                          {/* Footer Pricing & CTA */}
+                          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <button
+                              onClick={() => addToCart(course)}
+                              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                                inCart
+                                  ? "bg-emerald-600 text-white shadow-xs"
+                                  : "bg-[#FF2424] hover:bg-red-700 text-white shadow-sm"
+                              }`}
+                            >
+                              {inCart ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>In Cart</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>Add To Cart</span>
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </>
+                              )}
+                            </button>
+
+                            <div className="text-right">
+                              <div className="font-black text-sm text-[#050071]">
+                                {formatPrice(course.price, currency)}
+                              </div>
+                              <div className="text-[10px] text-slate-400 line-through">
+                                {formatPrice(course.originalPrice, currency)}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+
+                {/* Pagination Component */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={filteredCourses.length}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={(page) => {
+                    setCurrentPage(page);
+                    window.scrollTo({ top: 120, behavior: "smooth" });
+                  }}
+                  onItemsPerPageChange={(size) => setItemsPerPage(size)}
+                  pageSizeOptions={[6, 9, 18, 36]}
+                />
               </div>
             )}
           </div>

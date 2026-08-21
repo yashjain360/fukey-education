@@ -42,6 +42,7 @@ import { useCart } from "@/components/cart/CartContext";
 import { coursesData, Course } from "@/data/coursesData";
 import { triggerConfetti } from "@/lib/confetti";
 import { formatPrice } from "@/lib/utils";
+import Pagination from "@/components/ui/Pagination";
 
 export default function InstructorDashboardPage() {
   const { user, logout, switchRole } = useAuth();
@@ -54,6 +55,13 @@ export default function InstructorDashboardPage() {
   const [courses, setCourses] = useState<Course[]>(coursesData);
   const [isLoading, setIsLoading] = useState(true);
   const [courseSearch, setCourseSearch] = useState("");
+
+  // Tab Pagination States
+  const [coursesPage, setCoursesPage] = useState(1);
+  const [questionsPage, setQuestionsPage] = useState(1);
+  const [studentsPage, setStudentsPage] = useState(1);
+  const [earningsPage, setEarningsPage] = useState(1);
+  const [wishlistPage, setWishlistPage] = useState(1);
 
   // Course Studio Modal State
   const [isCourseStudioOpen, setIsCourseStudioOpen] = useState(false);
@@ -559,58 +567,68 @@ export default function InstructorDashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredCourses.map((c) => (
-                    <div
-                      key={c.id}
-                      className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
-                    >
-                      <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
-                        <img
-                          src={c.thumbnail || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png"}
-                          alt={c.title}
-                          className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-500"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src =
-                              "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png";
-                          }}
-                        />
-                        <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[#050071] font-extrabold text-[10px] uppercase shadow-xs">
-                          {c.class}
-                        </span>
-                      </div>
-
-                      <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                        <div className="space-y-1.5">
-                          <div className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">
-                            {c.subject} • {c.language}
-                          </div>
-                          <Link href={`/course/${c.slug}`}>
-                            <h3 className="font-extrabold text-slate-900 text-sm hover:text-[#5751E1] line-clamp-2 transition-colors">
-                              {c.title}
-                            </h3>
-                          </Link>
-                          <div className="text-xs text-slate-500 font-medium">
-                            By <span className="text-slate-800 font-semibold">{c.instructor}</span>
-                          </div>
+                  {filteredCourses
+                    .slice((coursesPage - 1) * 6, coursesPage * 6)
+                    .map((c) => (
+                      <div
+                        key={c.id}
+                        className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                      >
+                        <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
+                          <img
+                            src={c.thumbnail || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png"}
+                            alt={c.title}
+                            className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png";
+                            }}
+                          />
+                          <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[#050071] font-extrabold text-[10px] uppercase shadow-xs">
+                            {c.class}
+                          </span>
                         </div>
 
-                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                          <div className="font-black text-base text-[#050071]">
-                            {formatPrice(c.price, currency)}
+                        <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                          <div className="space-y-1.5">
+                            <div className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">
+                              {c.subject} • {c.language}
+                            </div>
+                            <Link href={`/course/${c.slug}`}>
+                              <h3 className="font-extrabold text-slate-900 text-sm hover:text-[#5751E1] line-clamp-2 transition-colors">
+                                {c.title}
+                              </h3>
+                            </Link>
+                            <div className="text-xs text-slate-500 font-medium">
+                              By <span className="text-slate-800 font-semibold">{c.instructor}</span>
+                            </div>
                           </div>
-                          <Link
-                            href={`/course/${c.slug}`}
-                            target="_blank"
-                            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#5751E1] hover:text-white text-slate-700 text-xs font-bold transition-all flex items-center gap-1"
-                          >
-                            <span>Preview</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </Link>
+
+                          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <div className="font-black text-base text-[#050071]">
+                              {formatPrice(c.price, currency)}
+                            </div>
+                            <Link
+                              href={`/course/${c.slug}`}
+                              target="_blank"
+                              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#5751E1] hover:text-white text-slate-700 text-xs font-bold transition-all flex items-center gap-1"
+                            >
+                              <span>Preview</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
+                <Pagination
+                  currentPage={coursesPage}
+                  totalItems={filteredCourses.length}
+                  itemsPerPage={6}
+                  onPageChange={(page) => setCoursesPage(page)}
+                  pageSizeOptions={[6, 12, 24]}
+                />
               </div>
             )}
 
@@ -668,39 +686,49 @@ export default function InstructorDashboardPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {questionsQueue.map((q) => (
-                    <div
-                      key={q.id}
-                      className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
-                    >
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="font-bold text-slate-900">
-                          {q.student} <span className="font-normal text-slate-500">({q.course})</span>
+                  {questionsQueue
+                    .slice((questionsPage - 1) * 4, questionsPage * 4)
+                    .map((q) => (
+                      <div
+                        key={q.id}
+                        className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
+                      >
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="font-bold text-slate-900">
+                            {q.student} <span className="font-normal text-slate-500">({q.course})</span>
+                          </div>
+                          <span className="text-slate-400 text-[11px]">{q.time}</span>
                         </div>
-                        <span className="text-slate-400 text-[11px]">{q.time}</span>
-                      </div>
 
-                      <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                        &ldquo;{q.question}&rdquo;
-                      </p>
+                        <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                          &ldquo;{q.question}&rdquo;
+                        </p>
 
-                      <div className="pt-2 flex items-center justify-between">
-                        <button
-                          onClick={() => handleOpenReplyModal(q)}
-                          className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs transition-colors cursor-pointer"
-                        >
-                          {q.answered ? "Edit Reply" : "Answer Doubt"}
-                        </button>
-                        {q.answered && (
-                          <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                            <CheckCircle2 className="w-4 h-4" />
-                            <span>Response Sent to Student</span>
-                          </span>
-                        )}
+                        <div className="pt-2 flex items-center justify-between">
+                          <button
+                            onClick={() => handleOpenReplyModal(q)}
+                            className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs transition-colors cursor-pointer"
+                          >
+                            {q.answered ? "Edit Reply" : "Answer Doubt"}
+                          </button>
+                          {q.answered && (
+                            <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                              <CheckCircle2 className="w-4 h-4" />
+                              <span>Response Sent to Student</span>
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
+                <Pagination
+                  currentPage={questionsPage}
+                  totalItems={questionsQueue.length}
+                  itemsPerPage={4}
+                  onPageChange={(page) => setQuestionsPage(page)}
+                  pageSizeOptions={[4, 8, 12]}
+                />
               </div>
             )}
 
@@ -729,22 +757,32 @@ export default function InstructorDashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {studentsRoster.map((s) => (
-                        <tr key={s.id} className="hover:bg-slate-50">
-                          <td className="py-3 font-extrabold text-slate-900">{s.name}</td>
-                          <td className="py-3 text-slate-600">{s.batch}</td>
-                          <td className="py-3 font-bold text-emerald-600">{s.attendance}</td>
-                          <td className="py-3 font-bold text-indigo-600">{s.testScore}</td>
-                          <td className="py-3">
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                              {s.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {studentsRoster
+                        .slice((studentsPage - 1) * 4, studentsPage * 4)
+                        .map((s) => (
+                          <tr key={s.id} className="hover:bg-slate-50">
+                            <td className="py-3 font-extrabold text-slate-900">{s.name}</td>
+                            <td className="py-3 text-slate-600">{s.batch}</td>
+                            <td className="py-3 font-bold text-emerald-600">{s.attendance}</td>
+                            <td className="py-3 font-bold text-indigo-600">{s.testScore}</td>
+                            <td className="py-3">
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                                {s.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
+
+                <Pagination
+                  currentPage={studentsPage}
+                  totalItems={studentsRoster.length}
+                  itemsPerPage={4}
+                  onPageChange={(page) => setStudentsPage(page)}
+                  pageSizeOptions={[4, 8, 12]}
+                />
               </div>
             )}
 
@@ -757,35 +795,45 @@ export default function InstructorDashboardPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {payouts.map((p) => (
-                    <div key={p.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 flex items-center justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-slate-600">{p.id}</span>
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] uppercase">
-                            {p.status}
-                          </span>
+                  {payouts
+                    .slice((earningsPage - 1) * 4, earningsPage * 4)
+                    .map((p) => (
+                      <div key={p.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 flex items-center justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-slate-600">{p.id}</span>
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] uppercase">
+                              {p.status}
+                            </span>
+                          </div>
+                          <h4 className="font-extrabold text-sm text-slate-900">{p.month} Settlement</h4>
+                          <div className="text-xs text-slate-500">Disbursed on {p.date}</div>
                         </div>
-                        <h4 className="font-extrabold text-sm text-slate-900">{p.month} Settlement</h4>
-                        <div className="text-xs text-slate-500">Disbursed on {p.date}</div>
-                      </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="font-black text-base text-[#050071]">{formatPrice(p.amount, currency)}</span>
-                        <button
-                          onClick={() => {
-                            triggerConfetti();
-                            alert(`Downloading Payout Settlement receipt for ${p.id}...`);
-                          }}
-                          className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Receipt className="w-3.5 h-3.5" />
-                          <span>Receipt</span>
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <span className="font-black text-base text-[#050071]">{formatPrice(p.amount, currency)}</span>
+                          <button
+                            onClick={() => {
+                              triggerConfetti();
+                              alert(`Downloading Payout Settlement receipt for ${p.id}...`);
+                            }}
+                            className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Receipt className="w-3.5 h-3.5" />
+                            <span>Receipt</span>
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
+                <Pagination
+                  currentPage={earningsPage}
+                  totalItems={payouts.length}
+                  itemsPerPage={4}
+                  onPageChange={(page) => setEarningsPage(page)}
+                  pageSizeOptions={[4, 8, 12]}
+                />
               </div>
             )}
 
@@ -798,34 +846,44 @@ export default function InstructorDashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {courses.slice(0, 3).map((c) => (
-                    <div
-                      key={c.id}
-                      className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between group"
-                    >
-                      <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
-                        <img
-                          src={c.thumbnail}
-                          alt={c.title}
-                          className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform"
-                        />
-                        <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-white/90 text-[#050071] font-extrabold text-[10px] uppercase">
-                          {c.class}
-                        </span>
-                      </div>
+                  {courses
+                    .slice((wishlistPage - 1) * 6, wishlistPage * 6)
+                    .map((c) => (
+                      <div
+                        key={c.id}
+                        className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between group"
+                      >
+                        <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
+                          <img
+                            src={c.thumbnail}
+                            alt={c.title}
+                            className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform"
+                          />
+                          <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-white/90 text-[#050071] font-extrabold text-[10px] uppercase">
+                            {c.class}
+                          </span>
+                        </div>
 
-                      <div className="p-5 space-y-3">
-                        <h3 className="font-extrabold text-slate-900 text-sm line-clamp-2">{c.title}</h3>
-                        <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
-                          <span className="font-black text-[#050071]">{formatPrice(c.price, currency)}</span>
-                          <Link href={`/course/${c.slug}`} className="text-[#5751E1] font-bold hover:underline">
-                            View
-                          </Link>
+                        <div className="p-5 space-y-3">
+                          <h3 className="font-extrabold text-slate-900 text-sm line-clamp-2">{c.title}</h3>
+                          <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                            <span className="font-black text-[#050071]">{formatPrice(c.price, currency)}</span>
+                            <Link href={`/course/${c.slug}`} className="text-[#5751E1] font-bold hover:underline">
+                              View
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
+                <Pagination
+                  currentPage={wishlistPage}
+                  totalItems={courses.length}
+                  itemsPerPage={6}
+                  onPageChange={(page) => setWishlistPage(page)}
+                  pageSizeOptions={[6, 12, 18]}
+                />
               </div>
             )}
 

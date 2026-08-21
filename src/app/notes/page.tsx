@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   FileText,
@@ -13,6 +13,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { triggerConfetti } from "@/lib/confetti";
+import Pagination from "@/components/ui/Pagination";
 
 interface ChapterNote {
   id: string;
@@ -31,6 +32,8 @@ export default function NotesLibraryPage() {
   const [selectedClass, setSelectedClass] = useState("All");
   const [selectedSubject, setSelectedSubject] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
 
   useEffect(() => {
     fetch("/api/notes")
@@ -41,19 +44,26 @@ export default function NotesLibraryPage() {
       .catch(() => {});
   }, []);
 
-  const filteredNotes = notes.filter((n) => {
-    if (selectedClass !== "All" && n.class !== selectedClass) return false;
-    if (selectedSubject !== "All" && n.subject !== selectedSubject) return false;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      return (
-        n.title.toLowerCase().includes(q) ||
-        n.subject.toLowerCase().includes(q) ||
-        n.author.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
+  const filteredNotes = useMemo(() => {
+    return notes.filter((n) => {
+      if (selectedClass !== "All" && n.class !== selectedClass) return false;
+      if (selectedSubject !== "All" && n.subject !== selectedSubject) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        return (
+          n.title.toLowerCase().includes(q) ||
+          n.subject.toLowerCase().includes(q) ||
+          n.author.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [notes, selectedClass, selectedSubject, searchQuery]);
+
+  const paginatedNotes = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredNotes.slice(start, start + itemsPerPage);
+  }, [filteredNotes, currentPage, itemsPerPage]);
 
   const handleDownload = (title: string) => {
     triggerConfetti();
@@ -114,7 +124,7 @@ export default function NotesLibraryPage() {
 
         {/* Notes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredNotes.map((note, idx) => (
+          {paginatedNotes.map((note, idx) => (
             <div
               key={note.id}
               className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between space-y-4 group hover:border-indigo-300"
@@ -155,6 +165,19 @@ export default function NotesLibraryPage() {
             </div>
           ))}
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredNotes.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            window.scrollTo({ top: 100, behavior: "smooth" });
+          }}
+          onItemsPerPageChange={(size) => setItemsPerPage(size)}
+          pageSizeOptions={[6, 12, 24]}
+        />
       </div>
     </div>
   );

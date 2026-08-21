@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -16,12 +16,15 @@ import {
   Lock
 } from "lucide-react";
 import { MockTest, sampleTests } from "@/data/testsData";
+import Pagination from "@/components/ui/Pagination";
 
 export default function TestSeriesCatalogPage() {
   const [tests, setTests] = useState<MockTest[]>(sampleTests);
   const [selectedClass, setSelectedClass] = useState("All");
   const [selectedSubject, setSelectedSubject] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
 
   useEffect(() => {
     fetch("/api/tests")
@@ -32,19 +35,26 @@ export default function TestSeriesCatalogPage() {
       .catch(() => {});
   }, []);
 
-  const filteredTests = tests.filter((t) => {
-    if (selectedClass !== "All" && t.class !== selectedClass) return false;
-    if (selectedSubject !== "All" && t.subject !== selectedSubject) return false;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      return (
-        t.title.toLowerCase().includes(q) ||
-        t.subject.toLowerCase().includes(q) ||
-        t.description.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
+  const filteredTests = useMemo(() => {
+    return tests.filter((t) => {
+      if (selectedClass !== "All" && t.class !== selectedClass) return false;
+      if (selectedSubject !== "All" && t.subject !== selectedSubject) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        return (
+          t.title.toLowerCase().includes(q) ||
+          t.subject.toLowerCase().includes(q) ||
+          t.description.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [tests, selectedClass, selectedSubject, searchQuery]);
+
+  const paginatedTests = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredTests.slice(start, start + itemsPerPage);
+  }, [filteredTests, currentPage, itemsPerPage]);
 
   return (
     <div className="bg-slate-50/50 min-h-screen py-10">
@@ -125,16 +135,16 @@ export default function TestSeriesCatalogPage() {
           </div>
         </div>
 
-        {/* Test Cards Grid */}
+        {/* Test Series Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTests.map((test, idx) => (
+          {paginatedTests.map((test, idx) => (
             <div
               key={test.id}
-              className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:border-indigo-300"
+              className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:border-indigo-300"
               data-aos="fade-up"
               data-aos-delay={(idx % 3) * 100}
             >
-              <div className="relative aspect-[16/9] bg-slate-100 overflow-hidden">
+              <div className="relative aspect-[16/9] overflow-hidden bg-slate-900">
                 <img
                   src={test.thumbnail}
                   alt={test.title}
@@ -197,6 +207,19 @@ export default function TestSeriesCatalogPage() {
             </div>
           ))}
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredTests.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            window.scrollTo({ top: 100, behavior: "smooth" });
+          }}
+          onItemsPerPageChange={(size) => setItemsPerPage(size)}
+          pageSizeOptions={[6, 12, 24]}
+        />
       </div>
     </div>
   );

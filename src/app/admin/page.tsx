@@ -38,6 +38,7 @@ import { triggerConfetti } from "@/lib/confetti";
 import { coursesData, Course } from "@/data/coursesData";
 import { instructorsData } from "@/data/instructorsData";
 import { blogsData, BlogPost } from "@/data/blogsData";
+import Pagination from "@/components/ui/Pagination";
 
 interface Lead {
   id: string;
@@ -71,6 +72,13 @@ interface Order {
 export default function AdminDashboardPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"leads" | "orders" | "blogs" | "batches" | "faculty" | "broadcast">("leads");
+
+  // Tab Pagination States
+  const [leadsPage, setLeadsPage] = useState(1);
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [blogsPage, setBlogsPage] = useState(1);
+  const [coursesPage, setCoursesPage] = useState(1);
+  const [facultyPage, setFacultyPage] = useState(1);
 
   // Orders State
   const [orders, setOrders] = useState<Order[]>([]);
@@ -802,109 +810,119 @@ export default function AdminDashboardPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredLeads.map((lead) => {
-                      const cleanPhone = lead.phone.replace(/[^0-9]/g, "");
-                      const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${lead.name}, thank you for inquiring at Fukey Education Bhopal for ${lead.targetClass}! Are you available for a 5-minute live trial class orientation?`)}`;
+                    filteredLeads
+                      .slice((leadsPage - 1) * 10, leadsPage * 10)
+                      .map((lead) => {
+                        const cleanPhone = lead.phone.replace(/[^0-9]/g, "");
+                        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${lead.name}, thank you for inquiring at Fukey Education Bhopal for ${lead.targetClass}! Are you available for a 5-minute live trial class orientation?`)}`;
 
-                      return (
-                        <tr key={lead.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="p-3.5 font-mono font-bold text-slate-900">
-                            {lead.id}
-                          </td>
+                        return (
+                          <tr key={lead.id} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="p-3.5 font-mono font-bold text-slate-900">
+                              {lead.id}
+                            </td>
 
-                          <td className="p-3.5">
-                            <div className="font-bold text-slate-900">{lead.name}</div>
-                            <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                              <Mail className="w-3 h-3 text-slate-400" />
-                              <span className="truncate max-w-[150px]">{lead.email}</span>
-                            </div>
-                          </td>
+                            <td className="p-3.5">
+                              <div className="font-bold text-slate-900">{lead.name}</div>
+                              <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                                <Mail className="w-3 h-3 text-slate-400" />
+                                <span className="truncate max-w-[150px]">{lead.email}</span>
+                              </div>
+                            </td>
 
-                          <td className="p-3.5">
-                            <div className="flex items-center gap-2">
-                              <a
-                                href={waUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-[11px] flex items-center gap-1 shadow-xs transition-all hover:scale-105 active:scale-95"
-                                title="Chat on WhatsApp"
+                            <td className="p-3.5">
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={waUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-[11px] flex items-center gap-1 shadow-xs transition-all hover:scale-105 active:scale-95"
+                                  title="Chat on WhatsApp"
+                                >
+                                  <MessageSquare className="w-3 h-3" />
+                                  <span>WhatsApp</span>
+                                </a>
+
+                                <a
+                                  href={`tel:${lead.phone}`}
+                                  className="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-[#050071] transition-colors"
+                                  title="Call Student"
+                                >
+                                  <Phone className="w-3.5 h-3.5" />
+                                </a>
+                              </div>
+                              <div className="text-[10px] text-slate-400 mt-1 font-mono">{lead.phone}</div>
+                            </td>
+
+                            <td className="p-3.5">
+                              <div className="font-bold text-slate-800">{lead.targetClass}</div>
+                              <div className="text-[11px] text-indigo-600 font-semibold">{lead.medium}</div>
+                            </td>
+
+                            <td className="p-3.5 text-slate-600 text-[11px]">
+                              <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold">
+                                {lead.source || "Website Hub"}
+                              </span>
+                            </td>
+
+                            <td className="p-3.5">
+                              <select
+                                value={lead.status}
+                                onChange={(e) => handleUpdateLeadStatus(lead.id, e.target.value as Lead["status"])}
+                                className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold border focus:outline-none cursor-pointer ${
+                                  lead.status === "New Lead"
+                                    ? "bg-amber-50 text-amber-800 border-amber-300"
+                                    : lead.status === "Contacted"
+                                    ? "bg-blue-50 text-blue-800 border-blue-300"
+                                    : lead.status === "Trial Scheduled"
+                                    ? "bg-purple-50 text-purple-800 border-purple-300"
+                                    : lead.status === "Enrolled"
+                                    ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                                    : "bg-slate-100 text-slate-700 border-slate-300"
+                                }`}
                               >
-                                <MessageSquare className="w-3 h-3" />
-                                <span>WhatsApp</span>
-                              </a>
+                                <option value="New Lead">🟡 New Lead</option>
+                                <option value="Contacted">🔵 Contacted</option>
+                                <option value="Trial Scheduled">🟣 Trial Scheduled</option>
+                                <option value="Enrolled">🟢 Enrolled</option>
+                                <option value="Closed">⚪ Closed</option>
+                              </select>
+                            </td>
 
-                              <a
-                                href={`tel:${lead.phone}`}
-                                className="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-[#050071] transition-colors"
-                                title="Call Student"
+                            <td className="p-3.5 max-w-xs">
+                              <div
+                                onClick={() => {
+                                  setSelectedLeadForNotes(lead);
+                                  setLeadNotesText(lead.notes || "");
+                                  setIsNotesModalOpen(true);
+                                }}
+                                className="text-[11px] text-slate-600 line-clamp-2 hover:text-[#5751E1] cursor-pointer flex items-center gap-1 group"
+                                title="Click to edit notes"
                               >
-                                <Phone className="w-3.5 h-3.5" />
-                              </a>
-                            </div>
-                            <div className="text-[10px] text-slate-400 mt-1 font-mono">{lead.phone}</div>
-                          </td>
+                                <span>{lead.notes || "Add counselor remarks..."}</span>
+                                <Edit className="w-3 h-3 text-slate-400 group-hover:text-[#5751E1] flex-shrink-0" />
+                              </div>
+                            </td>
 
-                          <td className="p-3.5">
-                            <div className="font-bold text-slate-800">{lead.targetClass}</div>
-                            <div className="text-[11px] text-indigo-600 font-semibold">{lead.medium}</div>
-                          </td>
-
-                          <td className="p-3.5 text-slate-600 text-[11px]">
-                            <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold">
-                              {lead.source || "Website Hub"}
-                            </span>
-                          </td>
-
-                          <td className="p-3.5">
-                            <select
-                              value={lead.status}
-                              onChange={(e) => handleUpdateLeadStatus(lead.id, e.target.value as Lead["status"])}
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold border focus:outline-none cursor-pointer ${
-                                lead.status === "New Lead"
-                                  ? "bg-amber-50 text-amber-800 border-amber-300"
-                                  : lead.status === "Contacted"
-                                  ? "bg-blue-50 text-blue-800 border-blue-300"
-                                  : lead.status === "Trial Scheduled"
-                                  ? "bg-purple-50 text-purple-800 border-purple-300"
-                                  : lead.status === "Enrolled"
-                                  ? "bg-emerald-50 text-emerald-800 border-emerald-300"
-                                  : "bg-slate-100 text-slate-700 border-slate-300"
-                              }`}
-                            >
-                              <option value="New Lead">🟡 New Lead</option>
-                              <option value="Contacted">🔵 Contacted</option>
-                              <option value="Trial Scheduled">🟣 Trial Scheduled</option>
-                              <option value="Enrolled">🟢 Enrolled</option>
-                              <option value="Closed">⚪ Closed</option>
-                            </select>
-                          </td>
-
-                          <td className="p-3.5 max-w-xs">
-                            <div
-                              onClick={() => {
-                                setSelectedLeadForNotes(lead);
-                                setLeadNotesText(lead.notes || "");
-                                setIsNotesModalOpen(true);
-                              }}
-                              className="text-[11px] text-slate-600 line-clamp-2 hover:text-[#5751E1] cursor-pointer flex items-center gap-1 group"
-                              title="Click to edit notes"
-                            >
-                              <span>{lead.notes || "Add counselor remarks..."}</span>
-                              <Edit className="w-3 h-3 text-slate-400 group-hover:text-[#5751E1] flex-shrink-0" />
-                            </div>
-                          </td>
-
-                          <td className="p-3.5 text-slate-500 text-[11px]">
-                            <div>{lead.date}</div>
-                            {lead.time && <div className="text-slate-400">{lead.time}</div>}
-                          </td>
-                        </tr>
-                      );
-                    })
+                            <td className="p-3.5 text-slate-500 text-[11px]">
+                              <div>{lead.date}</div>
+                              {lead.time && <div className="text-slate-400">{lead.time}</div>}
+                            </td>
+                          </tr>
+                        );
+                      })
                   )}
                 </tbody>
               </table>
             </div>
+
+            <Pagination
+              currentPage={leadsPage}
+              totalItems={filteredLeads.length}
+              itemsPerPage={10}
+              onPageChange={(page) => setLeadsPage(page)}
+              pageSizeOptions={[10, 25, 50]}
+            />
           </div>
         )}
 
@@ -947,59 +965,69 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBlogs.map((blog) => (
-                <div
-                  key={blog.id}
-                  className="p-5 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-xs flex flex-col justify-between group hover:border-indigo-300 transition-all"
-                >
-                  <div className="space-y-3">
-                    <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-slate-100">
-                      <img
-                        src={blog.image}
-                        alt={blog.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-white/90 text-[10px] font-black text-[#050071]">
-                        {blog.category}
-                      </span>
+              {filteredBlogs
+                .slice((blogsPage - 1) * 6, blogsPage * 6)
+                .map((blog) => (
+                  <div
+                    key={blog.id}
+                    className="p-5 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-xs flex flex-col justify-between group hover:border-indigo-300 transition-all"
+                  >
+                    <div className="space-y-3">
+                      <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-slate-100">
+                        <img
+                          src={blog.image}
+                          alt={blog.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-white/90 text-[10px] font-black text-[#050071]">
+                          {blog.category}
+                        </span>
+                      </div>
+
+                      <div>
+                        <h3 className="font-extrabold text-sm text-slate-900 line-clamp-2">{blog.title}</h3>
+                        <p className="text-xs text-slate-500 line-clamp-2 mt-1">{blog.excerpt}</p>
+                      </div>
                     </div>
 
-                    <div>
-                      <h3 className="font-extrabold text-sm text-slate-900 line-clamp-2">{blog.title}</h3>
-                      <p className="text-xs text-slate-500 line-clamp-2 mt-1">{blog.excerpt}</p>
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                      <div className="text-slate-400 text-[11px]">By {blog.author}</div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenBlogModal(blog)}
+                          className="p-1.5 rounded-lg bg-indigo-50 hover:bg-[#5751E1] hover:text-white text-[#5751E1] transition-colors cursor-pointer"
+                          title="Edit Blog"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteBlog(blog.id)}
+                          className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 transition-colors cursor-pointer"
+                          title="Delete Blog"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <Link
+                          href={`/blog/${blog.slug}`}
+                          target="_blank"
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                          title="View Published Page"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <div className="text-slate-400 text-[11px]">By {blog.author}</div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleOpenBlogModal(blog)}
-                        className="p-1.5 rounded-lg bg-indigo-50 hover:bg-[#5751E1] hover:text-white text-[#5751E1] transition-colors cursor-pointer"
-                        title="Edit Blog"
-                      >
-                        <Edit className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteBlog(blog.id)}
-                        className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 transition-colors cursor-pointer"
-                        title="Delete Blog"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                      <Link
-                        href={`/blog/${blog.slug}`}
-                        target="_blank"
-                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-                        title="View Published Page"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
+
+            <Pagination
+              currentPage={blogsPage}
+              totalItems={filteredBlogs.length}
+              itemsPerPage={6}
+              onPageChange={(page) => setBlogsPage(page)}
+              pageSizeOptions={[6, 12, 24]}
+            />
           </div>
         )}
 
@@ -1055,62 +1083,73 @@ export default function AdminDashboardPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredOrders.map((ord, idx) => (
-                      <tr key={ord.invoice || idx} className="hover:bg-slate-50 transition-colors">
-                        <td className="p-3.5 font-mono font-bold text-slate-900">
-                          {ord.invoice}
-                        </td>
+                    filteredOrders
+                      .slice((ordersPage - 1) * 10, ordersPage * 10)
+                      .map((ord, idx) => (
+                        <tr key={ord.invoice || idx} className="hover:bg-slate-50 transition-colors">
+                          <td className="p-3.5 font-mono font-bold text-slate-900">
+                            {ord.invoice}
+                          </td>
 
-                        <td className="p-3.5">
-                          <div className="font-bold text-slate-900">{ord.studentName || "Mayank Dubey"}</div>
-                          <div className="text-[11px] text-slate-500">{ord.studentEmail}</div>
-                        </td>
+                          <td className="p-3.5">
+                            <div className="font-bold text-slate-900">{ord.studentName}</div>
+                            <div className="text-[11px] text-slate-500">{ord.studentEmail}</div>
+                          </td>
 
-                        <td className="p-3.5">
-                          <div className="font-mono text-slate-700">{ord.studentPhone || "+91 88718 35015"}</div>
-                        </td>
+                          <td className="p-3.5 font-mono text-slate-600 text-[11px]">
+                            {ord.studentPhone}
+                          </td>
 
-                        <td className="p-3.5 font-bold text-slate-800 max-w-xs">
-                          <div className="line-clamp-1">{ord.courseTitle || "Class 10th Maths Booster"}</div>
-                        </td>
+                          <td className="p-3.5 font-semibold text-slate-800">
+                            {ord.courseTitle}
+                          </td>
 
-                        <td className="p-3.5 font-black text-slate-900 text-sm">
-                          {ord.paid}
-                        </td>
+                          <td className="p-3.5 font-black text-[#050071]">
+                            {ord.paid}
+                          </td>
 
-                        <td className="p-3.5 text-slate-600">
-                          {ord.gateway}
-                        </td>
+                          <td className="p-3.5">
+                            <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold text-[10px]">
+                              {ord.gateway}
+                            </span>
+                          </td>
 
-                        <td className="p-3.5">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>{ord.status}</span>
-                          </span>
-                        </td>
+                          <td className="p-3.5">
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-extrabold text-[10px]">
+                              {ord.status}
+                            </span>
+                          </td>
 
-                        <td className="p-3.5 text-slate-500 text-[11px]">
-                          <div>{ord.date}</div>
-                        </td>
+                          <td className="p-3.5 text-slate-500 text-[11px]">
+                            <div>{ord.date}</div>
+                          </td>
 
-                        <td className="p-3.5">
-                          <button
-                            onClick={() => {
-                              setSelectedInvoice(ord);
-                              setIsInvoiceModalOpen(true);
-                            }}
-                            className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-[#5751E1] hover:text-white text-[#5751E1] font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
-                          >
-                            <Eye className="w-3 h-3" />
-                            <span>Invoice</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                          <td className="p-3.5">
+                            <button
+                              onClick={() => {
+                                setSelectedInvoice(ord);
+                                setIsInvoiceModalOpen(true);
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-[#5751E1] hover:text-white text-[#5751E1] font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <Eye className="w-3 h-3" />
+                              <span>Invoice</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
                   )}
                 </tbody>
               </table>
             </div>
+
+            <Pagination
+              currentPage={ordersPage}
+              totalItems={filteredOrders.length}
+              itemsPerPage={10}
+              onPageChange={(page) => setOrdersPage(page)}
+              pageSizeOptions={[10, 25, 50]}
+            />
           </div>
         )}
 
@@ -1135,48 +1174,58 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <div
-                  key={course.id}
-                  className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3 flex flex-col justify-between group"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-extrabold uppercase">
-                        {course.class}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-[#050071]">
-                          ₹{course.price}
+              {courses
+                .slice((coursesPage - 1) * 6, coursesPage * 6)
+                .map((course) => (
+                  <div
+                    key={course.id}
+                    className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3 flex flex-col justify-between group"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-extrabold uppercase">
+                          {course.class}
                         </span>
-                        <button
-                          onClick={() => handleDeleteCourse(course.id)}
-                          className="text-slate-400 hover:text-rose-600 p-1 transition-colors cursor-pointer"
-                          title="Delete Batch"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black text-[#050071]">
+                            ₹{course.price}
+                          </span>
+                          <button
+                            onClick={() => handleDeleteCourse(course.id)}
+                            className="text-slate-400 hover:text-rose-600 p-1 transition-colors cursor-pointer"
+                            title="Delete Batch"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <h3 className="font-extrabold text-sm text-slate-900 line-clamp-1">
+                        {course.title}
+                      </h3>
+                      <p className="text-xs text-slate-500">Instructor: {course.instructor}</p>
+                    </div>
+
+                    <div className="space-y-1.5 pt-2 border-t border-slate-200">
+                      <div className="flex justify-between text-[11px] font-bold">
+                        <span className="text-slate-600">Batch Capacity</span>
+                        <span className="text-emerald-600">92% Filled</span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                        <div className="w-[92%] h-full bg-gradient-to-r from-emerald-500 to-green-600 rounded-full" />
                       </div>
                     </div>
-
-                    <h3 className="font-extrabold text-sm text-slate-900 line-clamp-1">
-                      {course.title}
-                    </h3>
-                    <p className="text-xs text-slate-500">Instructor: {course.instructor}</p>
                   </div>
-
-                  <div className="space-y-1.5 pt-2 border-t border-slate-200">
-                    <div className="flex justify-between text-[11px] font-bold">
-                      <span className="text-slate-600">Batch Capacity</span>
-                      <span className="text-emerald-600">92% Filled</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
-                      <div className="w-[92%] h-full bg-gradient-to-r from-emerald-500 to-green-600 rounded-full" />
-                    </div>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
+
+            <Pagination
+              currentPage={coursesPage}
+              totalItems={courses.length}
+              itemsPerPage={6}
+              onPageChange={(page) => setCoursesPage(page)}
+              pageSizeOptions={[6, 12, 24]}
+            />
           </div>
         )}
 
@@ -1191,34 +1240,44 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {instructorsData.map((inst) => (
-                <div
-                  key={inst.id}
-                  className="p-5 rounded-2xl border border-slate-200 bg-white space-y-4 shadow-xs text-center flex flex-col items-center"
-                >
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 shadow-md border-2 border-indigo-100">
-                    <img src={inst.photo || inst.image || "/images/instructors/kratika-rathore.webp"} alt={inst.name} className="w-full h-full object-cover" />
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <h3 className="font-black text-sm text-slate-900">{inst.name}</h3>
-                    <p className="text-xs text-indigo-600 font-bold">{inst.role || inst.department}</p>
-                    <p className="text-[11px] text-slate-400">{inst.experience} Experience</p>
-                  </div>
-
-                  <div className="w-full pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-center text-xs font-bold">
-                    <div className="p-2 rounded-xl bg-slate-50">
-                      <div className="text-slate-900 font-black">{inst.coursesCount}</div>
-                      <div className="text-[10px] text-slate-400">Batches</div>
+              {instructorsData
+                .slice((facultyPage - 1) * 4, facultyPage * 4)
+                .map((inst) => (
+                  <div
+                    key={inst.id}
+                    className="p-5 rounded-2xl border border-slate-200 bg-white space-y-4 shadow-xs text-center flex flex-col items-center"
+                  >
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 shadow-md border-2 border-indigo-100">
+                      <img src={inst.photo || inst.image || "/images/instructors/kratika-rathore.webp"} alt={inst.name} className="w-full h-full object-cover" />
                     </div>
-                    <div className="p-2 rounded-xl bg-emerald-50 text-emerald-800">
-                      <div className="font-black">{inst.rating} ★</div>
-                      <div className="text-[10px]">Rating</div>
+
+                    <div className="space-y-0.5">
+                      <h3 className="font-black text-sm text-slate-900">{inst.name}</h3>
+                      <p className="text-xs text-indigo-600 font-bold">{inst.role || inst.department}</p>
+                      <p className="text-[11px] text-slate-400">{inst.experience} Experience</p>
+                    </div>
+
+                    <div className="w-full pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-center text-xs font-bold">
+                      <div className="p-2 rounded-xl bg-slate-50">
+                        <div className="text-slate-900 font-black">{inst.coursesCount}</div>
+                        <div className="text-[10px] text-slate-400">Batches</div>
+                      </div>
+                      <div className="p-2 rounded-xl bg-emerald-50 text-emerald-800">
+                        <div className="font-black">{inst.rating} ★</div>
+                        <div className="text-[10px]">Rating</div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
+
+            <Pagination
+              currentPage={facultyPage}
+              totalItems={instructorsData.length}
+              itemsPerPage={4}
+              onPageChange={(page) => setFacultyPage(page)}
+              pageSizeOptions={[4, 8, 12]}
+            />
           </div>
         )}
 
