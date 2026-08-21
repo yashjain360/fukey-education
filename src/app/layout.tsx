@@ -3,6 +3,7 @@ import "./globals.css";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { AuthProvider } from "@/components/auth/AuthContext";
 import { CartProvider } from "@/components/cart/CartContext";
+import { ModalProvider } from "@/components/ui/CustomModal";
 import TopBar from "@/components/layout/TopBar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -48,17 +49,19 @@ export default function RootLayout({
         <SmoothScrollProvider>
           <AuthProvider>
             <CartProvider>
-              <div className="flex min-h-screen flex-col justify-between">
-                <div>
-                  <TopBar />
-                  <Navbar />
-                  <main>{children}</main>
+              <ModalProvider>
+                <div className="flex min-h-screen flex-col justify-between">
+                  <div>
+                    <TopBar />
+                    <Navbar />
+                    <main>{children}</main>
+                  </div>
+                  <Footer />
                 </div>
-                <Footer />
-              </div>
-              <CartDrawer />
-              <FreedomSaleModal />
-              <LayoutClientWrapper />
+                <CartDrawer />
+                <FreedomSaleModal />
+                <LayoutClientWrapper />
+              </ModalProvider>
             </CartProvider>
           </AuthProvider>
         </SmoothScrollProvider>

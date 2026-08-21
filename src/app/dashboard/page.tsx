@@ -19,11 +19,13 @@ import {
   Database
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
+import { useModal } from "@/components/ui/CustomModal";
 import { coursesData } from "@/data/coursesData";
 import { DashboardMetricSkeleton, TableRowSkeleton } from "@/components/ui/Skeleton";
 
 export default function StudentDashboardPage() {
   const { user, logout, switchRole } = useAuth();
+  const { openModal } = useModal();
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "orders" | "live" | "courses" | "wishlist" | "reviews" | "quizzes" | "settings"
   >("dashboard");
@@ -75,6 +77,30 @@ export default function StudentDashboardPage() {
   const handleSwitchToInstructor = () => {
     switchRole("instructor");
     router.push("/instructor/dashboard");
+  };
+
+  const handleDownloadInvoice = (invoice: string) => {
+    openModal({
+      type: "download",
+      title: `Official Invoice Receipt`,
+      subtitle: `Invoice #${invoice} • Paid via Verified Gateway`,
+    });
+  };
+
+  const handleDownloadNotes = (title: string) => {
+    openModal({
+      type: "download",
+      title: `Chapter Revision Notes PDF`,
+      subtitle: `Complete formula sheets and solved examples for ${title}`,
+    });
+  };
+
+  const handleJoinLiveRoom = () => {
+    openModal({
+      type: "video",
+      title: "Class 10th Maths: Quadratic Equations",
+      subtitle: "Faculty: Pawan Gupta • Live Interactive Lecture",
+    });
   };
 
   const enrolledCourses = coursesData.slice(0, 2);
@@ -349,7 +375,7 @@ export default function StudentDashboardPage() {
                               </td>
                               <td className="p-3.5">
                                 <button
-                                  onClick={() => alert(`Downloading receipt for ${ord.invoice}`)}
+                                  onClick={() => handleDownloadInvoice(ord.invoice)}
                                   className="px-3 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-[#5751E1] font-bold text-[11px] flex items-center gap-1"
                                 >
                                   <Download className="w-3.5 h-3.5" />
@@ -394,7 +420,7 @@ export default function StudentDashboardPage() {
                           <span>Watch Lecture</span>
                         </Link>
                         <button
-                          onClick={() => alert("Downloading chapter notes PDF...")}
+                          onClick={() => handleDownloadNotes(c.title)}
                           className="text-xs font-bold text-indigo-600 hover:underline"
                         >
                           Notes PDF
@@ -425,7 +451,7 @@ export default function StudentDashboardPage() {
                     Faculty: Pawan Gupta • Today 5:00 PM – 6:30 PM IST
                   </div>
                   <button
-                    onClick={() => alert("Connecting to live video lecture room...")}
+                    onClick={handleJoinLiveRoom}
                     className="px-6 py-3 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-md flex items-center gap-2"
                   >
                     <Video className="w-4 h-4" />

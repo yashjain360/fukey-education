@@ -13,17 +13,15 @@ import {
   LogOut,
   Plus,
   ArrowRight,
-  Users,
-  CheckCircle2,
-  Sparkles,
-  MessageSquare
+  Database
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
+import { useModal } from "@/components/ui/CustomModal";
 import { coursesData } from "@/data/coursesData";
-import { triggerConfetti } from "@/lib/confetti";
 
 export default function InstructorDashboardPage() {
   const { user, logout, switchRole } = useAuth();
+  const { openModal } = useModal();
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "courses" | "live" | "questions" | "wishlist" | "settings"
   >("dashboard");
@@ -37,6 +35,31 @@ export default function InstructorDashboardPage() {
   const handleSwitchToStudent = () => {
     switchRole("student");
     router.push("/dashboard");
+  };
+
+  const handleCreateLiveClass = () => {
+    openModal({
+      type: "create_class",
+      title: "Schedule Live Lecture",
+    });
+  };
+
+  const handleReplyQuestion = (q: any) => {
+    openModal({
+      type: "reply",
+      title: `Reply to ${q.student}`,
+      subtitle: `Subject: ${q.course}`,
+      data: q,
+    });
+  };
+
+  const handleNewCourse = () => {
+    openModal({
+      type: "info",
+      title: "Course Studio Ready",
+      subtitle: "You can create curriculum modules, upload video lectures, and set pricing.",
+      confirmText: "Launch Studio",
+    });
   };
 
   const instructorCourses = coursesData.slice(0, 2);
@@ -65,11 +88,9 @@ export default function InstructorDashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
         {/* Top Header Banner with Doodle Motif (Matching Screenshot 1) */}
         <div className="relative rounded-3xl overflow-hidden bg-[#2D1B69] border border-indigo-900 shadow-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
-
           <div className="flex items-center gap-5 relative z-10">
             <div className="w-20 h-20 rounded-full border-4 border-white/80 overflow-hidden bg-indigo-100 flex-shrink-0 shadow-lg relative">
-              <div className="w-full h-full bg-gradient-to-tr from-indigo-700 to-purple-600 flex items-center justify-center text-white font-black text-2xl">
+              <div className="w-full h-full bg-[#5751E1] flex items-center justify-center text-white font-black text-2xl">
                 {user?.name ? user.name.charAt(0) : "M"}
               </div>
             </div>
@@ -95,11 +116,8 @@ export default function InstructorDashboardPage() {
               Switch to Student View
             </button>
             <button
-              onClick={() => {
-                triggerConfetti();
-                alert("Scheduling new live class...");
-              }}
-              className="px-6 py-3 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-extrabold text-xs shadow-lg shadow-red-900/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+              onClick={handleCreateLiveClass}
+              className="px-6 py-3 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-extrabold text-xs shadow-lg shadow-red-900/30 flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               <span>Create Live Class</span>
@@ -119,9 +137,9 @@ export default function InstructorDashboardPage() {
               <nav className="space-y-1">
                 <button
                   onClick={() => setActiveTab("dashboard")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
                     activeTab === "dashboard"
-                      ? "bg-indigo-50 text-[#5751E1] shadow-xs"
+                      ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
@@ -131,9 +149,9 @@ export default function InstructorDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("courses")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
                     activeTab === "courses"
-                      ? "bg-indigo-50 text-[#5751E1] shadow-xs"
+                      ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
@@ -143,9 +161,9 @@ export default function InstructorDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("live")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
                     activeTab === "live"
-                      ? "bg-indigo-50 text-[#5751E1] shadow-xs"
+                      ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
@@ -155,9 +173,9 @@ export default function InstructorDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("questions")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
                     activeTab === "questions"
-                      ? "bg-indigo-50 text-[#5751E1] shadow-xs"
+                      ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
@@ -167,9 +185,9 @@ export default function InstructorDashboardPage() {
 
                 <button
                   onClick={() => setActiveTab("wishlist")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
                     activeTab === "wishlist"
-                      ? "bg-indigo-50 text-[#5751E1] shadow-xs"
+                      ? "bg-indigo-50 text-[#5751E1]"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
@@ -187,9 +205,9 @@ export default function InstructorDashboardPage() {
 
               <button
                 onClick={() => setActiveTab("settings")}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all text-left ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left ${
                   activeTab === "settings"
-                    ? "bg-indigo-50 text-[#5751E1] shadow-xs"
+                    ? "bg-indigo-50 text-[#5751E1]"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
@@ -199,7 +217,7 @@ export default function InstructorDashboardPage() {
 
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-all text-left"
+                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-600 hover:bg-rose-50 text-left"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -217,7 +235,7 @@ export default function InstructorDashboardPage() {
                   {/* 2 Stat Cards (Matching Screenshot 1) */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {/* Card 1: Total Courses */}
-                    <div className="bg-[#EBF2FF] rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-2 border border-blue-100 shadow-xs">
+                    <div className="bg-[#EBF2FF] rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-2 border border-blue-100">
                       <div className="w-16 h-16 rounded-full bg-[#D4E4FC] text-[#3B82F6] flex items-center justify-center mb-2">
                         <GraduationCap className="w-8 h-8" />
                       </div>
@@ -230,7 +248,7 @@ export default function InstructorDashboardPage() {
                     </div>
 
                     {/* Card 2: Pending Courses */}
-                    <div className="bg-[#F8EFFF] rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-2 border border-purple-100 shadow-xs">
+                    <div className="bg-[#F8EFFF] rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-2 border border-purple-100">
                       <div className="w-16 h-16 rounded-full bg-[#EAD4FC] text-[#A855F7] flex items-center justify-center mb-2">
                         <GraduationCap className="w-8 h-8" />
                       </div>
@@ -266,10 +284,7 @@ export default function InstructorDashboardPage() {
                         <p className="text-xs text-slate-700 font-medium leading-relaxed">{q.question}</p>
                         <div className="pt-2 flex items-center gap-2">
                           <button
-                            onClick={() => {
-                              triggerConfetti();
-                              alert(`Replying to ${q.student}...`);
-                            }}
+                            onClick={() => handleReplyQuestion(q)}
                             className="px-3.5 py-1.5 rounded-xl bg-[#5751E1] hover:bg-indigo-700 text-white font-bold text-[11px] transition-colors"
                           >
                             Reply to Student
@@ -288,10 +303,7 @@ export default function InstructorDashboardPage() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-black text-slate-900">Manage Published Courses</h2>
                   <button
-                    onClick={() => {
-                      triggerConfetti();
-                      alert("Opening course creator...");
-                    }}
+                    onClick={handleNewCourse}
                     className="px-4 py-2 rounded-xl bg-[#050071] text-white font-bold text-xs flex items-center gap-1.5"
                   >
                     <Plus className="w-3.5 h-3.5" />
