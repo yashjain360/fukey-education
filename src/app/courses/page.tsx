@@ -52,19 +52,15 @@ function CoursesContent() {
   const filteredCourses = useMemo(() => {
     return courses
       .filter((course) => {
-        // Class filter
         if (selectedClasses.length > 0 && !selectedClasses.includes(course.class)) {
           return false;
         }
-        // Language filter
         if (selectedLanguage !== "All" && course.language !== selectedLanguage) {
           return false;
         }
-        // Subject filter
         if (selectedSubject !== "All" && course.subject !== selectedSubject) {
           return false;
         }
-        // Search query
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase();
           const matchTitle = course.title.toLowerCase().includes(q);
@@ -78,7 +74,7 @@ function CoursesContent() {
         if (sortBy === "price-low") return a.price - b.price;
         if (sortBy === "price-high") return b.price - a.price;
         if (sortBy === "rating") return b.rating - a.rating;
-        return 0; // default latest
+        return 0;
       });
   }, [courses, selectedClasses, selectedLanguage, selectedSubject, searchQuery, sortBy]);
 
@@ -268,29 +264,23 @@ function CoursesContent() {
                   return (
                     <div
                       key={course.id}
-                      className="bg-white rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between overflow-hidden group"
+                      className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
                     >
-                      {/* Real Course Thumbnail Banner */}
-                      <div className="relative h-44 bg-slate-100 overflow-hidden">
+                      {/* Uncut Real Course Thumbnail Banner */}
+                      <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
                         <img
                           src={course.thumbnail}
                           alt={course.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain p-1"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src =
                               "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png";
                           }}
                         />
 
-                        <div className="absolute top-3 left-3 z-10">
-                          <span className="px-2.5 py-1 rounded-lg bg-black/60 text-white font-extrabold text-[10px] uppercase tracking-wider">
-                            {course.class}
-                          </span>
-                        </div>
-
                         <button
                           onClick={() => toggleWishlist(course)}
-                          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
+                          className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
                             inWishlist
                               ? "bg-rose-500 text-white"
                               : "bg-white/90 hover:bg-white text-slate-700"

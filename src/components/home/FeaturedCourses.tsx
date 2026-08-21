@@ -16,7 +16,6 @@ export default function FeaturedCourses() {
   const [courses, setCourses] = useState<Course[]>(coursesData);
 
   useEffect(() => {
-    // Fetch from MongoDB API endpoint with fallback
     fetch("/api/courses")
       .then((res) => res.json())
       .then((data) => {
@@ -75,7 +74,7 @@ export default function FeaturedCourses() {
                 setSelectedTab(tab);
                 setStartIndex(0);
               }}
-              className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold ${
+              className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all ${
                 selectedTab === tab
                   ? "bg-[#5751E1] text-white shadow-md"
                   : "bg-slate-100 hover:bg-slate-200 text-slate-600"
@@ -103,36 +102,30 @@ export default function FeaturedCourses() {
                 return (
                   <div
                     key={course.id}
-                    className="bg-white rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between overflow-hidden"
+                    className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
                   >
-                    {/* Real Course Thumbnail Banner with Wishlist Button */}
-                    <div className="relative h-48 bg-slate-100 overflow-hidden">
+                    {/* Uncut Real Course Thumbnail Banner */}
+                    <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
                       <img
                         src={course.thumbnail}
                         alt={course.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-1"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
                             "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png";
                         }}
                       />
 
-                      <div className="absolute top-3 left-3 z-10">
-                        <span className="px-2.5 py-1 rounded-lg bg-black/60 text-white font-extrabold text-[10px] uppercase tracking-wider">
-                          {course.class}
-                        </span>
-                      </div>
-
                       <button
                         onClick={() => toggleWishlist(course)}
-                        className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center shadow-md ${
+                        className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
                           inWishlist
                             ? "bg-rose-500 text-white"
                             : "bg-white/90 hover:bg-white text-slate-700"
                         }`}
                         aria-label="Toggle Wishlist"
                       >
-                        <Heart className={`w-4 h-4 ${inWishlist ? "fill-current" : ""}`} />
+                        <Heart className={`w-3.5 h-3.5 ${inWishlist ? "fill-current" : ""}`} />
                       </button>
                     </div>
 

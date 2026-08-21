@@ -20,7 +20,7 @@ export function CourseCardSkeleton() {
   return (
     <div className="bg-white rounded-3xl border border-slate-200/80 p-0 overflow-hidden space-y-4">
       {/* Thumbnail placeholder */}
-      <div className="h-44 bg-slate-200" />
+      <div className="aspect-[16/10] bg-slate-200" />
       {/* Content lines */}
       <div className="p-5 space-y-3">
         <div className="h-3 w-24 bg-slate-200 rounded" />
