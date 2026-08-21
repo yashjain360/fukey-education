@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     const token = `fk_sess_${Math.random().toString(36).substring(2)}_${Date.now()}`;
 
     const existingUser = await db.collection("users").findOne({ email: email.toLowerCase().trim() });
-    const userRole = existingUser?.role || role || "student";
+    const userRole = role || existingUser?.role || "student";
 
     const userRecord = {
       email: email.toLowerCase().trim(),
