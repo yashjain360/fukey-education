@@ -1,19 +1,16 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { Mail, Phone, Sparkles } from "lucide-react";
 import { useCart } from "@/components/cart/CartContext";
-import { useFestivalTheme } from "@/components/theme/FestivalThemeContext";
 
 export default function TopBar() {
   const { currency, setCurrency, language, setLanguage } = useCart();
-  const { activeFestival } = useFestivalTheme();
 
   return (
     <div className="bg-[#030045] text-white text-xs py-2 border-b border-indigo-950/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-3">
-        {/* Contact Info & Dynamic Festival Badge */}
+        {/* Contact Info */}
         <div className="flex items-center gap-4 text-slate-300">
           <div className="flex items-center gap-1.5">
             <Mail className="w-3.5 h-3.5 text-orange-400" />
@@ -32,15 +29,15 @@ export default function TopBar() {
             </a>
           </div>
 
-          {/* Blinkit Style Festival Badge */}
-          <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-extrabold border border-orange-400/30">
-            <span>{activeFestival.badge}</span>
+          <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 text-[10px] font-extrabold border border-indigo-400/30">
+            <span>CBSE &amp; State Boards 2026-27</span>
           </span>
         </div>
 
         {/* Center Live Announcement */}
-        <div className="hidden lg:flex items-center gap-1 text-[11px] text-amber-300 font-semibold">
-          <span>{activeFestival.bannerText}</span>
+        <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-amber-300 font-semibold">
+          <Sparkles className="w-3 h-3 text-amber-400" />
+          <span>Admissions Open for Classes 9th to 12th Live Online Batches</span>
         </div>
 
         {/* Social Icons & Selectors */}

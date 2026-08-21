@@ -4,15 +4,10 @@ import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { AuthProvider } from "@/components/auth/AuthContext";
 import { CartProvider } from "@/components/cart/CartContext";
 import { ModalProvider } from "@/components/ui/CustomModal";
-import { FestivalThemeProvider } from "@/components/theme/FestivalThemeContext";
-import FestivalMouseTrail from "@/components/theme/FestivalMouseTrail";
-import FestivalMovingBackground from "@/components/theme/FestivalMovingBackground";
-import InteractiveRakhiExperience from "@/components/theme/InteractiveRakhiExperience";
 import TopBar from "@/components/layout/TopBar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
-import FreedomSaleModal from "@/components/home/FreedomSaleModal";
 import LayoutClientWrapper from "@/components/layout/LayoutClientWrapper";
 
 export const metadata: Metadata = {
@@ -49,27 +44,21 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased selection:bg-orange-500 selection:text-white">
+      <body className="antialiased selection:bg-indigo-600 selection:text-white">
         <SmoothScrollProvider>
           <AuthProvider>
             <CartProvider>
               <ModalProvider>
-                <FestivalThemeProvider>
-                  <FestivalMovingBackground />
-                  <FestivalMouseTrail />
-                  <div className="relative z-10 flex min-h-screen flex-col justify-between">
-                    <div>
-                      <TopBar />
-                      <Navbar />
-                      <main>{children}</main>
-                    </div>
-                    <Footer />
+                <div className="relative z-10 flex min-h-screen flex-col justify-between">
+                  <div>
+                    <TopBar />
+                    <Navbar />
+                    <main>{children}</main>
                   </div>
-                  <CartDrawer />
-                  <FreedomSaleModal />
-                  <InteractiveRakhiExperience />
-                  <LayoutClientWrapper />
-                </FestivalThemeProvider>
+                  <Footer />
+                </div>
+                <CartDrawer />
+                <LayoutClientWrapper />
               </ModalProvider>
             </CartProvider>
           </AuthProvider>
