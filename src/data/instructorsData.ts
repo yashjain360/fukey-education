@@ -4,6 +4,7 @@ export interface Instructor {
   role: string;
   experience: string;
   qualification: string;
+  photo: string;
   rating: number;
   reviewsCount: number;
   studentsCount: number;
@@ -15,36 +16,15 @@ export interface Instructor {
 
 export const instructorsData: Instructor[] = [
   {
-    "id": "pawan-gupta",
-    "name": "Pawan Gupta",
-    "role": "Senior Mathematics Faculty & HOD",
-    "experience": "10+ Years Experience",
-    "qualification": "M.Sc. Mathematics, B.Ed. (Gold Medalist)",
-    "rating": 4.98,
-    "reviewsCount": 342,
-    "studentsCount": 2840,
-    "coursesCount": 8,
-    "bio": "Pawan Gupta is a renowned Mathematics educator with over a decade of experience guiding CBSE and State Board toppers. Known for his intuitive shortcut techniques, visual geometry breakdowns, and step-by-step calculus simplifications.",
-    "specialties": [
-      "Class 9-12 Mathematics",
-      "Calculus Mastery",
-      "NCERT Exemplar Solutions",
-      "Board Speed Drills"
-    ],
-    "achievements": [
-      "Trained 150+ students who scored 100/100 in Class 10 & 12 Board Exams",
-      "Author of \"Fast Track Maths Formula Bank\""
-    ]
-  },
-  {
     "id": "kratika-rathore",
     "name": "Kratika Rathore",
     "role": "Head of Science & Chemistry Department",
     "experience": "8+ Years Experience",
     "qualification": "M.Sc. Chemistry, CSIR-NET Qualified",
-    "rating": 4.95,
-    "reviewsCount": 289,
-    "studentsCount": 2450,
+    "photo": "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-06-15-03-20-17-2242.webp",
+    "rating": 4.98,
+    "reviewsCount": 389,
+    "studentsCount": 3450,
     "coursesCount": 6,
     "bio": "Kratika Rathore brings science and chemistry alive through interactive experiment simulations, conceptual clarity, and memory hacks for periodic tables, chemical equations, and organic mechanisms.",
     "specialties": [
@@ -59,14 +39,38 @@ export const instructorsData: Instructor[] = [
     ]
   },
   {
+    "id": "pawan-gupta",
+    "name": "Pawan Gupta",
+    "role": "Senior Mathematics Faculty & HOD",
+    "experience": "10+ Years Experience",
+    "qualification": "M.Sc. Mathematics, B.Ed. (Gold Medalist)",
+    "photo": "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-06-15-02-14-08-1645.webp",
+    "rating": 4.98,
+    "reviewsCount": 442,
+    "studentsCount": 4840,
+    "coursesCount": 8,
+    "bio": "Pawan Gupta is a renowned Mathematics educator with over a decade of experience guiding CBSE and State Board toppers. Known for his intuitive shortcut techniques, visual geometry breakdowns, and step-by-step calculus simplifications.",
+    "specialties": [
+      "Class 9-12 Mathematics",
+      "Calculus Mastery",
+      "NCERT Exemplar Solutions",
+      "Board Speed Drills"
+    ],
+    "achievements": [
+      "Trained 150+ students who scored 100/100 in Class 10 & 12 Board Exams",
+      "Author of \"Fast Track Maths Formula Bank\""
+    ]
+  },
+  {
     "id": "arya-dubey",
     "name": "Arya Dubey",
     "role": "Economics & Commercial Studies Lead",
     "experience": "7+ Years Experience",
     "qualification": "M.A. Economics, Delhi School of Economics",
-    "rating": 4.92,
-    "reviewsCount": 215,
-    "studentsCount": 1890,
+    "photo": "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-06-15-04-34-08-1050.webp",
+    "rating": 4.95,
+    "reviewsCount": 315,
+    "studentsCount": 2890,
     "coursesCount": 4,
     "bio": "Arya Dubey specializes in Micro & Macro Economics for Classes 11 and 12. He integrates real-world Indian economic case studies and graphical analysis to make complex economic theories simple and scoring.",
     "specialties": [
@@ -86,6 +90,7 @@ export const instructorsData: Instructor[] = [
     "role": "Senior Physics Educator & Concept Coach",
     "experience": "9+ Years Experience",
     "qualification": "M.Tech Applied Physics, IITian Alum",
+    "photo": "https://fukeyeducation.com/uploads/website-images/frontend-avatar.png",
     "rating": 4.96,
     "reviewsCount": 310,
     "studentsCount": 2600,
@@ -103,14 +108,36 @@ export const instructorsData: Instructor[] = [
     ]
   },
   {
+    "id": "mayank-dubey",
+    "name": "Mayank Dubey",
+    "role": "Senior Social Science & Political Science Faculty",
+    "experience": "8+ Years Experience",
+    "qualification": "M.A. Political Science, NET Qualified",
+    "photo": "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-01-06-03-26-56-5638.jpg",
+    "rating": 4.97,
+    "reviewsCount": 330,
+    "studentsCount": 3100,
+    "coursesCount": 4,
+    "bio": "Mayank Dubey leads Political Science and Social Sciences with emphasis on constitutional frameworks, answer-structuring, and timeline maps for Class 9th to 12th.",
+    "specialties": [
+      "Class 9-10 Social Science",
+      "Class 11-12 Political Science",
+      "Long Answer Mastery"
+    ],
+    "achievements": [
+      "Author of \"Smart Board Revision Notes for Political Science\""
+    ]
+  },
+  {
     "id": "babli-jain",
     "name": "Babli Jain",
     "role": "Senior Biology Faculty & NEET Mentor",
     "experience": "9+ Years Experience",
     "qualification": "M.Sc. Zoology, B.Ed.",
+    "photo": "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-04-03-05-45-2676.png",
     "rating": 4.94,
-    "reviewsCount": 198,
-    "studentsCount": 1750,
+    "reviewsCount": 298,
+    "studentsCount": 2750,
     "coursesCount": 4,
     "bio": "Babli Jain is revered for her high-yield diagrammatic memory maps and clear NCERT line-by-line breakdown in Genetics, Ecology, and Human Physiology.",
     "specialties": [
@@ -130,9 +157,10 @@ export const instructorsData: Instructor[] = [
     "role": "Commerce & Economics Educator (Hindi Medium Specialist)",
     "experience": "6+ Years Experience",
     "qualification": "M.Com, M.Phil",
-    "rating": 4.91,
-    "reviewsCount": 165,
-    "studentsCount": 1420,
+    "photo": "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-04-02-54-52-2622.png",
+    "rating": 4.93,
+    "reviewsCount": 265,
+    "studentsCount": 2420,
     "coursesCount": 4,
     "bio": "Rashmi Parihar brings top-tier pedagogy to Hindi Medium commerce students, simplifying terminology, balance sheet fundamentals, and economic concepts.",
     "specialties": [
@@ -145,34 +173,15 @@ export const instructorsData: Instructor[] = [
     ]
   },
   {
-    "id": "soumya-jain",
-    "name": "Soumya Jain",
-    "role": "Chartered Accountant & Accountancy Faculty",
-    "experience": "7+ Years Experience",
-    "qualification": "CA, M.Com (Finance)",
-    "rating": 4.93,
-    "reviewsCount": 180,
-    "studentsCount": 1580,
-    "coursesCount": 4,
-    "bio": "Soumya Jain makes Partnership Accounts, Company Balance Sheets, and Cash Flow Statements enjoyable and formulaic for Class 11 and 12 students.",
-    "specialties": [
-      "Company Accounts",
-      "Partnership Firm Accounting",
-      "Cash Flow Analysis"
-    ],
-    "achievements": [
-      "Guided 50+ students to 98+ in Accountancy CBSE boards"
-    ]
-  },
-  {
     "id": "ram-kumar-soni",
     "name": "Ram Kumar Soni",
     "role": "Humanities & Social Sciences Expert",
     "experience": "12+ Years Experience",
     "qualification": "M.A. History & Political Science, NET Qualified",
+    "photo": "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-05-11-50-28-5198.png",
     "rating": 4.97,
-    "reviewsCount": 230,
-    "studentsCount": 2100,
+    "reviewsCount": 310,
+    "studentsCount": 3300,
     "coursesCount": 6,
     "bio": "Ram Kumar Soni is a master storyteller who transforms History, Geography, and Civics into engaging narratives with timeline maps and answer-writing templates.",
     "specialties": [

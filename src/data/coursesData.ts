@@ -32,6 +32,7 @@ export interface Course {
   resourcesCount: number;
   badge: string;
   description: string;
+  thumbnail: string;
   features: string[];
   curriculum: CourseCurriculumModule[];
   faqs: CourseFAQ[];
@@ -114,7 +115,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_accountancy-11th-english.png"
   },
   {
     "id": "course-2",
@@ -192,7 +194,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_accountancy-11th-hindi.png"
   },
   {
     "id": "course-3",
@@ -270,7 +273,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_accountancy-12th-english.png"
   },
   {
     "id": "course-4",
@@ -348,7 +352,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_accountancy-12th-hindi.png"
   },
   {
     "id": "course-5",
@@ -426,7 +431,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_biology-11th-english.png"
   },
   {
     "id": "course-6",
@@ -504,7 +510,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_biology-11th-hindi.png"
   },
   {
     "id": "course-7",
@@ -582,7 +589,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_biology-12th-english.png"
   },
   {
     "id": "course-8",
@@ -660,7 +668,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_biology-12th-hindi.png"
   },
   {
     "id": "course-9",
@@ -738,7 +747,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_business-studies-11th-english.png"
   },
   {
     "id": "course-10",
@@ -816,7 +826,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_business-studies-11th-hindi.png"
   },
   {
     "id": "course-11",
@@ -894,7 +905,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_business-studies-12th-english.png"
   },
   {
     "id": "course-12",
@@ -972,7 +984,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_business-studies-hindi.png"
   },
   {
     "id": "course-13",
@@ -1050,7 +1063,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_chemistory-12th-english.png"
   },
   {
     "id": "course-14",
@@ -1128,7 +1142,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_chemistory-12th-hindi.png"
   },
   {
     "id": "course-15",
@@ -1206,7 +1221,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_chemistry-11th-english.png"
   },
   {
     "id": "course-16",
@@ -1284,7 +1300,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_chemistry-11th-hindi.png"
   },
   {
     "id": "course-17",
@@ -1362,7 +1379,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_economics-11th-english.png"
   },
   {
     "id": "course-18",
@@ -1440,7 +1458,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_economics-11th-hindi.png"
   },
   {
     "id": "course-19",
@@ -1518,7 +1537,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_economics-12th-english.png"
   },
   {
     "id": "course-20",
@@ -1596,7 +1616,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_economics-12th-hindi.png"
   },
   {
     "id": "course-21",
@@ -1674,7 +1695,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_geography-11th-english.png"
   },
   {
     "id": "course-22",
@@ -1752,7 +1774,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_geography-11th-hindi.png"
   },
   {
     "id": "course-23",
@@ -1830,7 +1853,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_geography-12th-english.png"
   },
   {
     "id": "course-24",
@@ -1908,7 +1932,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_geography-12th-english-1.png"
   },
   {
     "id": "course-25",
@@ -1986,7 +2011,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_history-11th-hindi.png"
   },
   {
     "id": "course-26",
@@ -2064,7 +2090,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_history-11th-hindi-1.png"
   },
   {
     "id": "course-27",
@@ -2142,7 +2169,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_history-12th-english.png"
   },
   {
     "id": "course-28",
@@ -2220,7 +2248,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_history-12th-hindi.png"
   },
   {
     "id": "course-29",
@@ -2298,7 +2327,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_maths-10th-english.png"
   },
   {
     "id": "course-30",
@@ -2376,7 +2406,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_maths-10th-hindi.png"
   },
   {
     "id": "course-31",
@@ -2454,7 +2485,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_maths-11th-english.png"
   },
   {
     "id": "course-32",
@@ -2532,7 +2564,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_maths-11th-hindi.png"
   },
   {
     "id": "course-33",
@@ -2610,7 +2643,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_maths-12th-english.png"
   },
   {
     "id": "course-34",
@@ -2688,7 +2722,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_maths-12th-english-1.png"
   },
   {
     "id": "course-35",
@@ -2766,7 +2801,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_maths-9th-english.png"
   },
   {
     "id": "course-36",
@@ -2844,7 +2880,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_maths-9th-hindi.png"
   },
   {
     "id": "course-37",
@@ -2922,7 +2959,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_physics-11th-english-1.png"
   },
   {
     "id": "course-38",
@@ -3000,7 +3038,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_physics-11th-hindi.png"
   },
   {
     "id": "course-39",
@@ -3078,7 +3117,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_physics-12th-english.png"
   },
   {
     "id": "course-40",
@@ -3156,7 +3196,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_physics-12th-hindi.png"
   },
   {
     "id": "course-41",
@@ -3234,7 +3275,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_political-science-11th-english.png"
   },
   {
     "id": "course-42",
@@ -3312,7 +3354,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_political-science-11th-hindi.png"
   },
   {
     "id": "course-43",
@@ -3390,7 +3433,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_political-science-12th-english.png"
   },
   {
     "id": "course-44",
@@ -3468,7 +3512,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_political-science-12th-hindi.png"
   },
   {
     "id": "course-45",
@@ -3546,7 +3591,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_science-10th-english.png"
   },
   {
     "id": "course-46",
@@ -3624,7 +3670,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_science-10th-hindi.png"
   },
   {
     "id": "course-47",
@@ -3702,7 +3749,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_science-9th-english.png"
   },
   {
     "id": "course-48",
@@ -3780,7 +3828,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_science-9th-hindi.png"
   },
   {
     "id": "course-49",
@@ -3858,7 +3907,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_social-science-10th-english-1.png"
   },
   {
     "id": "course-50",
@@ -3936,7 +3986,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_social-science-10th-hindi.png"
   },
   {
     "id": "course-51",
@@ -4014,7 +4065,8 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_social-science-9th-english.png"
   },
   {
     "id": "course-52",
@@ -4092,6 +4144,7 @@ export const coursesData: Course[] = [
         "q": "How are doubts cleared during the course?",
         "a": "You can ask doubts live in class via microphone or chat, and also post photos of questions in our dedicated doubt forum and WhatsApp group."
       }
-    ]
+    ],
+    "thumbnail": "/images/courses/course_social-science-9th-hindi.png"
   }
 ];

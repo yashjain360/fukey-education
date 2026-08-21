@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Heart, ShoppingCart, ArrowRight, Star, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { Heart, ShoppingCart, ArrowRight, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { coursesData, Course } from "@/data/coursesData";
 import { useCart } from "@/components/cart/CartContext";
 import { formatPrice } from "@/lib/utils";
@@ -44,7 +44,7 @@ export default function FeaturedCourses() {
             Explore Our Worlds Featured Courses
           </h2>
           <p className="text-sm text-slate-500 font-medium">
-            Check out the most demanding courses right now for CBSE & State Board classes
+            Check out the most demanding courses right now for CBSE &amp; State Board classes
           </p>
         </div>
 
@@ -80,45 +80,35 @@ export default function FeaturedCourses() {
                   key={course.id}
                   className="bg-white rounded-3xl border border-slate-200/80 shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group"
                 >
-                  {/* Thumbnail Banner with Wishlist Button */}
-                  <div className="relative h-48 bg-gradient-to-br from-[#050071] via-[#1C1A4A] to-[#5751E1] p-4 flex flex-col justify-between overflow-hidden">
-                    <div className="flex items-center justify-between relative z-10">
-                      <span className="px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-md text-white font-extrabold text-[11px] uppercase tracking-wider">
+                  {/* Real Course Thumbnail Banner with Wishlist Button */}
+                  <div className="relative h-48 bg-slate-100 overflow-hidden">
+                    <img
+                      src={course.thumbnail}
+                      alt={course.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png";
+                      }}
+                    />
+
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white font-extrabold text-[10px] uppercase tracking-wider">
                         {course.class}
                       </span>
-                      <button
-                        onClick={() => toggleWishlist(course)}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-                          inWishlist
-                            ? "bg-rose-500 text-white"
-                            : "bg-white/80 hover:bg-white text-slate-700"
-                        }`}
-                        aria-label="Toggle Wishlist"
-                      >
-                        <Heart className={`w-4 h-4 ${inWishlist ? "fill-current" : ""}`} />
-                      </button>
                     </div>
 
-                    {/* Center Course Graphic Emblem */}
-                    <div className="text-center relative z-10">
-                      <div className="text-2xl font-black text-white tracking-wider">
-                        {course.subject.toUpperCase()}
-                      </div>
-                      <div className="text-xs text-orange-300 font-bold tracking-wide">
-                        {course.class.toUpperCase()} ({course.language.toUpperCase()})
-                      </div>
-                    </div>
-
-                    {/* Bottom Badges */}
-                    <div className="flex items-center justify-between text-[10px] text-slate-200 relative z-10">
-                      <span className="bg-black/30 px-2 py-0.5 rounded">CBSE / State</span>
-                      <span className="bg-emerald-500/80 text-white px-2 py-0.5 rounded font-bold">
-                        Live Batch
-                      </span>
-                    </div>
-
-                    {/* Background Glow */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                    <button
+                      onClick={() => toggleWishlist(course)}
+                      className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md ${
+                        inWishlist
+                          ? "bg-rose-500 text-white"
+                          : "bg-white/90 hover:bg-white text-slate-700"
+                      }`}
+                      aria-label="Toggle Wishlist"
+                    >
+                      <Heart className={`w-4 h-4 ${inWishlist ? "fill-current" : ""}`} />
+                    </button>
                   </div>
 
                   {/* Course Details Body */}
@@ -204,7 +194,7 @@ export default function FeaturedCourses() {
             href="/courses"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-[#050071] hover:bg-indigo-900 text-white text-xs font-extrabold shadow-lg transition-all hover:scale-105"
           >
-            <span>View All 46+ Courses & Batches</span>
+            <span>View All 52+ Real Courses &amp; Batches</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

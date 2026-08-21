@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Star, Award, GraduationCap, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Star, Award, CheckCircle2 } from "lucide-react";
 import { instructorsData } from "@/data/instructorsData";
 
 export default function InstructorsSection() {
@@ -50,19 +50,25 @@ export default function InstructorsSection() {
             </div>
           </div>
 
-          {/* Right Column: Instructor Circles Grid */}
+          {/* Right Column: Real Instructor Circles Grid */}
           <div className="lg:col-span-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {instructorsData.slice(0, 4).map((inst, idx) => (
+              {instructorsData.slice(0, 4).map((inst) => (
                 <Link
                   key={inst.id}
                   href={`/instructors`}
                   className="p-5 rounded-3xl bg-white border border-slate-100 hover:border-indigo-300 shadow-md hover:shadow-xl transition-all duration-300 flex items-center gap-4 group"
                 >
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#050071] via-[#5751E1] to-[#FF6B00] p-0.5 shadow-md flex-shrink-0 group-hover:scale-105 transition-transform">
-                    <div className="w-full h-full bg-indigo-50 rounded-full flex items-center justify-center font-black text-lg text-indigo-700">
-                      {inst.name.split(" ").map((n) => n[0]).join("")}
-                    </div>
+                  <div className="w-20 h-20 rounded-full border-2 border-indigo-100 overflow-hidden flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform bg-indigo-50">
+                    <img
+                      src={inst.photo}
+                      alt={inst.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          "https://fukeyeducation.com/uploads/website-images/frontend-avatar.png";
+                      }}
+                    />
                   </div>
 
                   <div className="min-w-0">

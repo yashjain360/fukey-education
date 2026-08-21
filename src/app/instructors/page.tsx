@@ -24,7 +24,7 @@ export default function InstructorsPage() {
           </div>
         </div>
 
-        {/* Faculty Grid */}
+        {/* Faculty Grid with Real Photos */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {instructorsData.map((inst) => (
             <div
@@ -33,10 +33,16 @@ export default function InstructorsPage() {
             >
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-[#050071] via-[#5751E1] to-[#FF6B00] p-1 flex-shrink-0 shadow-md">
-                    <div className="w-full h-full bg-indigo-50 rounded-xl flex items-center justify-center font-black text-2xl text-indigo-700">
-                      {inst.name.split(" ").map((n) => n[0]).join("")}
-                    </div>
+                  <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-indigo-100 flex-shrink-0 shadow-md bg-indigo-50">
+                    <img
+                      src={inst.photo}
+                      alt={inst.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          "https://fukeyeducation.com/uploads/website-images/frontend-avatar.png";
+                      }}
+                    />
                   </div>
 
                   <div className="space-y-1">
