@@ -13,8 +13,8 @@ interface FestivalContextType {
 const FestivalThemeContext = createContext<FestivalContextType | undefined>(undefined);
 
 export const FestivalThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Default to Independence Day as requested
-  const [festivalType, setFestivalType] = useState<FestivalType>("independence_day");
+  // Default to Rakshabandhan matching user's current festive request
+  const [festivalType, setFestivalType] = useState<FestivalType>("rakshabandhan");
   const [isTrailEnabled, setIsTrailEnabled] = useState(true);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export const FestivalThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (e) {}
   };
 
-  const activeFestival = FESTIVALS[festivalType] || FESTIVALS.independence_day;
+  const activeFestival = FESTIVALS[festivalType] || FESTIVALS.rakshabandhan;
 
   return (
     <FestivalThemeContext.Provider
