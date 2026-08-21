@@ -630,8 +630,8 @@ export default function StudentDashboardPage() {
 
                             <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
                               <Link
-                                href={`/course/${c.courseSlug || c.slug || "class-10th-complete-mathematics"}`}
-                                className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center gap-1.5"
+                                href={`/course/${(c.courseSlug || c.slug || "class-10th-complete-mathematics").replace(/^[-]+|[-]+$/g, "")}`}
+                                className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center gap-1.5 transition-all hover:scale-105"
                               >
                                 <Play className="w-3.5 h-3.5 fill-current" />
                                 <span>Enter Classroom</span>

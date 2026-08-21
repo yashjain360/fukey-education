@@ -58,7 +58,8 @@ export async function POST(request: Request) {
     const itemsList = Array.isArray(body.items) ? body.items : [body.items || newOrder.courseTitle];
     for (const item of itemsList) {
       const itemTitle = typeof item === "string" ? item : item.title || item.name || newOrder.courseTitle;
-      const itemSlug = typeof item === "object" && item.slug ? item.slug : (body.courseSlug || itemTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+      const rawSlug = typeof item === "object" && item.slug ? item.slug : (body.courseSlug || itemTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+      const itemSlug = rawSlug.replace(/^[-]+|[-]+$/g, "");
 
       await db.collection("enrollments").updateOne(
         {
