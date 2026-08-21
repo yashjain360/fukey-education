@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
+import { AuthProvider } from "@/components/auth/AuthContext";
 import { CartProvider } from "@/components/cart/CartContext";
 import TopBar from "@/components/layout/TopBar";
 import Navbar from "@/components/layout/Navbar";
@@ -45,19 +46,21 @@ export default function RootLayout({
       </head>
       <body className="antialiased selection:bg-indigo-500 selection:text-white">
         <SmoothScrollProvider>
-          <CartProvider>
-            <div className="flex min-h-screen flex-col justify-between">
-              <div>
-                <TopBar />
-                <Navbar />
-                <main>{children}</main>
+          <AuthProvider>
+            <CartProvider>
+              <div className="flex min-h-screen flex-col justify-between">
+                <div>
+                  <TopBar />
+                  <Navbar />
+                  <main>{children}</main>
+                </div>
+                <Footer />
               </div>
-              <Footer />
-            </div>
-            <CartDrawer />
-            <FreedomSaleModal />
-            <LayoutClientWrapper />
-          </CartProvider>
+              <CartDrawer />
+              <FreedomSaleModal />
+              <LayoutClientWrapper />
+            </CartProvider>
+          </AuthProvider>
         </SmoothScrollProvider>
       </body>
     </html>

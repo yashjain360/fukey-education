@@ -11,19 +11,18 @@ import {
   Menu,
   X,
   ChevronDown,
-  BookOpen,
   GraduationCap,
-  Sparkles,
   Layers,
-  PhoneCall,
-  Percent
+  Sparkles
 } from "lucide-react";
 import { useCart } from "@/components/cart/CartContext";
+import { useAuth } from "@/components/auth/AuthContext";
 import GlobalSearchModal from "./GlobalSearchModal";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { cart, wishlist, setIsCartOpen } = useCart();
+  const { user, isAuthenticated } = useAuth();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -106,7 +105,7 @@ export default function Navbar() {
                   onMouseLeave={() => setIsCategoriesOpen(false)}
                 >
                   <div className="text-[11px] font-bold text-slate-400 px-3 py-1.5 uppercase tracking-wider">
-                    Select Grade & Stream
+                    Select Grade &amp; Stream
                   </div>
                   {categories.map((cat, idx) => (
                     <Link
@@ -170,7 +169,7 @@ export default function Navbar() {
             >
               <Heart className="w-5 h-5" />
               {wishlist.length > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-sm animate-scale">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-sm">
                   {wishlist.length}
                 </span>
               )}
@@ -192,11 +191,11 @@ export default function Navbar() {
 
             {/* Student Login / Profile */}
             <Link
-              href="/login"
-              className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white text-xs font-bold shadow-md shadow-indigo-950/10 hover:shadow-lg hover:brightness-110 transition-all"
+              href={isAuthenticated ? (user?.role === "instructor" ? "/instructor/dashboard" : "/dashboard") : "/login"}
+              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white text-xs font-bold shadow-md shadow-indigo-950/10 hover:shadow-lg hover:brightness-110 transition-all"
             >
               <User className="w-3.5 h-3.5" />
-              <span>Student Portal</span>
+              <span>{isAuthenticated ? (user?.name || "My Dashboard") : "Student Portal"}</span>
             </Link>
 
             {/* Mobile Hamburger Toggle */}
@@ -250,11 +249,11 @@ export default function Navbar() {
 
             <div className="pt-2 flex items-center justify-between border-t border-slate-100">
               <Link
-                href="/login"
+                href={isAuthenticated ? "/dashboard" : "/login"}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 rounded-xl bg-[#050071] text-white text-xs font-bold"
               >
-                Sign In to Student Portal
+                {isAuthenticated ? "Go to Dashboard" : "Sign In to Student Portal"}
               </Link>
             </div>
           </div>
