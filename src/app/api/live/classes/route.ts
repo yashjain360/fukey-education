@@ -70,10 +70,12 @@ export async function POST(request: Request) {
       title: body.title || "Live Interactive Lecture",
       subject: body.subject || "Mathematics",
       targetClass: body.targetClass || "Class 10",
+      targetBatches: body.targetBatches || ["all"],
+      selectedStudents: body.selectedStudents || ["all"],
       medium: body.medium || "Hindi & English",
       instructor: body.instructor || "Pawan Gupta",
       instructorAvatar: body.instructorAvatar || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-06-15-02-14-08-1645.webp",
-      status: "LIVE_NOW",
+      status: body.status || "LIVE_NOW",
       scheduledTime: body.scheduledTime || "Live Now",
       participantsCount: 1,
       isRecording: true,
@@ -101,6 +103,21 @@ export async function PATCH(request: Request) {
     );
 
     return NextResponse.json({ success: true, updated: updates });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const roomId = searchParams.get("roomId");
+    if (!roomId) return NextResponse.json({ success: false, error: "roomId is required" }, { status: 400 });
+
+    const db = await getDatabase();
+    await db.collection("live_classes").deleteOne({ roomId });
+
+    return NextResponse.json({ success: true, deletedRoomId: roomId });
   } catch (error) {
     return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
   }

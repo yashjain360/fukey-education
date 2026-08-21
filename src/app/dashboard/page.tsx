@@ -131,6 +131,10 @@ export default function StudentDashboardPage() {
     }
   ]);
 
+  // Test History & Live Classes State
+  const [testHistory, setTestHistory] = useState<any[]>([]);
+  const [liveClasses, setLiveClasses] = useState<any[]>([]);
+
   useEffect(() => {
     fetch("/api/courses")
       .then((res) => res.json())
@@ -138,7 +142,21 @@ export default function StudentDashboardPage() {
         if (data.courses && data.courses.length > 0) setCourses(data.courses);
       })
       .catch(() => {});
-  }, []);
+
+    fetch(`/api/tests/history?email=${encodeURIComponent(user?.email || "mayank@fukeyeducation.com")}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.history && data.history.length > 0) setTestHistory(data.history);
+      })
+      .catch(() => {});
+
+    fetch("/api/live/classes")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.classes && data.classes.length > 0) setLiveClasses(data.classes);
+      })
+      .catch(() => {});
+  }, [user?.email]);
 
   const handleLogout = () => {
     logout();
@@ -600,59 +618,200 @@ export default function StudentDashboardPage() {
                     <h2 className="text-xl font-black text-slate-900">Today&apos;s Live Classroom Schedule</h2>
                     <p className="text-xs text-slate-500">Interactive live streaming with digital whiteboard and 1-on-1 audio doubt queue</p>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-red-100 text-red-600 font-black text-xs">
-                    ● BROADCASTING
+                  <span className="px-3 py-1 rounded-full bg-red-100 text-red-600 font-black text-xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
+                    <span>BROADCASTING</span>
                   </span>
                 </div>
 
-                <div className="p-6 rounded-3xl bg-[#050071] text-white space-y-4 shadow-lg">
-                  <div className="text-xs text-orange-300 font-extrabold uppercase tracking-wider">
-                    Class 10th CBSE Mathematics
-                  </div>
-                  <h3 className="text-xl font-black">Chapter 4: Quadratic Equations - Fast Track Shortcuts</h3>
-                  <div className="text-xs text-indigo-200">
-                    Faculty: Pawan Gupta • Today 5:00 PM – 6:30 PM IST
-                  </div>
-                  <Link
-                    href="/live/room-maths-10-quadratics"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-md transition-all hover:scale-105"
-                  >
-                    <Video className="w-4 h-4" />
-                    <span>Join Live Studio Now</span>
-                  </Link>
+                <div className="space-y-4">
+                  {(liveClasses.length > 0 ? liveClasses : [
+                    {
+                      roomId: "room-maths-10-quadratics",
+                      title: "Chapter 4: Quadratic Equations - Fast Track Shortcuts",
+                      subject: "Mathematics",
+                      targetClass: "Class 10th CBSE",
+                      instructor: "Pawan Gupta",
+                      scheduledTime: "Today 5:00 PM – 6:30 PM IST",
+                      status: "LIVE_NOW"
+                    },
+                    {
+                      roomId: "room-physics-12-optics",
+                      title: "Ray Optics Derivations & Board PYQs",
+                      subject: "Physics",
+                      targetClass: "Class 12th Board",
+                      instructor: "Arya Dubey",
+                      scheduledTime: "Today 6:30 PM – 8:00 PM IST",
+                      status: "UPCOMING"
+                    }
+                  ]).map((lc, idx) => (
+                    <div
+                      key={lc.roomId || idx}
+                      className="p-6 rounded-3xl bg-[#050071] text-white space-y-3 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-orange-300 font-extrabold uppercase tracking-wider">
+                            {lc.targetClass || "Class 10"} • {lc.subject}
+                          </span>
+                          {lc.status === "LIVE_NOW" && (
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">
+                              ● Live Now
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-lg sm:text-xl font-black">{lc.title}</h3>
+                        <div className="text-xs text-indigo-200">
+                          Faculty: {lc.instructor} • {lc.scheduledTime}
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/live/${lc.roomId || "room-maths-10-quadratics"}`}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white font-black text-xs shadow-md transition-all hover:scale-105 whitespace-nowrap cursor-pointer"
+                      >
+                        <Video className="w-4 h-4" />
+                        <span>Join Live Studio</span>
+                      </Link>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* TAB 4: ONLINE TEST SERIES */}
+            {/* TAB 4: ONLINE TEST SERIES & PERFORMANCE HISTORY */}
             {activeTab === "tests" && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900">Board Mock Test Series</h2>
-                    <p className="text-xs text-slate-500">Proctored assessments with anti-cheating security and percentile rank</p>
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-8">
+                {/* Available Tests */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-black text-slate-900">Available Board Mock Tests</h2>
+                      <p className="text-xs text-slate-500">Proctored assessments with anti-cheating security, rough scratchpad, and formula sheet</p>
+                    </div>
+                    <Link
+                      href="/test-series"
+                      className="text-xs font-bold text-[#5751E1] hover:underline"
+                    >
+                      View Full Catalog →
+                    </Link>
                   </div>
-                  <Link
-                    href="/test-series"
-                    className="text-xs font-bold text-[#5751E1] hover:underline"
-                  >
-                    View All Tests
-                  </Link>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between space-y-3">
+                      <div className="space-y-1">
+                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-extrabold uppercase">
+                          Class 10 • Mathematics
+                        </span>
+                        <div className="font-extrabold text-sm text-slate-900">
+                          Full Chapter Test (Quadratic Equations & AP)
+                        </div>
+                        <div className="text-xs text-slate-500">45 Minutes • 20 Marks • Anti-Cheating Monitored</div>
+                      </div>
+                      <div className="pt-2">
+                        <Link
+                          href="/test/test-maths-10-quadratics"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white font-bold text-xs shadow-sm hover:scale-102 transition-all"
+                        >
+                          <Play className="w-3.5 h-3.5 fill-current" />
+                          <span>Start Assessment</span>
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between space-y-3">
+                      <div className="space-y-1">
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold uppercase">
+                          Class 10 • Science
+                        </span>
+                        <div className="font-extrabold text-sm text-slate-900">
+                          Chemical Reactions & Equations Board Mock
+                        </div>
+                        <div className="text-xs text-slate-500">60 Minutes • 25 Marks • Anti-Cheating Monitored</div>
+                      </div>
+                      <div className="pt-2">
+                        <Link
+                          href="/test/test-maths-10-quadratics"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white font-bold text-xs shadow-sm hover:scale-102 transition-all"
+                        >
+                          <Play className="w-3.5 h-3.5 fill-current" />
+                          <span>Start Assessment</span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="font-extrabold text-sm text-slate-900">
-                      Class 10th Mathematics: Full Chapter Test (Quadratic Equations)
+                {/* Completed Test History & Performance Analytics */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-black text-slate-900">Completed Test History &amp; Scorecards</h3>
+                      <p className="text-xs text-slate-500">Detailed question-by-question breakdown, accuracy percentage, and state percentile rank</p>
                     </div>
-                    <div className="text-xs text-slate-500">45 Minutes • 20 Marks • Anti-Cheating Monitored</div>
+                    <span className="text-xs font-extrabold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                      {testHistory.length > 0 ? `${testHistory.length} Attempts Logged` : "1 Attempt Logged"}
+                    </span>
                   </div>
-                  <Link
-                    href="/test/test-maths-10-quadratics"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white font-bold text-xs shadow-sm"
-                  >
-                    Start Test
-                  </Link>
+
+                  <div className="space-y-3">
+                    {(testHistory.length > 0 ? testHistory : [
+                      {
+                        id: "res-sample-1",
+                        testId: "test-maths-10-quadratics",
+                        testTitle: "Class 10th Mathematics: Quadratic Equations & AP Mock",
+                        totalScore: 16,
+                        maxScore: 20,
+                        percentage: 80,
+                        accuracy: 80,
+                        percentile: 94.2,
+                        correctCount: 4,
+                        incorrectCount: 1,
+                        unattemptedCount: 0,
+                        securityStrikes: 0,
+                        integrityPassed: true,
+                        timeTakenSeconds: 960,
+                        submittedAt: "2026-08-20T14:30:00Z"
+                      }
+                    ]).map((h, idx) => (
+                      <div
+                        key={h.id || idx}
+                        className="p-5 rounded-2xl border border-slate-200 bg-white shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-indigo-300 transition-all"
+                      >
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
+                              ✓ {h.integrityPassed !== false ? "Integrity Verified" : "Strikes Logged"}
+                            </span>
+                            <span className="text-xs text-slate-400 font-medium">
+                              {new Date(h.submittedAt).toLocaleDateString("en-IN", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric"
+                              })}
+                            </span>
+                          </div>
+                          <h4 className="font-extrabold text-sm text-slate-900">
+                            {h.testTitle || "Class 10th Mathematics Assessment"}
+                          </h4>
+                          <div className="text-xs text-slate-500 flex items-center gap-3">
+                            <span>Score: <strong className="text-[#050071] font-black">{h.totalScore} / {h.maxScore}</strong></span>
+                            <span>•</span>
+                            <span>Accuracy: <strong className="text-emerald-600 font-bold">{h.accuracy}%</strong></span>
+                            <span>•</span>
+                            <span>Percentile: <strong className="text-indigo-600 font-bold">{h.percentile}th</strong></span>
+                          </div>
+                        </div>
+
+                        <Link
+                          href={`/test/${h.testId || "test-maths-10-quadratics"}`}
+                          className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-[#050071] hover:text-white text-slate-700 text-xs font-bold transition-all text-center"
+                        >
+                          Review Solution
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}

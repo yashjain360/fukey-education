@@ -65,6 +65,7 @@ export default function InstructorDashboardPage() {
 
   // Course Studio Modal State
   const [isCourseStudioOpen, setIsCourseStudioOpen] = useState(false);
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form Fields
@@ -88,6 +89,64 @@ export default function InstructorDashboardPage() {
     "Weekly Board Pattern Mock Tests"
   ]);
   const [newFeatureText, setNewFeatureText] = useState("");
+
+  const handleOpenCourseStudio = (course?: Course) => {
+    if (course) {
+      setEditingCourseId(course.id);
+      setTitle(course.title);
+      setSubTitle(course.subTitle || `Complete CBSE & State Board coaching for ${course.title}`);
+      setTargetClass(course.class || "Class 10");
+      setSubject(course.subject || "Mathematics");
+      setLanguage(course.language || "Hindi & English");
+      setPrice(course.price || 1499);
+      setOriginalPrice(course.originalPrice || 2499);
+      setInstructorName(course.instructor || user?.name || "Pawan Gupta");
+      setInstructorRole(course.instructorRole || "Senior Board Faculty Lead");
+      setDuration(course.duration || "60 Hours Live");
+      setLessonsCount(course.lessonsCount || 45);
+      setDescription(course.description || "Comprehensive live online board preparation batch mapped 100% to NCERT curriculum with daily 15-minute doubt solving.");
+      setThumbnail(course.thumbnail || "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png");
+      setFeatures(course.features && course.features.length > 0 ? course.features : [
+        "100% NCERT Syllabus Coverage",
+        "Live 1-on-1 Voice Doubt Room",
+        "Handwritten Formula PDF Notes",
+        "Weekly Board Pattern Mock Tests"
+      ]);
+    } else {
+      setEditingCourseId(null);
+      setTitle("");
+      setSubTitle("");
+      setTargetClass("Class 10");
+      setSubject("Mathematics");
+      setLanguage("Hindi & English");
+      setPrice(1499);
+      setOriginalPrice(2499);
+      setInstructorName(user?.name || "Pawan Gupta");
+      setInstructorRole("Senior Board Faculty Lead");
+      setDuration("60 Hours Live");
+      setLessonsCount(45);
+      setDescription("Comprehensive live online board preparation batch mapped 100% to NCERT curriculum with daily 15-minute doubt solving.");
+      setThumbnail("https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png");
+      setFeatures([
+        "100% NCERT Syllabus Coverage",
+        "Live 1-on-1 Voice Doubt Room",
+        "Handwritten Formula PDF Notes",
+        "Weekly Board Pattern Mock Tests"
+      ]);
+    }
+    setIsCourseStudioOpen(true);
+  };
+
+  const handleDeleteCourse = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this course batch?")) return;
+    try {
+      await fetch(`/api/courses?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      setCourses((prev) => prev.filter((c) => c.id !== id && c.slug !== id));
+      triggerConfetti();
+    } catch (err) {
+      console.error("Course deletion failed", err);
+    }
+  };
 
   // Doubts Q&A State
   const [replyModalOpen, setReplyModalOpen] = useState(false);
@@ -135,6 +194,17 @@ export default function InstructorDashboardPage() {
     { id: "PAY-JUL-2026", month: "July 2026", amount: 52000, status: "Settled", date: "2026-07-01" }
   ]);
 
+  // Live Class Scheduling State
+  const [liveClasses, setLiveClasses] = useState<any[]>([]);
+  const [isCreateLiveModalOpen, setIsCreateLiveModalOpen] = useState(false);
+  const [newLiveTitle, setNewLiveTitle] = useState("");
+  const [newLiveSubject, setNewLiveSubject] = useState("Mathematics");
+  const [newLiveClass, setNewLiveClass] = useState("Class 10");
+  const [newLiveBatch, setNewLiveBatch] = useState("All Enrolled Batches");
+  const [newLiveStudentTarget, setNewLiveStudentTarget] = useState("all_enrolled");
+  const [newLiveScheduledTime, setNewLiveScheduledTime] = useState("Today • 5:00 PM IST");
+  const [isCreatingLive, setIsCreatingLive] = useState(false);
+
   useEffect(() => {
     fetch("/api/courses")
       .then((res) => res.json())
@@ -143,6 +213,13 @@ export default function InstructorDashboardPage() {
       })
       .catch(() => {})
       .finally(() => setIsLoading(false));
+
+    fetch("/api/live/classes")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.classes && data.classes.length > 0) setLiveClasses(data.classes);
+      })
+      .catch(() => {});
   }, []);
 
   const handleLogout = () => {
@@ -188,63 +265,145 @@ export default function InstructorDashboardPage() {
     setFeatures((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const handleOpenCreateLiveModal = () => {
+    setNewLiveTitle("");
+    setNewLiveSubject("Mathematics");
+    setNewLiveClass("Class 10");
+    setNewLiveBatch("All Enrolled Batches");
+    setNewLiveStudentTarget("all_enrolled");
+    setNewLiveScheduledTime("Today • 5:00 PM IST");
+    setIsCreateLiveModalOpen(true);
+  };
+
+  const handleCreateLiveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsCreatingLive(true);
+
+    try {
+      const roomId = `room-${newLiveSubject.toLowerCase().replace(/[^a-z0-9]/g, "")}-${newLiveClass.replace(/[^0-9]/g, "")}-${Date.now().toString(36)}`;
+      const res = await fetch("/api/live/classes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomId,
+          title: newLiveTitle,
+          subject: newLiveSubject,
+          targetClass: newLiveClass,
+          targetBatches: [newLiveBatch],
+          selectedStudents: [newLiveStudentTarget],
+          medium: "Hindi & English",
+          instructor: user?.name || "Pawan Gupta",
+          status: "LIVE_NOW",
+          scheduledTime: newLiveScheduledTime,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.liveClass) {
+        setLiveClasses((prev) => [data.liveClass, ...prev]);
+        setIsCreateLiveModalOpen(false);
+        triggerConfetti();
+        router.push(`/live/${data.liveClass.roomId}`);
+      }
+    } catch (err) {
+      console.error("Live class creation failed", err);
+    } finally {
+      setIsCreatingLive(false);
+    }
+  };
+
+  const handleDeleteLiveClass = async (roomId: string) => {
+    if (!confirm("Are you sure you want to end and delete this live classroom?")) return;
+    try {
+      await fetch(`/api/live/classes?roomId=${encodeURIComponent(roomId)}`, { method: "DELETE" });
+      setLiveClasses((prev) => prev.filter((lc) => lc.roomId !== roomId));
+      triggerConfetti();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleCreateCourseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
       const classNum = parseInt(targetClass.replace(/[^0-9]/g, ""), 10) || 10;
-      const res = await fetch("/api/courses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          subTitle: subTitle || `Complete CBSE & State Board coaching for ${title}`,
-          class: targetClass,
-          classNum,
-          subject,
-          language,
-          price: Number(price),
-          originalPrice: Number(originalPrice),
-          discountPercent: Math.round(((originalPrice - price) / originalPrice) * 100) || 40,
-          instructor: instructorName,
-          instructorRole,
-          duration,
-          lessonsCount: Number(lessonsCount),
-          description,
-          thumbnail,
-          features,
-          curriculum: [
-            {
-              moduleTitle: "Unit 1: Core Concepts & NCERT Derivations",
-              duration: "20 Hours",
-              topics: ["Live Lecture 1: Foundational Theory", "Live Lecture 2: Board Derivations", "Live Doubt Room"]
-            },
-            {
-              moduleTitle: "Unit 2: Previous Year Question Analysis (PYQs)",
-              duration: "25 Hours",
-              topics: ["10-Year Question Bank Solving", "Speed & Accuracy Tricks"]
-            },
-            {
-              moduleTitle: "Unit 3: Full Syllabus Mock Tests & Formula Revision",
-              duration: "15 Hours",
-              topics: ["Full Length Test Discussion", "Final Exam Strategy & Mark Booster"]
-            }
-          ]
-        }),
-      });
+      const coursePayload = {
+        title,
+        subTitle: subTitle || `Complete CBSE & State Board coaching for ${title}`,
+        class: targetClass,
+        classNum,
+        subject,
+        language,
+        price: Number(price),
+        originalPrice: Number(originalPrice),
+        discountPercent: Math.round(((originalPrice - price) / originalPrice) * 100) || 40,
+        instructor: instructorName,
+        instructorRole,
+        duration,
+        lessonsCount: Number(lessonsCount),
+        description,
+        thumbnail,
+        features,
+      };
 
-      const data = await res.json();
-      if (data.success && data.course) {
-        setCourses((prev) => [data.course, ...prev]);
-        setIsCourseStudioOpen(false);
-        triggerConfetti();
-        setTitle("");
-        setSubTitle("");
-        router.push(`/course/${data.course.slug}`);
+      if (editingCourseId) {
+        const res = await fetch("/api/courses", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editingCourseId,
+            ...coursePayload,
+          }),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          setCourses((prev) =>
+            prev.map((c) => (c.id === editingCourseId ? { ...c, ...coursePayload } : c))
+          );
+          setIsCourseStudioOpen(false);
+          triggerConfetti();
+        }
+      } else {
+        const res = await fetch("/api/courses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...coursePayload,
+            curriculum: [
+              {
+                moduleTitle: "Unit 1: Core Concepts & NCERT Derivations",
+                duration: "20 Hours",
+                topics: ["Live Lecture 1: Foundational Theory", "Live Lecture 2: Board Derivations", "Live Doubt Room"]
+              },
+              {
+                moduleTitle: "Unit 2: Previous Year Question Analysis (PYQs)",
+                duration: "25 Hours",
+                topics: ["10-Year Question Bank Solving", "Speed & Accuracy Tricks"]
+              },
+              {
+                moduleTitle: "Unit 3: Full Syllabus Mock Tests & Formula Revision",
+                duration: "15 Hours",
+                topics: ["Full Length Test Discussion", "Final Exam Strategy & Mark Booster"]
+              }
+            ]
+          }),
+        });
+
+        const data = await res.json();
+        if (data.success && data.course) {
+          setCourses((prev) => [data.course, ...prev]);
+          setIsCourseStudioOpen(false);
+          triggerConfetti();
+          setTitle("");
+          setSubTitle("");
+          router.push(`/course/${data.course.slug}`);
+        }
       }
     } catch (err) {
-      console.error("Course creation failed", err);
+      console.error("Course submission failed", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -557,7 +716,7 @@ export default function InstructorDashboardPage() {
                     </div>
 
                     <button
-                      onClick={() => setIsCourseStudioOpen(true)}
+                      onClick={() => handleOpenCourseStudio()}
                       className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -572,7 +731,7 @@ export default function InstructorDashboardPage() {
                     .map((c) => (
                       <div
                         key={c.id}
-                        className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                        className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:border-indigo-300"
                       >
                         <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
                           <img
@@ -608,14 +767,31 @@ export default function InstructorDashboardPage() {
                             <div className="font-black text-base text-[#050071]">
                               {formatPrice(c.price, currency)}
                             </div>
-                            <Link
-                              href={`/course/${c.slug}`}
-                              target="_blank"
-                              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#5751E1] hover:text-white text-slate-700 text-xs font-bold transition-all flex items-center gap-1"
-                            >
-                              <span>Preview</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </Link>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => handleOpenCourseStudio(c)}
+                                className="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-[#5751E1] hover:text-white text-[#5751E1] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                                title="Edit Course Batch"
+                              >
+                                <Edit className="w-3 h-3" />
+                                <span>Edit</span>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteCourse(c.id)}
+                                className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 transition-colors cursor-pointer"
+                                title="Delete Course"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                              <Link
+                                href={`/course/${c.slug}`}
+                                target="_blank"
+                                className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1"
+                                title="Preview Page"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                              </Link>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -635,44 +811,92 @@ export default function InstructorDashboardPage() {
             {/* TAB 3: LIVE CLASSES */}
             {activeTab === "live" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                       <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping" />
-                      <span>Live Classroom Hub</span>
+                      <span>Live Classroom Broadcast Hub</span>
                     </h2>
-                    <p className="text-xs text-slate-500">Launch interactive video lecture studios with digital whiteboard &amp; doubt rooms</p>
+                    <p className="text-xs text-slate-500">Launch interactive video lecture studios with digital whiteboard, batch access control &amp; live doubt queues</p>
                   </div>
 
-                  <Link
-                    href="/live/room-maths-10-quadratics"
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs shadow-md flex items-center gap-2 transition-all hover:scale-105"
+                  <button
+                    onClick={handleOpenCreateLiveModal}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-bold text-xs shadow-md flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
                   >
-                    <Video className="w-4 h-4 animate-pulse" />
-                    <span>Launch Studio Room</span>
-                  </Link>
+                    <Plus className="w-4 h-4" />
+                    <span>Schedule / Start Live Class</span>
+                  </button>
                 </div>
 
-                <div className="p-6 rounded-3xl bg-gradient-to-br from-[#050071] to-[#1C1A4A] text-white space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase border border-emerald-400/30">
-                      Broadcasting Room
-                    </span>
-                    <span className="text-xs text-slate-300">42 Students Waiting</span>
-                  </div>
-
-                  <h3 className="font-extrabold text-lg">Class 10th Maths: Quadratic Equations</h3>
-                  <p className="text-xs text-slate-300">Digital Pen-Tablet Whiteboard + 45-Min Lecture + 15-Min Live Doubt Queue</p>
-
-                  <div className="pt-2">
-                    <Link
-                      href="/live/room-maths-10-quadratics"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white text-xs font-black transition-all hover:scale-105"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {(liveClasses.length > 0 ? liveClasses : [
+                    {
+                      roomId: "room-maths-10-quadratics",
+                      title: "Class 10th Maths: Quadratic Equations & Board Short-cuts",
+                      subject: "Mathematics",
+                      targetClass: "Class 10",
+                      targetBatches: ["Class 10th Complete Mathematics"],
+                      selectedStudents: ["all_enrolled"],
+                      scheduledTime: "Today • 5:00 PM",
+                      status: "LIVE_NOW"
+                    },
+                    {
+                      roomId: "room-physics-12-optics",
+                      title: "Class 12th Physics: Ray Optics Derivations & Numerical Tricks",
+                      subject: "Physics",
+                      targetClass: "Class 12",
+                      targetBatches: ["All Enrolled Batches"],
+                      selectedStudents: ["all_enrolled"],
+                      scheduledTime: "Today • 6:30 PM",
+                      status: "UPCOMING"
+                    }
+                  ]).map((lc, idx) => (
+                    <div
+                      key={lc.roomId || idx}
+                      className="p-6 rounded-3xl bg-gradient-to-br from-[#050071] to-[#1C1A4A] text-white space-y-4 flex flex-col justify-between shadow-md"
                     >
-                      <Video className="w-4 h-4" />
-                      <span>Enter Live Studio</span>
-                    </Link>
-                  </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase border border-emerald-400/30">
+                            {lc.status === "LIVE_NOW" ? "● Broadcasting Room" : "⏰ Scheduled Session"}
+                          </span>
+                          <button
+                            onClick={() => handleDeleteLiveClass(lc.roomId)}
+                            className="text-slate-400 hover:text-rose-400 p-1 transition-colors cursor-pointer"
+                            title="End / Delete Room"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <h3 className="font-extrabold text-base line-clamp-2">{lc.title}</h3>
+                        <div className="text-xs text-indigo-200">
+                          {lc.targetClass} • {lc.subject} • {lc.scheduledTime}
+                        </div>
+
+                        <div className="pt-2 flex flex-wrap gap-1.5 text-[10px]">
+                          <span className="px-2.5 py-0.5 rounded-md bg-white/10 text-slate-300">
+                            Batch: {lc.targetBatches?.[0] || "All Enrolled"}
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-md bg-white/10 text-emerald-300">
+                            Access: {lc.selectedStudents?.[0] === "open_masterclass" ? "Open Public" : "Enrolled Students"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                        <span className="text-xs text-slate-300">45-Min Lecture + 15-Min Doubts</span>
+                        <Link
+                          href={`/live/${lc.roomId || "room-maths-10-quadratics"}`}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF2424] hover:bg-red-700 text-white text-xs font-black transition-all hover:scale-105"
+                        >
+                          <Video className="w-3.5 h-3.5" />
+                          <span>Enter Studio</span>
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -1003,14 +1227,18 @@ export default function InstructorDashboardPage() {
           </div>
         )}
 
-        {/* MODAL: CREATE COURSE STUDIO */}
+        {/* MODAL: CREATE / EDIT COURSE STUDIO */}
         {isCourseStudioOpen && (
           <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
             <div className="relative w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="space-y-0.5">
-                  <h3 className="text-lg font-black text-slate-900">Academic Course Creator Studio</h3>
-                  <p className="text-xs text-slate-500">Deploy a full CBSE / State Board curriculum batch to the platform catalog</p>
+                  <h3 className="text-lg font-black text-slate-900">
+                    {editingCourseId ? "Edit Academic Course Batch" : "Academic Course Creator Studio"}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {editingCourseId ? "Update curriculum details, pricing, educator and learning highlights" : "Deploy a full CBSE / State Board curriculum batch to the platform catalog"}
+                  </p>
                 </div>
                 <button
                   onClick={() => setIsCourseStudioOpen(false)}
@@ -1212,7 +1440,160 @@ export default function InstructorDashboardPage() {
                     disabled={isSubmitting}
                     className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] hover:brightness-110 text-white font-black shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
                   >
-                    {isSubmitting ? "Publishing to Platform..." : "Publish Course to Catalog"}
+                    {isSubmitting
+                      ? editingCourseId
+                        ? "Saving Batch..."
+                        : "Publishing to Platform..."
+                      : editingCourseId
+                      ? "Save Batch Changes"
+                      : "Publish Course to Catalog"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: SCHEDULE & LAUNCH LIVE CLASS */}
+        {isCreateLiveModalOpen && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+            <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="space-y-0.5">
+                  <h3 className="font-black text-base text-slate-900 flex items-center gap-2">
+                    <Video className="w-4 h-4 text-[#FF2424]" />
+                    <span>Schedule / Launch Live Class Studio</span>
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Configure classroom targeting, select eligible batch and student cohorts
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsCreateLiveModalOpen(false)}
+                  className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateLiveSubmit} className="space-y-3.5 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Lecture Topic / Chapter Headline</label>
+                  <input
+                    type="text"
+                    required
+                    value={newLiveTitle}
+                    onChange={(e) => setNewLiveTitle(e.target.value)}
+                    placeholder="e.g. Chapter 4: Quadratic Equations - Fast Track Shortcuts"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Target Class</label>
+                    <select
+                      value={newLiveClass}
+                      onChange={(e) => setNewLiveClass(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
+                    >
+                      <option value="Class 9">Class 9</option>
+                      <option value="Class 10">Class 10</option>
+                      <option value="Class 11">Class 11</option>
+                      <option value="Class 12">Class 12</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Subject</label>
+                    <select
+                      value={newLiveSubject}
+                      onChange={(e) => setNewLiveSubject(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
+                    >
+                      <option value="Mathematics">Mathematics</option>
+                      <option value="Science">Science (PCB)</option>
+                      <option value="Physics">Physics</option>
+                      <option value="Chemistry">Chemistry</option>
+                      <option value="Biology">Biology</option>
+                      <option value="Social Science">Social Science</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Target Batch Selection</label>
+                  <select
+                    value={newLiveBatch}
+                    onChange={(e) => setNewLiveBatch(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
+                  >
+                    <option value="All Enrolled Batches">All Enrolled Batches in {newLiveClass}</option>
+                    {courses
+                      .filter((c) => !newLiveClass || c.class === newLiveClass)
+                      .map((c) => (
+                        <option key={c.id} value={c.title}>
+                          {c.title}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Student Access Control</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setNewLiveStudentTarget("all_enrolled")}
+                      className={`p-2.5 rounded-xl border text-center font-bold transition-all cursor-pointer ${
+                        newLiveStudentTarget === "all_enrolled"
+                          ? "bg-[#050071] text-white border-[#050071]"
+                          : "bg-slate-50 border-slate-200 text-slate-700"
+                      }`}
+                    >
+                      Enrolled Students Only
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewLiveStudentTarget("open_masterclass")}
+                      className={`p-2.5 rounded-xl border text-center font-bold transition-all cursor-pointer ${
+                        newLiveStudentTarget === "open_masterclass"
+                          ? "bg-[#050071] text-white border-[#050071]"
+                          : "bg-slate-50 border-slate-200 text-slate-700"
+                      }`}
+                    >
+                      Open Free Masterclass
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Scheduled Date &amp; Time</label>
+                  <input
+                    type="text"
+                    required
+                    value={newLiveScheduledTime}
+                    onChange={(e) => setNewLiveScheduledTime(e.target.value)}
+                    placeholder="e.g. Today • 5:00 PM – 6:30 PM IST"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateLiveModalOpen(false)}
+                    className="px-3.5 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isCreatingLive}
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#FF2424] hover:brightness-110 text-white font-bold shadow-md transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span>{isCreatingLive ? "Creating Studio..." : "Create & Launch Studio"}</span>
                   </button>
                 </div>
               </form>

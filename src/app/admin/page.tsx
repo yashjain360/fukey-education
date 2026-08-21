@@ -36,9 +36,10 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { triggerConfetti } from "@/lib/confetti";
 import { coursesData, Course } from "@/data/coursesData";
-import { instructorsData } from "@/data/instructorsData";
+import { instructorsData, Instructor } from "@/data/instructorsData";
 import { blogsData, BlogPost } from "@/data/blogsData";
 import Pagination from "@/components/ui/Pagination";
+import RichTextEditor from "@/components/ui/RichTextEditor";
 
 interface Lead {
   id: string;
@@ -110,12 +111,28 @@ export default function AdminDashboardPage() {
   // Courses State (Dynamic CRUD)
   const [courses, setCourses] = useState<Course[]>(coursesData);
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [newCourseTitle, setNewCourseTitle] = useState("");
   const [newCourseClass, setNewCourseClass] = useState("Class 10");
   const [newCourseSubject, setNewCourseSubject] = useState("Mathematics");
   const [newCourseInstructor, setNewCourseInstructor] = useState("Pawan Gupta");
   const [newCoursePrice, setNewCoursePrice] = useState(1499);
   const [isSavingCourse, setIsSavingCourse] = useState(false);
+
+  // Faculty State (Dynamic CRUD)
+  const [instructors, setInstructors] = useState<Instructor[]>(instructorsData);
+  const [isFacultyModalOpen, setIsFacultyModalOpen] = useState(false);
+  const [editingFacultyId, setEditingFacultyId] = useState<string | null>(null);
+  const [facultyName, setFacultyName] = useState("");
+  const [facultyRole, setFacultyRole] = useState("");
+  const [facultyDepartment, setFacultyDepartment] = useState("Science");
+  const [facultyExperience, setFacultyExperience] = useState("5+ Years Experience");
+  const [facultyQualification, setFacultyQualification] = useState("M.Sc., B.Ed.");
+  const [facultyPhoto, setFacultyPhoto] = useState("/images/instructors/kratika-rathore.webp");
+  const [facultyRating, setFacultyRating] = useState(4.9);
+  const [facultyCoursesCount, setFacultyCoursesCount] = useState(4);
+  const [facultyBio, setFacultyBio] = useState("");
+  const [isSavingFaculty, setIsSavingFaculty] = useState(false);
 
   // Modals State
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
@@ -134,8 +151,18 @@ export default function AdminDashboardPage() {
   const [newLeadNotes, setNewLeadNotes] = useState("");
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
-  // Broadcast State
-  const [broadcastAudience, setBroadcastAudience] = useState<"all_leads" | "enrolled" | "custom">("all_leads");
+  // Broadcast State (Multi-Audience Targeting)
+  type BroadcastAudience =
+    | "all_leads"
+    | "enrolled"
+    | "faculty"
+    | "class_9"
+    | "class_10"
+    | "class_11"
+    | "class_12"
+    | "custom";
+  const [broadcastAudience, setBroadcastAudience] = useState<BroadcastAudience>("all_leads");
+  const [customEmails, setCustomEmails] = useState("");
   const [broadcastSubject, setBroadcastSubject] = useState("Important Notice: Class 10th & 12th Board Live Revision Schedule");
   const [broadcastMessage, setBroadcastMessage] = useState("Dear Student,\n\nPlease find your upcoming live interactive batch schedule for CBSE & State Board revision.\n\nClasses commence sharp at 5:00 PM today on the Fukey Live Portal.\n\nTeam Fukey Education");
   const [isSendingBroadcast, setIsSendingBroadcast] = useState(false);
@@ -175,6 +202,13 @@ export default function AdminDashboardPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.courses && data.courses.length > 0) setCourses(data.courses);
+      })
+      .catch(() => {});
+
+    fetch("/api/instructors")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.instructors && data.instructors.length > 0) setInstructors(data.instructors);
       })
       .catch(() => {});
   };
@@ -354,30 +388,88 @@ export default function AdminDashboardPage() {
   };
 
   // Course Batch CRUD
-  const handleCreateCourse = async (e: React.FormEvent) => {
+  const handleOpenCourseModal = (course?: Course) => {
+    if (course) {
+      setEditingCourseId(course.id);
+      setNewCourseTitle(course.title);
+      setNewCourseClass(course.class || "Class 10");
+      setNewCourseSubject(course.subject || "Mathematics");
+      setNewCourseInstructor(course.instructor || "Pawan Gupta");
+      setNewCoursePrice(course.price || 1499);
+    } else {
+      setEditingCourseId(null);
+      setNewCourseTitle("");
+      setNewCourseClass("Class 10");
+      setNewCourseSubject("Mathematics");
+      setNewCourseInstructor("Pawan Gupta");
+      setNewCoursePrice(1499);
+    }
+    setIsCourseModalOpen(true);
+  };
+
+  const handleSaveCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingCourse(true);
 
     try {
-      const res = await fetch("/api/courses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newCourseTitle,
-          class: newCourseClass,
-          classNum: parseInt(newCourseClass.replace(/[^0-9]/g, ""), 10) || 10,
-          subject: newCourseSubject,
-          instructor: newCourseInstructor,
-          price: Number(newCoursePrice),
-          originalPrice: Number(newCoursePrice) + 1000,
-        }),
-      });
-      const data = await res.json();
-      if (data.success && data.course) {
-        setCourses((prev) => [data.course, ...prev]);
-        setIsCourseModalOpen(false);
-        setNewCourseTitle("");
-        triggerConfetti();
+      const classNum = parseInt(newCourseClass.replace(/[^0-9]/g, ""), 10) || 10;
+      if (editingCourseId) {
+        const res = await fetch("/api/courses", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editingCourseId,
+            title: newCourseTitle,
+            class: newCourseClass,
+            classNum,
+            subject: newCourseSubject,
+            instructor: newCourseInstructor,
+            price: Number(newCoursePrice),
+            originalPrice: Number(newCoursePrice) + 1000,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setCourses((prev) =>
+            prev.map((c) =>
+              c.id === editingCourseId
+                ? {
+                    ...c,
+                    title: newCourseTitle,
+                    class: newCourseClass,
+                    classNum,
+                    subject: newCourseSubject,
+                    instructor: newCourseInstructor,
+                    price: Number(newCoursePrice),
+                    originalPrice: Number(newCoursePrice) + 1000,
+                  }
+                : c
+            )
+          );
+          setIsCourseModalOpen(false);
+          triggerConfetti();
+        }
+      } else {
+        const res = await fetch("/api/courses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: newCourseTitle,
+            class: newCourseClass,
+            classNum,
+            subject: newCourseSubject,
+            instructor: newCourseInstructor,
+            price: Number(newCoursePrice),
+            originalPrice: Number(newCoursePrice) + 1000,
+          }),
+        });
+        const data = await res.json();
+        if (data.success && data.course) {
+          setCourses((prev) => [data.course, ...prev]);
+          setIsCourseModalOpen(false);
+          setNewCourseTitle("");
+          triggerConfetti();
+        }
       }
     } catch (err) {
       console.error(err);
@@ -397,7 +489,99 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Send Broadcast via SMTP
+  // Faculty Educators CRUD
+  const handleOpenFacultyModal = (inst?: Instructor) => {
+    if (inst) {
+      setEditingFacultyId(inst.id);
+      setFacultyName(inst.name);
+      setFacultyRole(inst.role || inst.designation || "Senior Faculty");
+      setFacultyDepartment(inst.department || "Academic Department");
+      setFacultyExperience(inst.experience || "5+ Years Experience");
+      setFacultyQualification(inst.qualification || "Post Graduate / B.Ed.");
+      setFacultyPhoto(inst.photo || inst.image || "/images/instructors/kratika-rathore.webp");
+      setFacultyRating(inst.rating || 4.9);
+      setFacultyCoursesCount(inst.coursesCount || 4);
+      setFacultyBio(inst.bio || "");
+    } else {
+      setEditingFacultyId(null);
+      setFacultyName("");
+      setFacultyRole("Senior Subject Faculty");
+      setFacultyDepartment("Mathematics");
+      setFacultyExperience("5+ Years Experience");
+      setFacultyQualification("M.Sc., B.Ed. (Gold Medalist)");
+      setFacultyPhoto("/images/instructors/pawan-gupta.webp");
+      setFacultyRating(4.95);
+      setFacultyCoursesCount(4);
+      setFacultyBio("Passionate board exam mentor dedicated to 100% concept clarity and doubt solving.");
+    }
+    setIsFacultyModalOpen(true);
+  };
+
+  const handleSaveFaculty = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingFaculty(true);
+
+    try {
+      const payload = {
+        name: facultyName,
+        role: facultyRole,
+        designation: facultyRole,
+        department: facultyDepartment,
+        experience: facultyExperience,
+        qualification: facultyQualification,
+        photo: facultyPhoto,
+        image: facultyPhoto,
+        rating: Number(facultyRating),
+        coursesCount: Number(facultyCoursesCount),
+        bio: facultyBio,
+      };
+
+      if (editingFacultyId) {
+        const res = await fetch("/api/instructors", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editingFacultyId, ...payload }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setInstructors((prev) =>
+            prev.map((inst) => (inst.id === editingFacultyId ? { ...inst, ...payload } : inst))
+          );
+          setIsFacultyModalOpen(false);
+          triggerConfetti();
+        }
+      } else {
+        const res = await fetch("/api/instructors", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success && data.instructor) {
+          setInstructors((prev) => [data.instructor, ...prev]);
+          setIsFacultyModalOpen(false);
+          triggerConfetti();
+        }
+      }
+    } catch (err) {
+      console.error("Save faculty failed", err);
+    } finally {
+      setIsSavingFaculty(false);
+    }
+  };
+
+  const handleDeleteFaculty = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this faculty profile?")) return;
+    try {
+      await fetch(`/api/instructors?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      setInstructors((prev) => prev.filter((inst) => inst.id !== id));
+      triggerConfetti();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Send Official Broadcast Notification
   const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSendingBroadcast(true);
@@ -407,8 +591,22 @@ export default function AdminDashboardPage() {
       recipients = leads.map((l) => l.email).filter(Boolean);
     } else if (broadcastAudience === "enrolled") {
       recipients = orders.map((o) => o.studentEmail).filter(Boolean);
-    } else {
-      recipients = ["mayank@fukeyeducation.com", "info@fukeyeducation.com"];
+    } else if (broadcastAudience === "faculty") {
+      recipients = instructors.map((i) => `${i.id}@fukeyeducation.com`);
+    } else if (broadcastAudience === "class_9") {
+      recipients = leads.filter((l) => l.targetClass?.includes("9")).map((l) => l.email).filter(Boolean);
+    } else if (broadcastAudience === "class_10") {
+      recipients = leads.filter((l) => l.targetClass?.includes("10")).map((l) => l.email).filter(Boolean);
+    } else if (broadcastAudience === "class_11") {
+      recipients = leads.filter((l) => l.targetClass?.includes("11")).map((l) => l.email).filter(Boolean);
+    } else if (broadcastAudience === "class_12") {
+      recipients = leads.filter((l) => l.targetClass?.includes("12")).map((l) => l.email).filter(Boolean);
+    } else if (broadcastAudience === "custom") {
+      recipients = customEmails.split(",").map((e) => e.trim()).filter(Boolean);
+    }
+
+    if (recipients.length === 0) {
+      recipients = ["info@fukeyeducation.com", "admissions@fukeyeducation.com"];
     }
 
     recipients = Array.from(new Set(recipients));
@@ -722,7 +920,7 @@ export default function AdminDashboardPage() {
             }`}
           >
             <Send className="w-3.5 h-3.5" />
-            <span>📢 SMTP Broadcaster</span>
+            <span>📢 Announcement Broadcast</span>
           </button>
         </div>
 
@@ -1165,7 +1363,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <button
-                onClick={() => setIsCourseModalOpen(true)}
+                onClick={() => handleOpenCourseModal()}
                 className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -1179,17 +1377,24 @@ export default function AdminDashboardPage() {
                 .map((course) => (
                   <div
                     key={course.id}
-                    className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3 flex flex-col justify-between group"
+                    className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3 flex flex-col justify-between group hover:border-indigo-300 transition-all"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-extrabold uppercase">
                           {course.class}
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <span className="text-xs font-black text-[#050071]">
                             ₹{course.price}
                           </span>
+                          <button
+                            onClick={() => handleOpenCourseModal(course)}
+                            className="text-slate-400 hover:text-[#5751E1] p-1 transition-colors cursor-pointer"
+                            title="Edit Batch"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
                           <button
                             onClick={() => handleDeleteCourse(course.id)}
                             className="text-slate-400 hover:text-rose-600 p-1 transition-colors cursor-pointer"
@@ -1229,42 +1434,80 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 5: FACULTY WORKLOAD */}
+        {/* TAB 5: FACULTY WORKLOAD & TEAM MANAGEMENT */}
         {activeTab === "faculty" && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
-            <div>
-              <h2 className="text-xl font-black text-slate-900">Faculty Educators &amp; Studio Workloads</h2>
-              <p className="text-xs text-slate-500">
-                Gold medalist faculty schedule, doubt room resolution ratings, and student feedback.
-              </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-slate-900">Faculty Educators &amp; Academic Team ({instructors.length})</h2>
+                <p className="text-xs text-slate-500">
+                  Manage educator profiles, board teaching specializations, doubt ratings, and assigned batch workloads.
+                </p>
+              </div>
+
+              <button
+                onClick={() => handleOpenFacultyModal()}
+                className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Faculty Member</span>
+              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {instructorsData
+              {instructors
                 .slice((facultyPage - 1) * 4, facultyPage * 4)
                 .map((inst) => (
                   <div
                     key={inst.id}
-                    className="p-5 rounded-2xl border border-slate-200 bg-white space-y-4 shadow-xs text-center flex flex-col items-center"
+                    className="p-5 rounded-2xl border border-slate-200 bg-white space-y-4 shadow-xs text-center flex flex-col items-center justify-between group hover:border-indigo-300 transition-all"
                   >
-                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 shadow-md border-2 border-indigo-100">
-                      <img src={inst.photo || inst.image || "/images/instructors/kratika-rathore.webp"} alt={inst.name} className="w-full h-full object-cover" />
-                    </div>
-
-                    <div className="space-y-0.5">
-                      <h3 className="font-black text-sm text-slate-900">{inst.name}</h3>
-                      <p className="text-xs text-indigo-600 font-bold">{inst.role || inst.department}</p>
-                      <p className="text-[11px] text-slate-400">{inst.experience} Experience</p>
-                    </div>
-
-                    <div className="w-full pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-center text-xs font-bold">
-                      <div className="p-2 rounded-xl bg-slate-50">
-                        <div className="text-slate-900 font-black">{inst.coursesCount}</div>
-                        <div className="text-[10px] text-slate-400">Batches</div>
+                    <div className="flex flex-col items-center space-y-3 w-full">
+                      <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 shadow-md border-2 border-indigo-100">
+                        <img
+                          src={inst.photo || inst.image || "/images/instructors/kratika-rathore.webp"}
+                          alt={inst.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/images/instructors/kratika-rathore.webp";
+                          }}
+                        />
                       </div>
-                      <div className="p-2 rounded-xl bg-emerald-50 text-emerald-800">
-                        <div className="font-black">{inst.rating} ★</div>
-                        <div className="text-[10px]">Rating</div>
+
+                      <div className="space-y-0.5 w-full">
+                        <h3 className="font-black text-sm text-slate-900 line-clamp-1">{inst.name}</h3>
+                        <p className="text-xs text-indigo-600 font-bold line-clamp-1">{inst.role || inst.designation || inst.department}</p>
+                        <p className="text-[11px] text-slate-400">{inst.experience}</p>
+                      </div>
+                    </div>
+
+                    <div className="w-full space-y-3">
+                      <div className="w-full pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-center text-xs font-bold">
+                        <div className="p-2 rounded-xl bg-slate-50">
+                          <div className="text-slate-900 font-black">{inst.coursesCount || 4}</div>
+                          <div className="text-[10px] text-slate-400">Batches</div>
+                        </div>
+                        <div className="p-2 rounded-xl bg-emerald-50 text-emerald-800">
+                          <div className="font-black">{inst.rating || 4.9} ★</div>
+                          <div className="text-[10px]">Rating</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-center gap-2 pt-1">
+                        <button
+                          onClick={() => handleOpenFacultyModal(inst)}
+                          className="flex-1 py-1.5 px-3 rounded-xl bg-indigo-50 hover:bg-[#5751E1] hover:text-white text-[#5751E1] text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteFaculty(inst.id)}
+                          className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 transition-colors cursor-pointer"
+                          title="Remove Faculty"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1273,7 +1516,7 @@ export default function AdminDashboardPage() {
 
             <Pagination
               currentPage={facultyPage}
-              totalItems={instructorsData.length}
+              totalItems={instructors.length}
               itemsPerPage={4}
               onPageChange={(page) => setFacultyPage(page)}
               pageSizeOptions={[4, 8, 12]}
@@ -1281,74 +1524,76 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 6: SMTP EMAIL BROADCAST CENTER */}
+        {/* TAB 6: OFFICIAL COMMUNICATION & ANNOUNCEMENT BROADCASTER */}
         {activeTab === "broadcast" && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6" data-aos="fade-up">
             <div>
               <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                <span>Direct SMTP Broadcaster</span>
+                <span>Official Notification &amp; Announcement Broadcaster</span>
                 <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-black">
-                  info@thewebvale.com
+                  Verified Dispatcher
                 </span>
               </h2>
               <p className="text-xs text-slate-500">
-                Send official timetable notices, batch announcements, and exam tips directly to leads or enrolled students.
+                Broadcast official timetable releases, batch commencement notices, and exam preparation guides across student &amp; faculty cohorts.
               </p>
             </div>
 
             {broadcastSuccessCount !== null && (
               <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-between animate-in fade-in">
-                <span>Successfully dispatched broadcast to {broadcastSuccessCount} recipients via SMTP!</span>
-                <button onClick={() => setBroadcastSuccessCount(null)} className="text-emerald-600 hover:text-emerald-900">
+                <span>Successfully dispatched official communication to {broadcastSuccessCount} recipients!</span>
+                <button onClick={() => setBroadcastSuccessCount(null)} className="text-emerald-600 hover:text-emerald-900 cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               </div>
             )}
 
-            <form onSubmit={handleSendBroadcast} className="space-y-4 max-w-2xl">
+            <form onSubmit={handleSendBroadcast} className="space-y-4 max-w-3xl">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Target Audience</label>
-                <div className="grid grid-cols-3 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setBroadcastAudience("all_leads")}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                      broadcastAudience === "all_leads"
-                        ? "bg-[#050071] text-white border-[#050071]"
-                        : "bg-slate-50 border-slate-200 text-slate-700"
-                    }`}
-                  >
-                    All Website Leads ({leads.length})
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setBroadcastAudience("enrolled")}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                      broadcastAudience === "enrolled"
-                        ? "bg-[#050071] text-white border-[#050071]"
-                        : "bg-slate-50 border-slate-200 text-slate-700"
-                    }`}
-                  >
-                    Enrolled Students ({orders.length})
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setBroadcastAudience("custom")}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                      broadcastAudience === "custom"
-                        ? "bg-[#050071] text-white border-[#050071]"
-                        : "bg-slate-50 border-slate-200 text-slate-700"
-                    }`}
-                  >
-                    Admin Test List
-                  </button>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Target Audience Cohort</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {[
+                    { id: "all_leads", label: `Prospective Leads (${leads.length})` },
+                    { id: "enrolled", label: `Enrolled Students (${orders.length})` },
+                    { id: "faculty", label: `Faculty Team (${instructors.length})` },
+                    { id: "class_9", label: "Class 9th Batches" },
+                    { id: "class_10", label: "Class 10th Batches" },
+                    { id: "class_11", label: "Class 11th Batches" },
+                    { id: "class_12", label: "Class 12th Batches" },
+                    { id: "custom", label: "Custom Email List" }
+                  ].map((aud) => (
+                    <button
+                      key={aud.id}
+                      type="button"
+                      onClick={() => setBroadcastAudience(aud.id as any)}
+                      className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
+                        broadcastAudience === aud.id
+                          ? "bg-[#050071] text-white border-[#050071] shadow-xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      {aud.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
+              {broadcastAudience === "custom" && (
+                <div className="animate-in fade-in">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Custom Recipient Email Addresses (Comma Separated)</label>
+                  <input
+                    type="text"
+                    required
+                    value={customEmails}
+                    onChange={(e) => setCustomEmails(e.target.value)}
+                    placeholder="student1@gmail.com, student2@gmail.com, parent@yahoo.com"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-medium focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              )}
+
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Announcement Subject</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Announcement Subject Headline</label>
                 <input
                   type="text"
                   required
@@ -1359,24 +1604,25 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Official Message Body</label>
-                <textarea
-                  rows={5}
-                  required
+                <RichTextEditor
+                  label="Official Announcement Body (Formatted with Live Preview)"
                   value={broadcastMessage}
-                  onChange={(e) => setBroadcastMessage(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-medium focus:outline-none focus:border-indigo-500"
+                  onChange={setBroadcastMessage}
+                  placeholder="Draft your announcement with bold text, bullet points, headers and links..."
+                  rows={6}
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={isSendingBroadcast}
-                className="px-6 py-3 rounded-xl bg-[#5751E1] hover:bg-indigo-700 text-white font-extrabold text-xs shadow-md flex items-center gap-2 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
-              >
-                <Send className="w-4 h-4" />
-                <span>{isSendingBroadcast ? "Dispatching Emails..." : "Send Official Broadcast"}</span>
-              </button>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isSendingBroadcast}
+                  className="px-6 py-3 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-extrabold text-xs shadow-md flex items-center gap-2 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{isSendingBroadcast ? "Dispatching Communication..." : "Send Official Announcement"}</span>
+                </button>
+              </div>
             </form>
           </div>
         )}
@@ -1477,14 +1723,13 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Full Article Body &amp; Markdown</label>
-                  <textarea
-                    rows={8}
-                    required
+                  <RichTextEditor
+                    label="Full Article Body & Markdown (with Live Formatted Preview)"
                     value={blogContent}
-                    onChange={(e) => setBlogContent(e.target.value)}
+                    onChange={setBlogContent}
                     placeholder="Write detailed subject concepts, study tips, or derivations..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-500 font-medium font-mono text-xs"
+                    rows={8}
+                    minHeight="200px"
                   />
                 </div>
 
@@ -1509,18 +1754,25 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* MODAL: CREATE COURSE BATCH */}
+        {/* MODAL: CREATE / EDIT COURSE BATCH */}
         {isCourseModalOpen && (
           <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
             <div className="relative w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 className="font-black text-base text-slate-900">Create New Academic Batch</h3>
-                <button onClick={() => setIsCourseModalOpen(false)} className="p-1.5 rounded-full bg-slate-100">
+                <div className="space-y-0.5">
+                  <h3 className="font-black text-base text-slate-900">
+                    {editingCourseId ? "Edit Academic Live Batch" : "Create New Academic Batch"}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {editingCourseId ? "Update batch syllabus, faculty lead, and fees" : "Deploy a new live classroom batch with schedule and pricing"}
+                  </p>
+                </div>
+                <button onClick={() => setIsCourseModalOpen(false)} className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <form onSubmit={handleCreateCourse} className="space-y-3 text-xs">
+              <form onSubmit={handleSaveCourse} className="space-y-3 text-xs">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Batch Name</label>
                   <input
@@ -1529,7 +1781,7 @@ export default function AdminDashboardPage() {
                     value={newCourseTitle}
                     onChange={(e) => setNewCourseTitle(e.target.value)}
                     placeholder="e.g. CLASS 10TH SCIENCE CRASH COURSE"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
                   />
                 </div>
 
@@ -1539,7 +1791,7 @@ export default function AdminDashboardPage() {
                     <select
                       value={newCourseClass}
                       onChange={(e) => setNewCourseClass(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
                     >
                       <option value="Class 9">Class 9</option>
                       <option value="Class 10">Class 10</option>
@@ -1555,7 +1807,7 @@ export default function AdminDashboardPage() {
                       required
                       value={newCourseSubject}
                       onChange={(e) => setNewCourseSubject(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
                     />
                   </div>
                 </div>
@@ -1568,7 +1820,7 @@ export default function AdminDashboardPage() {
                       required
                       value={newCourseInstructor}
                       onChange={(e) => setNewCourseInstructor(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
                     />
                   </div>
 
@@ -1579,7 +1831,7 @@ export default function AdminDashboardPage() {
                       required
                       value={newCoursePrice}
                       onChange={(e) => setNewCoursePrice(Number(e.target.value))}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
                     />
                   </div>
                 </div>
@@ -1588,16 +1840,16 @@ export default function AdminDashboardPage() {
                   <button
                     type="button"
                     onClick={() => setIsCourseModalOpen(false)}
-                    className="px-3 py-2 rounded-xl text-slate-600 font-bold"
+                    className="px-3.5 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSavingCourse}
-                    className="px-5 py-2 rounded-xl bg-[#050071] text-white font-bold shadow-md"
+                    className="px-5 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold shadow-md transition-all cursor-pointer"
                   >
-                    {isSavingCourse ? "Saving..." : "Create Batch"}
+                    {isSavingCourse ? "Saving..." : (editingCourseId ? "Save Changes" : "Create Batch")}
                   </button>
                 </div>
               </form>
@@ -1833,6 +2085,158 @@ export default function AdminDashboardPage() {
                   Print Receipt
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: CREATE / EDIT FACULTY PROFILE */}
+        {isFacultyModalOpen && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+            <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="space-y-0.5">
+                  <h3 className="font-black text-base text-slate-900">
+                    {editingFacultyId ? "Edit Faculty Educator Profile" : "Add New Faculty Member"}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {editingFacultyId ? "Update subject designation, credentials, and teaching bio" : "Register a senior board educator to the platform faculty directory"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsFacultyModalOpen(false)}
+                  className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveFaculty} className="space-y-3.5 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Full Educator Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={facultyName}
+                    onChange={(e) => setFacultyName(e.target.value)}
+                    placeholder="e.g. Dr. Rajesh Verma"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Designation / Role</label>
+                    <input
+                      type="text"
+                      required
+                      value={facultyRole}
+                      onChange={(e) => setFacultyRole(e.target.value)}
+                      placeholder="e.g. Senior Physics Faculty"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Academic Department</label>
+                    <select
+                      value={facultyDepartment}
+                      onChange={(e) => setFacultyDepartment(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
+                    >
+                      <option value="Mathematics">Mathematics</option>
+                      <option value="Science">Science (PCB/PCM)</option>
+                      <option value="Physics">Physics</option>
+                      <option value="Chemistry">Chemistry</option>
+                      <option value="Biology">Biology</option>
+                      <option value="Social Science">Social Science</option>
+                      <option value="Commerce">Commerce & Accounts</option>
+                      <option value="Foundations">Foundations (Class 9-10)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Experience</label>
+                    <input
+                      type="text"
+                      required
+                      value={facultyExperience}
+                      onChange={(e) => setFacultyExperience(e.target.value)}
+                      placeholder="e.g. 10+ Years Experience"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Qualifications</label>
+                    <input
+                      type="text"
+                      required
+                      value={facultyQualification}
+                      onChange={(e) => setFacultyQualification(e.target.value)}
+                      placeholder="e.g. M.Sc., B.Ed. (Gold Medalist)"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="col-span-2">
+                    <label className="block font-bold text-slate-700 mb-1">Photo Image URL</label>
+                    <input
+                      type="text"
+                      required
+                      value={facultyPhoto}
+                      onChange={(e) => setFacultyPhoto(e.target.value)}
+                      placeholder="/images/instructors/..."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Student Rating</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      max="5"
+                      required
+                      value={facultyRating}
+                      onChange={(e) => setFacultyRating(Number(e.target.value))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Teaching Philosophy & Bio</label>
+                  <textarea
+                    rows={3}
+                    value={facultyBio}
+                    onChange={(e) => setFacultyBio(e.target.value)}
+                    placeholder="Short introduction about teaching methodology, focus on board derivations and student mentorship..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium focus:outline-none focus:border-indigo-500 text-xs"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsFacultyModalOpen(false)}
+                    className="px-3.5 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingFaculty}
+                    className="px-5 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold shadow-md transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {isSavingFaculty ? "Saving..." : (editingFacultyId ? "Save Changes" : "Add Faculty")}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
