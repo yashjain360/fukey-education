@@ -27,10 +27,12 @@ function serviceAccountJson(): string {
   return raw;
 }
 
-/** Object key for a recording, sanitized the same way a filesystem-unsafe roomId would need to be. */
+/** Object key for a recording, sanitized the same way a filesystem-unsafe roomId would need to be.
+ * Namespaced under fukey/ — the shared bucket also holds other products' assets
+ * (brandepth/, thewebvale/, webverse/), same one-folder-per-product convention. */
 export function buildRecordingPath(roomId: string, startedAt: number = Date.now()): string {
   const safeRoom = String(roomId).replace(/[^a-zA-Z0-9_-]/g, "-");
-  return `${safeRoom}/${startedAt}.mp4`;
+  return `fukey/live-recordings/${safeRoom}/${startedAt}.mp4`;
 }
 
 export async function startRecording(roomId: string): Promise<{ egressId: string; gcsPath: string }> {

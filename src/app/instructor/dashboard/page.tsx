@@ -7,7 +7,6 @@ import {
   LayoutGrid,
   GraduationCap,
   Video,
-  HelpCircle,
   Heart,
   User,
   LogOut,
@@ -25,10 +24,8 @@ import {
   Clock,
   ShieldCheck,
   Check,
-  MessageSquare,
   Settings,
   Star,
-  Users,
   Search,
   IndianRupee,
   DollarSign,
@@ -49,7 +46,7 @@ import ToastNotification from "@/components/ui/ToastNotification";
 export default function InstructorDashboardPage() {
   const { user, logout, switchRole, isLoading: isAuthLoading } = useAuth();
   const { currency } = useCart();
-  type InstructorTab = "dashboard" | "courses" | "live" | "recordings" | "questions" | "students" | "earnings" | "wishlist" | "settings";
+  type InstructorTab = "dashboard" | "courses" | "live" | "recordings" | "questions" | "earnings" | "wishlist" | "settings";
   const [activeTab, setActiveTab] = useState<InstructorTab>("dashboard");
   const router = useRouter();
 
@@ -72,7 +69,7 @@ export default function InstructorDashboardPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const tabParam = new URLSearchParams(window.location.search).get("tab") as InstructorTab;
-      const validTabs: InstructorTab[] = ["dashboard", "courses", "live", "recordings", "questions", "students", "earnings", "wishlist", "settings"];
+      const validTabs: InstructorTab[] = ["dashboard", "courses", "live", "recordings", "questions", "earnings", "wishlist", "settings"];
       if (tabParam && validTabs.includes(tabParam)) {
         setActiveTab(tabParam);
       } else {
@@ -109,8 +106,6 @@ export default function InstructorDashboardPage() {
 
   // Tab Pagination States
   const [coursesPage, setCoursesPage] = useState(1);
-  const [questionsPage, setQuestionsPage] = useState(1);
-  const [studentsPage, setStudentsPage] = useState(1);
   const [earningsPage, setEarningsPage] = useState(1);
   const [wishlistPage, setWishlistPage] = useState(1);
 
@@ -211,46 +206,6 @@ export default function InstructorDashboardPage() {
     });
   };
 
-  // Doubts Q&A State
-  const [replyModalOpen, setReplyModalOpen] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
-  const [replyText, setReplyText] = useState("");
-
-  const [questionsQueue, setQuestionsQueue] = useState([
-    {
-      id: "q-1",
-      student: "Aman Sharma",
-      course: "Maths 10th (Hindi)",
-      question: "Sir, what is the fastest method to solve word problems on Quadratic Equations in board exams?",
-      time: "10 mins ago",
-      answered: false
-    },
-    {
-      id: "q-2",
-      student: "Sneha Verma",
-      course: "Science 10th (English)",
-      question: "Could you please review the chemical equation balancing on slide 24?",
-      time: "1 hour ago",
-      answered: true
-    },
-    {
-      id: "q-3",
-      student: "Rohan Gupta",
-      course: "Physics 12th (Optics)",
-      question: "Will the upcoming mock test cover Ray Optics lens maker formula numericals?",
-      time: "3 hours ago",
-      answered: false
-    }
-  ]);
-
-  // Students Engagement Roster
-  const [studentsRoster, setStudentsRoster] = useState([
-    { id: "s-1", name: "Aman Sharma", batch: "Maths 10th Hindi", attendance: "96%", testScore: "92%", status: "Active" },
-    { id: "s-2", name: "Sneha Verma", batch: "Science 10th English", attendance: "100%", testScore: "98%", status: "Top Ranker" },
-    { id: "s-3", name: "Pooja Patel", batch: "Maths 10th Hindi", attendance: "88%", testScore: "85%", status: "Active" },
-    { id: "s-4", name: "Rohan Gupta", batch: "Physics 12th Optics", attendance: "92%", testScore: "90%", status: "Active" }
-  ]);
-
   // Payout Settlements
   const [payouts, setPayouts] = useState([
     { id: "PAY-AUG-2026", month: "August 2026", amount: 48500, status: "Settled", date: "2026-08-01" },
@@ -264,7 +219,9 @@ export default function InstructorDashboardPage() {
   const [newLiveTitle, setNewLiveTitle] = useState("");
   const [newLiveSubject, setNewLiveSubject] = useState("Mathematics");
   const [newLiveClass, setNewLiveClass] = useState("Class 10");
-  const [newLiveBatch, setNewLiveBatch] = useState("All Enrolled Batches");
+  // "all" is the sentinel the backend (api/live/classes GET, api/live/token) actually checks for
+  // "open to every enrolled student" — it must never be the display label text.
+  const [newLiveBatch, setNewLiveBatch] = useState("all");
   const [newLiveStudentTarget, setNewLiveStudentTarget] = useState("all_enrolled");
   const [newLiveScheduledTime, setNewLiveScheduledTime] = useState("Today • 5:00 PM IST");
   const [isCreatingLive, setIsCreatingLive] = useState(false);
@@ -297,7 +254,7 @@ export default function InstructorDashboardPage() {
       .then((data) => {
         if (data.courses && data.courses.length > 0) {
           setCourses(data.courses);
-          setNewLiveBatch(data.courses[0]?.slug || "All Enrolled Batches");
+          setNewLiveBatch(data.courses[0]?.slug || "all");
           setNewTestBatch(data.courses[0]?.slug || "all");
         }
       })
@@ -331,23 +288,6 @@ export default function InstructorDashboardPage() {
   const handleLogout = () => {
     logout();
     router.push("/login");
-  };
-
-  const handleOpenReplyModal = (q: any) => {
-    setSelectedQuestion(q);
-    setReplyText("");
-    setReplyModalOpen(true);
-  };
-
-  const handleSendReply = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedQuestion || !replyText.trim()) return;
-
-    setQuestionsQueue((prev) =>
-      prev.map((q) => (q.id === selectedQuestion.id ? { ...q, answered: true } : q))
-    );
-    setReplyModalOpen(false);
-    triggerConfetti();
   };
 
   const handleAddFeature = () => {
@@ -430,7 +370,7 @@ export default function InstructorDashboardPage() {
     setNewLiveTitle("");
     setNewLiveSubject("Mathematics");
     setNewLiveClass("Class 10");
-    setNewLiveBatch("All Enrolled Batches");
+    setNewLiveBatch("all");
     setNewLiveStudentTarget("all_enrolled");
     setNewLiveScheduledTime("Today • 5:00 PM IST");
     setIsCreateLiveModalOpen(true);
@@ -758,30 +698,6 @@ export default function InstructorDashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => handleTabChange("questions")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
-                    activeTab === "questions"
-                      ? "bg-indigo-50 text-[#5751E1]"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>Student Doubts ({questionsQueue.filter((q) => !q.answered).length})</span>
-                </button>
-
-                <button
-                  onClick={() => handleTabChange("students")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
-                    activeTab === "students"
-                      ? "bg-indigo-50 text-[#5751E1]"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <Users className="w-4 h-4" />
-                  <span>Enrolled Students ({studentsRoster.length})</span>
-                </button>
-
-                <button
                   onClick={() => handleTabChange("earnings")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "earnings"
@@ -879,44 +795,6 @@ export default function InstructorDashboardPage() {
                   </div>
                 </div>
 
-                {/* Lesson Doubt Questions Queue */}
-                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-black text-slate-900">Recent Student Doubts &amp; Questions</h3>
-                    <span className="text-xs font-bold text-slate-400">{questionsQueue.length} Inquiries</span>
-                  </div>
-
-                  <div className="space-y-3">
-                    {questionsQueue.map((q) => (
-                      <div
-                        key={q.id}
-                        className="p-4 rounded-2xl border border-slate-100 bg-slate-50/60 space-y-2"
-                      >
-                        <div className="flex items-center justify-between text-xs">
-                          <div className="font-bold text-slate-800">
-                            {q.student} <span className="font-normal text-slate-500">in {q.course}</span>
-                          </div>
-                          <span className="text-slate-400">{q.time}</span>
-                        </div>
-                        <p className="text-xs text-slate-700 font-medium leading-relaxed">{q.question}</p>
-                        <div className="pt-2 flex items-center gap-2">
-                          <button
-                            onClick={() => handleOpenReplyModal(q)}
-                            className="px-3.5 py-1.5 rounded-xl bg-[#5751E1] hover:bg-indigo-700 text-white font-bold text-[11px] transition-colors cursor-pointer"
-                          >
-                            {q.answered ? "Update Response" : "Reply to Student"}
-                          </button>
-                          {q.answered && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-                              <Check className="w-3.5 h-3.5" />
-                              <span>Answered</span>
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             )}
 
@@ -1172,115 +1050,6 @@ export default function InstructorDashboardPage() {
               </div>
             )}
 
-            {/* TAB 4: LESSON QUESTIONS */}
-            {activeTab === "questions" && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900">Student Doubts &amp; Q&amp;A Queue</h2>
-                  <p className="text-xs text-slate-500">Provide direct answers to enrolled board aspirants</p>
-                </div>
-
-                <div className="space-y-4">
-                  {questionsQueue
-                    .slice((questionsPage - 1) * 4, questionsPage * 4)
-                    .map((q) => (
-                      <div
-                        key={q.id}
-                        className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
-                      >
-                        <div className="flex items-center justify-between text-xs">
-                          <div className="font-bold text-slate-900">
-                            {q.student} <span className="font-normal text-slate-500">({q.course})</span>
-                          </div>
-                          <span className="text-slate-400 text-[11px]">{q.time}</span>
-                        </div>
-
-                        <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                          &ldquo;{q.question}&rdquo;
-                        </p>
-
-                        <div className="pt-2 flex items-center justify-between">
-                          <button
-                            onClick={() => handleOpenReplyModal(q)}
-                            className="px-4 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold text-xs transition-colors cursor-pointer"
-                          >
-                            {q.answered ? "Edit Reply" : "Answer Doubt"}
-                          </button>
-                          {q.answered && (
-                            <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                              <CheckCircle2 className="w-4 h-4" />
-                              <span>Response Sent to Student</span>
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-
-                <Pagination
-                  currentPage={questionsPage}
-                  totalItems={questionsQueue.length}
-                  itemsPerPage={4}
-                  onPageChange={(page) => setQuestionsPage(page)}
-                  pageSizeOptions={[4, 8, 12]}
-                />
-              </div>
-            )}
-
-            {/* TAB 5: ENROLLED STUDENTS ROSTER */}
-            {activeTab === "students" && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900">Enrolled Students Performance Roster</h2>
-                    <p className="text-xs text-slate-500">Monitor student attendance streaks, test accuracy, and learning progress</p>
-                  </div>
-                  <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 font-bold text-xs">
-                    {studentsRoster.length} Active Students
-                  </span>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead>
-                      <tr className="border-b border-slate-200 text-slate-500 uppercase font-black tracking-wider text-[10px]">
-                        <th className="pb-3">Student Name</th>
-                        <th className="pb-3">Enrolled Batch</th>
-                        <th className="pb-3">Live Attendance</th>
-                        <th className="pb-3">Test Average</th>
-                        <th className="pb-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {studentsRoster
-                        .slice((studentsPage - 1) * 4, studentsPage * 4)
-                        .map((s) => (
-                          <tr key={s.id} className="hover:bg-slate-50">
-                            <td className="py-3 font-extrabold text-slate-900">{s.name}</td>
-                            <td className="py-3 text-slate-600">{s.batch}</td>
-                            <td className="py-3 font-bold text-emerald-600">{s.attendance}</td>
-                            <td className="py-3 font-bold text-indigo-600">{s.testScore}</td>
-                            <td className="py-3">
-                              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                                {s.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <Pagination
-                  currentPage={studentsPage}
-                  totalItems={studentsRoster.length}
-                  itemsPerPage={4}
-                  onPageChange={(page) => setStudentsPage(page)}
-                  pageSizeOptions={[4, 8, 12]}
-                />
-              </div>
-            )}
-
             {/* TAB 6: HONORARIUM & PAYOUTS */}
             {activeTab === "earnings" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
@@ -1444,57 +1213,6 @@ export default function InstructorDashboardPage() {
             )}
           </div>
         </div>
-
-        {/* MODAL: REPLY TO QUESTION */}
-        {replyModalOpen && selectedQuestion && (
-          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
-            <div className="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div>
-                  <h3 className="font-extrabold text-sm text-slate-900">Reply to {selectedQuestion.student}</h3>
-                  <p className="text-[11px] text-slate-500">{selectedQuestion.course}</p>
-                </div>
-                <button onClick={() => setReplyModalOpen(false)} className="p-1.5 rounded-full bg-slate-100 cursor-pointer">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 text-xs text-slate-700">
-                <strong>Question:</strong> &ldquo;{selectedQuestion.question}&rdquo;
-              </div>
-
-              <form onSubmit={handleSendReply} className="space-y-3 text-xs">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Your Explanation / Derivation Answer</label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Write the step-by-step solution or formula breakdown..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setReplyModalOpen(false)}
-                    className="px-3 py-2 rounded-xl text-slate-600 font-bold cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2 rounded-xl bg-[#050071] text-white font-bold shadow-md cursor-pointer"
-                  >
-                    Send Answer
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
 
         {/* MODAL: CREATE / EDIT COURSE STUDIO */}
         {isCourseStudioOpen && (
@@ -1797,7 +1515,7 @@ export default function InstructorDashboardPage() {
                     onChange={(e) => setNewLiveBatch(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-bold focus:outline-none"
                   >
-                    <option value="All Enrolled Batches">All Enrolled Batches in {newLiveClass}</option>
+                    <option value="all">All Enrolled Batches in {newLiveClass}</option>
                     {courses
                       .filter((c) => !newLiveClass || c.class === newLiveClass)
                       .map((c) => (

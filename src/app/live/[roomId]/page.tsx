@@ -17,12 +17,18 @@ import {
   ChevronLeft,
   Loader2,
   Lock,
+  UserX,
+  MoreVertical,
+  Pin,
+  PinOff,
+  MessageSquareOff,
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import WhiteboardCanvas from "@/components/live/WhiteboardCanvas";
 import LiveChatDrawer from "@/components/live/LiveChatDrawer";
 import DoubtQueueManager from "@/components/live/DoubtQueueManager";
 import { useLiveKitRoom } from "@/components/live/useLiveKitRoom";
+import { usePresenceBroadcast, usePresenceTracking, type PresenceState } from "@/components/live/usePresence";
 
 interface LiveClassDoc {
   roomId: string;
@@ -49,6 +55,16 @@ function authFetch(url: string, token: string | undefined, init: RequestInit = {
   });
 }
 
+/** Small attention indicator — green while a student's tab is visible and they've interacted
+ * recently, amber once their tab is backgrounded, gray once they've gone idle at the keyboard.
+ * No dot at all until their client's first broadcast arrives (instructor, or nothing heard yet). */
+function PresenceDot({ state }: { state?: PresenceState }) {
+  if (!state) return null;
+  const color = state === "active" ? "bg-emerald-400" : state === "away" ? "bg-amber-400" : "bg-slate-400";
+  const label = state === "active" ? "Attentive" : state === "away" ? "Tab backgrounded" : "Idle";
+  return <span className={`w-1.5 h-1.5 rounded-full ${color} flex-shrink-0`} title={label} />;
+}
+
 export default function LiveRoomPage() {
   const params = useParams();
   const roomId = params?.roomId as string;
@@ -61,6 +77,9 @@ export default function LiveRoomPage() {
   const [liveKitAuth, setLiveKitAuth] = useState<{ token: string; wsUrl: string } | null>(null);
   const [activeMainView, setActiveMainView] = useState<"whiteboard" | "video">("whiteboard");
   const [recordingBusy, setRecordingBusy] = useState(false);
+  const [openControlsFor, setOpenControlsFor] = useState<string | null>(null);
+  const [focusMode, setFocusMode] = useState(false);
+  const [spotlightIdentity, setSpotlightIdentity] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -127,7 +146,42 @@ export default function LiveRoomPage() {
     wsUrl: liveKitAuth?.wsUrl || "",
     token: liveKitAuth?.token || "",
     isInstructor,
+    // The token route already grants every non-instructor participant mic-publish permission
+    // (students unmute themselves for the doubt queue) — this just tells the local toggle button
+    // it's allowed to try, matching what the server already granted.
+    canPublishMic: true,
   });
+
+  // Attention tracking: students broadcast tab-visibility + input-idle state; everyone tracks
+  // everyone else's (only the instructor's UI shows it, but harmless either way).
+  usePresenceBroadcast(liveKit.sendData, isInstructor);
+  const presence = usePresenceTracking(liveKit.onData);
+
+  // Spotlight: host-controlled — whoever the instructor pins takes the main stage for every
+  // participant, broadcast the same way whiteboard strokes and chat are.
+  useEffect(() => {
+    return liveKit.onData("spotlight", (payload) => {
+      const msg = payload as { identity: string | null };
+      setSpotlightIdentity(msg.identity ?? null);
+    });
+  }, [liveKit.onData]);
+
+  // If the pinned participant leaves, nobody's spotlighting an empty tile.
+  useEffect(() => {
+    if (spotlightIdentity && !liveKit.remoteParticipants.some((p) => p.identity === spotlightIdentity)) {
+      setSpotlightIdentity(null);
+    }
+  }, [spotlightIdentity, liveKit.remoteParticipants]);
+
+  const handlePin = useCallback(
+    (identity: string | null) => {
+      if (!isInstructor) return;
+      setSpotlightIdentity(identity);
+      liveKit.sendData("spotlight", { identity });
+      setOpenControlsFor(null);
+    },
+    [isInstructor, liveKit.sendData]
+  );
 
   const handleStartRecording = useCallback(async () => {
     if (!user?.token) return;
@@ -159,6 +213,22 @@ export default function LiveRoomPage() {
       setRecordingBusy(false);
     }
   }, [user?.token, roomId]);
+
+  const handleModerate = useCallback(
+    async (targetIdentity: string, action: "mute-camera" | "mute-mic" | "allow-camera" | "allow-mic" | "remove") => {
+      if (!user?.token) return;
+      setOpenControlsFor(null);
+      try {
+        await authFetch("/api/live/moderate", user.token, {
+          method: "POST",
+          body: JSON.stringify({ roomId, targetIdentity, action }),
+        });
+      } catch {
+        // the room's own track/mute events reflect the real state — nothing to reconcile here
+      }
+    },
+    [user?.token, roomId]
+  );
 
   const handleEndClass = async () => {
     if (isInstructor) {
@@ -342,6 +412,102 @@ export default function LiveRoomPage() {
                 sendData={liveKit.sendData}
                 onData={liveKit.onData}
               />
+            ) : liveKit.activeScreenShare ? (
+              <div className="w-full h-full min-h-[500px] bg-slate-950 rounded-3xl overflow-hidden border border-indigo-900 shadow-2xl flex flex-col gap-3 p-3">
+                {/* Main stage: whoever is screen-sharing takes the full frame — a shared screen
+                    and a camera feed are separate tracks, so they never fight over the same
+                    <video> element the way they used to. */}
+                <div className="flex-1 min-h-0 rounded-2xl bg-black overflow-hidden border border-white/10 relative">
+                  <video
+                    ref={
+                      liveKit.activeScreenShare.isLocal
+                        ? liveKit.localScreenShareEl
+                        : liveKit.remoteParticipants.find((p) => p.identity === liveKit.activeScreenShare!.identity)
+                            ?.attachScreenShare
+                    }
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-contain"
+                  />
+                  <span className="absolute top-3 left-3 text-[11px] font-bold text-white bg-black/60 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                    <Monitor className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{liveKit.activeScreenShare.name} is sharing their screen</span>
+                  </span>
+                </div>
+
+                {/* Camera thumbnail strip */}
+                <div className="flex gap-2 h-20 sm:h-24 flex-shrink-0 overflow-x-auto">
+                  <div className="relative aspect-video h-full rounded-xl bg-black/80 border border-white/20 overflow-hidden flex-shrink-0">
+                    <video ref={liveKit.localCameraEl} autoPlay playsInline muted className="w-full h-full object-cover" />
+                    <span className="absolute bottom-1 left-1.5 text-[9px] font-bold text-white bg-black/60 px-1 py-0.5 rounded">
+                      You
+                    </span>
+                  </div>
+                  {liveKit.remoteParticipants.map((p) => (
+                    <div key={p.identity} className="relative aspect-video h-full rounded-xl bg-black overflow-hidden border border-white/10 flex-shrink-0">
+                      <video ref={p.attachCamera} autoPlay playsInline className="w-full h-full object-cover" />
+                      <span className="absolute bottom-1 left-1.5 text-[9px] font-bold text-white bg-black/60 px-1 py-0.5 rounded">
+                        {p.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : spotlightIdentity && liveKit.remoteParticipants.find((p) => p.identity === spotlightIdentity) ? (
+              (() => {
+                const pinned = liveKit.remoteParticipants.find((p) => p.identity === spotlightIdentity)!;
+                return (
+                  <div className="w-full h-full min-h-[500px] bg-slate-950 rounded-3xl overflow-hidden border border-indigo-900 shadow-2xl flex flex-col gap-3 p-3">
+                    {/* Main stage: the instructor's pinned participant, full-size, regardless of
+                        who's currently speaking. */}
+                    <div className="flex-1 min-h-0 rounded-2xl bg-black overflow-hidden border border-white/10 relative">
+                      {pinned.isCameraMuted ? (
+                        <div className="w-full h-full flex items-center justify-center bg-slate-900">
+                          <div className="w-20 h-20 rounded-full bg-[#5751E1] text-white font-black text-2xl flex items-center justify-center">
+                            {pinned.name.slice(0, 1).toUpperCase()}
+                          </div>
+                        </div>
+                      ) : (
+                        <video ref={pinned.attachCamera} autoPlay playsInline className="w-full h-full object-contain" />
+                      )}
+                      <span className="absolute top-3 left-3 text-[11px] font-bold text-white bg-black/60 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                        <Pin className="w-3.5 h-3.5 text-amber-300" />
+                        <span>{pinned.name} is spotlighted</span>
+                      </span>
+                      {isInstructor && (
+                        <button
+                          type="button"
+                          onClick={() => handlePin(null)}
+                          className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 hover:bg-black/80 text-white text-[11px] font-bold cursor-pointer"
+                        >
+                          <PinOff className="w-3.5 h-3.5" />
+                          <span>Unpin</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Camera thumbnail strip */}
+                    <div className="flex gap-2 h-20 sm:h-24 flex-shrink-0 overflow-x-auto">
+                      <div className="relative aspect-video h-full rounded-xl bg-black/80 border border-white/20 overflow-hidden flex-shrink-0">
+                        <video ref={liveKit.localCameraEl} autoPlay playsInline muted className="w-full h-full object-cover" />
+                        <span className="absolute bottom-1 left-1.5 text-[9px] font-bold text-white bg-black/60 px-1 py-0.5 rounded">
+                          You
+                        </span>
+                      </div>
+                      {liveKit.remoteParticipants
+                        .filter((p) => p.identity !== spotlightIdentity)
+                        .map((p) => (
+                          <div key={p.identity} className="relative aspect-video h-full rounded-xl bg-black overflow-hidden border border-white/10 flex-shrink-0">
+                            <video ref={p.attachCamera} autoPlay playsInline className="w-full h-full object-cover" />
+                            <span className="absolute bottom-1 left-1.5 text-[9px] font-bold text-white bg-black/60 px-1 py-0.5 rounded">
+                              {p.name}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                );
+              })()
             ) : (
               <div className="w-full h-full min-h-[500px] bg-slate-950 rounded-3xl overflow-hidden border border-indigo-900 shadow-2xl relative p-3">
                 <div
@@ -363,11 +529,73 @@ export default function LiveRoomPage() {
                   )}
                   {liveKit.remoteParticipants.map((p) => (
                     <div key={p.identity} className="relative rounded-2xl bg-black overflow-hidden border border-white/10">
-                      <video ref={p.attachVideo} autoPlay playsInline className="w-full h-full object-cover" />
+                      {p.isCameraMuted ? (
+                        <div className="w-full h-full flex items-center justify-center bg-slate-900">
+                          <div className="w-14 h-14 rounded-full bg-[#5751E1] text-white font-black text-lg flex items-center justify-center">
+                            {p.name.slice(0, 1).toUpperCase()}
+                          </div>
+                        </div>
+                      ) : (
+                        <video ref={p.attachCamera} autoPlay playsInline className="w-full h-full object-cover" />
+                      )}
+
                       <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-white bg-black/60 px-1.5 py-0.5 rounded flex items-center gap-1">
+                        <PresenceDot state={presence[p.identity]} />
                         {p.name}
-                        {p.isSpeaking && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                        {p.isSpeaking && !p.isMicMuted && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                        {p.isMicMuted ? <MicOff className="w-3 h-3 text-rose-400" /> : null}
                       </span>
+
+                      {/* Instructor moderation controls */}
+                      {isInstructor && (
+                        <div className="absolute top-1.5 right-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setOpenControlsFor(openControlsFor === p.identity ? null : p.identity)}
+                            className="p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-white cursor-pointer"
+                            title="Participant controls"
+                          >
+                            <MoreVertical className="w-3.5 h-3.5" />
+                          </button>
+
+                          {openControlsFor === p.identity && (
+                            <div className="absolute right-0 mt-1 w-44 rounded-xl bg-slate-900 border border-white/10 shadow-2xl overflow-hidden text-[11px] font-bold z-10">
+                              <button
+                                type="button"
+                                onClick={() => handlePin(p.identity)}
+                                className="w-full text-left px-3 py-2 hover:bg-white/10 text-white cursor-pointer flex items-center gap-2"
+                              >
+                                <Pin className="w-3.5 h-3.5" />
+                                <span>Pin as Spotlight</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleModerate(p.identity, p.isMicMuted ? "allow-mic" : "mute-mic")}
+                                className="w-full text-left px-3 py-2 hover:bg-white/10 text-white cursor-pointer flex items-center gap-2"
+                              >
+                                {p.isMicMuted ? <Mic className="w-3.5 h-3.5" /> : <MicOff className="w-3.5 h-3.5" />}
+                                <span>{p.isMicMuted ? "Allow Mic" : "Mute Mic"}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleModerate(p.identity, p.isCameraMuted ? "allow-camera" : "mute-camera")}
+                                className="w-full text-left px-3 py-2 hover:bg-white/10 text-white cursor-pointer flex items-center gap-2"
+                              >
+                                {p.isCameraMuted ? <Video className="w-3.5 h-3.5" /> : <VideoOff className="w-3.5 h-3.5" />}
+                                <span>{p.isCameraMuted ? "Allow Camera" : "Turn Off Camera"}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleModerate(p.identity, "remove")}
+                                className="w-full text-left px-3 py-2 hover:bg-rose-600 text-rose-300 hover:text-white cursor-pointer flex items-center gap-2"
+                              >
+                                <UserX className="w-3.5 h-3.5" />
+                                <span>Remove from Class</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -375,7 +603,7 @@ export default function LiveRoomPage() {
                 {/* Floating Self Camera PiP */}
                 <div className="absolute bottom-4 right-4 w-40 sm:w-48 aspect-video rounded-2xl bg-black/80 border border-white/20 overflow-hidden shadow-2xl">
                   <video
-                    ref={liveKit.localVideoEl}
+                    ref={liveKit.localCameraEl}
                     autoPlay
                     playsInline
                     muted
@@ -397,14 +625,27 @@ export default function LiveRoomPage() {
             currentUserName={user.name}
             sendData={liveKit.sendData}
             onData={liveKit.onData}
+            onModeChange={(mode) => setFocusMode(mode === "lecture")}
           />
           <div className="flex-1 min-h-[350px]">
-            <LiveChatDrawer
-              currentUserName={user.name}
-              isInstructor={isInstructor}
-              sendData={liveKit.sendData}
-              onData={liveKit.onData}
-            />
+            {/* Focus Mode: during the 45-min lecture phase, students lose the chat panel — one
+                fewer thing pulling attention off the derivation on screen. Raise-hand stays
+                available in the doubt queue above regardless of phase. Instructor always sees
+                chat; they're the one running the class. */}
+            {focusMode && !isInstructor ? (
+              <div className="w-full h-full bg-slate-900 border border-indigo-900/60 rounded-3xl p-5 flex flex-col items-center justify-center text-center space-y-2 text-slate-400">
+                <MessageSquareOff className="w-6 h-6" />
+                <p className="text-xs font-bold">Focus Mode is on</p>
+                <p className="text-[11px]">Chat reopens during the 15-min doubt session. Raise your hand above if you need faculty now.</p>
+              </div>
+            ) : (
+              <LiveChatDrawer
+                currentUserName={user.name}
+                isInstructor={isInstructor}
+                sendData={liveKit.sendData}
+                onData={liveKit.onData}
+              />
+            )}
           </div>
         </div>
       </main>

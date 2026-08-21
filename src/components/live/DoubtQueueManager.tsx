@@ -16,12 +16,16 @@ interface DoubtQueueProps {
   currentUserName: string;
   sendData: (topic: string, payload: unknown) => void;
   onData: (topic: string, handler: (payload: unknown) => void) => () => void;
+  /** Called whenever the lecture/doubt phase changes (locally toggled or received over the wire) —
+   * lets the room page drive Focus Mode (hiding chat during the lecture phase) off the same signal
+   * instead of duplicating the mode-switch subscription. */
+  onModeChange?: (mode: "lecture" | "doubt") => void;
 }
 
 const LECTURE_SECONDS = 45 * 60;
 const DOUBT_SECONDS = 15 * 60;
 
-export default function DoubtQueueManager({ isInstructor, currentUserName, sendData, onData }: DoubtQueueProps) {
+export default function DoubtQueueManager({ isInstructor, currentUserName, sendData, onData, onModeChange }: DoubtQueueProps) {
   const [mode, setMode] = useState<"lecture" | "doubt">("lecture");
   const [secondsRemaining, setSecondsRemaining] = useState(LECTURE_SECONDS);
   const [handRaised, setHandRaised] = useState(false);
@@ -32,6 +36,11 @@ export default function DoubtQueueManager({ isInstructor, currentUserName, sendD
   // every participant's timer firing a network message every second) but resyncs the instant a
   // fresh mode-switch arrives, so nobody's timer can drift out of agreement.
   const tickingRef = useRef(true);
+
+  useEffect(() => {
+    onModeChange?.(mode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
 
   useEffect(() => {
     const timer = setInterval(() => {

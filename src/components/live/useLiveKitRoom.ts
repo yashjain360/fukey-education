@@ -5,9 +5,11 @@ import {
   Room,
   RoomEvent,
   Track,
+  Participant,
   RemoteParticipant,
   RemoteTrack,
   RemoteTrackPublication,
+  TrackPublication,
   ConnectionState,
 } from "livekit-client";
 
@@ -15,7 +17,17 @@ export interface RemoteParticipantView {
   identity: string;
   name: string;
   isSpeaking: boolean;
-  attachVideo: (el: HTMLVideoElement | null) => void;
+  isMicMuted: boolean;
+  isCameraMuted: boolean;
+  hasScreenShare: boolean;
+  attachCamera: (el: HTMLVideoElement | null) => void;
+  attachScreenShare: (el: HTMLVideoElement | null) => void;
+}
+
+export interface ActiveScreenShare {
+  identity: string;
+  name: string;
+  isLocal: boolean;
 }
 
 export interface UseLiveKitRoomOpts {
@@ -29,8 +41,13 @@ export interface UseLiveKitRoomOpts {
 
 export interface UseLiveKitRoomResult {
   connectionState: "connecting" | "connected" | "disconnected" | "failed";
-  localVideoEl: (el: HTMLVideoElement | null) => void;
+  localCameraEl: (el: HTMLVideoElement | null) => void;
+  localScreenShareEl: (el: HTMLVideoElement | null) => void;
   remoteParticipants: RemoteParticipantView[];
+  /** Whoever is currently sharing their screen (local or remote), or null. Only one active share
+   * is surfaced — the room's own UI (and typical LiveKit deployments) expect at most one at a
+   * time; if two happen simultaneously the most recently (un)published one wins. */
+  activeScreenShare: ActiveScreenShare | null;
   isCameraOn: boolean;
   isMicOn: boolean;
   isScreenSharing: boolean;
@@ -50,8 +67,10 @@ export function useLiveKitRoom(opts: UseLiveKitRoomOpts): UseLiveKitRoomResult {
   const { roomId, wsUrl, token, isInstructor, canPublishMic } = opts;
 
   const roomRef = useRef<Room | null>(null);
-  const localVideoElRef = useRef<HTMLVideoElement | null>(null);
-  const remoteVideoElRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
+  const localCameraElRef = useRef<HTMLVideoElement | null>(null);
+  const localScreenElRef = useRef<HTMLVideoElement | null>(null);
+  const remoteCameraElRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
+  const remoteScreenElRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const dataHandlersRef = useRef<Map<string, Set<(payload: unknown, fromIdentity: string) => void>>>(
     new Map()
   );
@@ -60,37 +79,42 @@ export function useLiveKitRoom(opts: UseLiveKitRoomOpts): UseLiveKitRoomResult {
     "connecting"
   );
   const [remoteParticipants, setRemoteParticipants] = useState<RemoteParticipantView[]>([]);
+  const [activeScreenShare, setActiveScreenShare] = useState<ActiveScreenShare | null>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
 
-  const attachVideoFor = useCallback((identity: string, track?: RemoteTrack) => {
-    const el = remoteVideoElRefs.current.get(identity);
-    if (el && track && track.kind === Track.Kind.Video) {
-      track.attach(el);
-    }
-  }, []);
+  const buildParticipantView = useCallback((p: RemoteParticipant): RemoteParticipantView => {
+    const camPub = p.getTrackPublication(Track.Source.Camera);
+    const micPub = p.getTrackPublication(Track.Source.Microphone);
+    const screenPub = p.getTrackPublication(Track.Source.ScreenShare);
 
-  const buildParticipantView = useCallback(
-    (p: RemoteParticipant): RemoteParticipantView => ({
+    return {
       identity: p.identity,
       name: p.name || p.identity,
       isSpeaking: p.isSpeaking,
-      attachVideo: (el) => {
+      isMicMuted: !micPub || micPub.isMuted,
+      isCameraMuted: !camPub || camPub.isMuted,
+      hasScreenShare: !!screenPub && !screenPub.isMuted,
+      attachCamera: (el) => {
         if (el) {
-          remoteVideoElRefs.current.set(p.identity, el);
-          // A track may already be subscribed by the time this element mounts.
-          p.videoTrackPublications.forEach((pub) => {
-            if (pub.track) pub.track.attach(el);
-          });
+          remoteCameraElRefs.current.set(p.identity, el);
+          if (camPub?.track) camPub.track.attach(el);
         } else {
-          remoteVideoElRefs.current.delete(p.identity);
+          remoteCameraElRefs.current.delete(p.identity);
         }
       },
-    }),
-    []
-  );
+      attachScreenShare: (el) => {
+        if (el) {
+          remoteScreenElRefs.current.set(p.identity, el);
+          if (screenPub?.track) screenPub.track.attach(el);
+        } else {
+          remoteScreenElRefs.current.delete(p.identity);
+        }
+      },
+    };
+  }, []);
 
   const refreshParticipants = useCallback(
     (room: Room) => {
@@ -98,6 +122,25 @@ export function useLiveKitRoom(opts: UseLiveKitRoomOpts): UseLiveKitRoomResult {
     },
     [buildParticipantView]
   );
+
+  /** Recomputes who (if anyone) is actively screen-sharing, across local + all remotes. */
+  const refreshActiveScreenShare = useCallback((room: Room) => {
+    const localScreenPub = room.localParticipant.getTrackPublication(Track.Source.ScreenShare);
+    if (localScreenPub && !localScreenPub.isMuted) {
+      setActiveScreenShare({ identity: room.localParticipant.identity, name: "You", isLocal: true });
+      return;
+    }
+
+    for (const p of room.remoteParticipants.values()) {
+      const pub = p.getTrackPublication(Track.Source.ScreenShare);
+      if (pub && !pub.isMuted) {
+        setActiveScreenShare({ identity: p.identity, name: p.name || p.identity, isLocal: false });
+        return;
+      }
+    }
+
+    setActiveScreenShare(null);
+  }, []);
 
   useEffect(() => {
     if (!wsUrl || !token || !roomId) return;
@@ -111,6 +154,7 @@ export function useLiveKitRoom(opts: UseLiveKitRoomOpts): UseLiveKitRoomResult {
         if (cancelled) return;
         setConnectionState("connected");
         refreshParticipants(room);
+        refreshActiveScreenShare(room);
       })
       .on(RoomEvent.Disconnected, () => {
         if (cancelled) return;
@@ -123,23 +167,53 @@ export function useLiveKitRoom(opts: UseLiveKitRoomOpts): UseLiveKitRoomResult {
         else if (state === ConnectionState.Reconnecting) setConnectionState("connecting");
       })
       .on(RoomEvent.ParticipantConnected, () => refreshParticipants(room))
-      .on(RoomEvent.ParticipantDisconnected, () => refreshParticipants(room))
-      .on(RoomEvent.ActiveSpeakersChanged, () => refreshParticipants(room))
-      .on(RoomEvent.TrackSubscribed, (track: RemoteTrack, _pub: RemoteTrackPublication, participant: RemoteParticipant) => {
-        attachVideoFor(participant.identity, track);
+      .on(RoomEvent.ParticipantDisconnected, () => {
         refreshParticipants(room);
+        refreshActiveScreenShare(room);
+      })
+      .on(RoomEvent.ActiveSpeakersChanged, () => refreshParticipants(room))
+      .on(RoomEvent.TrackSubscribed, (track: RemoteTrack, pub: RemoteTrackPublication, participant: RemoteParticipant) => {
+        if (track.source === Track.Source.Camera) {
+          const el = remoteCameraElRefs.current.get(participant.identity);
+          if (el) track.attach(el);
+        } else if (track.source === Track.Source.ScreenShare) {
+          const el = remoteScreenElRefs.current.get(participant.identity);
+          if (el) track.attach(el);
+        }
+        refreshParticipants(room);
+        refreshActiveScreenShare(room);
       })
       .on(RoomEvent.TrackUnsubscribed, (track: RemoteTrack) => {
         track.detach();
+      })
+      .on(RoomEvent.TrackMuted, (_pub: TrackPublication, _participant: Participant) => {
+        refreshParticipants(room);
+        refreshActiveScreenShare(room);
+      })
+      .on(RoomEvent.TrackUnmuted, (_pub: TrackPublication, _participant: Participant) => {
+        refreshParticipants(room);
+        refreshActiveScreenShare(room);
       })
       .on(RoomEvent.RecordingStatusChanged, (recording: boolean) => {
         if (cancelled) return;
         setIsRecording(recording);
       })
       .on(RoomEvent.LocalTrackPublished, (pub) => {
-        if (pub.track && pub.track.kind === Track.Kind.Video && localVideoElRef.current) {
-          pub.track.attach(localVideoElRef.current);
+        if (!pub.track) return;
+        if (pub.source === Track.Source.Camera && localCameraElRef.current) {
+          pub.track.attach(localCameraElRef.current);
+        } else if (pub.source === Track.Source.ScreenShare && localScreenElRef.current) {
+          pub.track.attach(localScreenElRef.current);
         }
+        refreshActiveScreenShare(room);
+      })
+      // A forced server-side mute (instructor moderation) doesn't go through our own
+      // toggleMic/toggleCamera calls, so the local on/off state has to be kept in sync from the
+      // room's own authoritative publication state, not just from our own button clicks.
+      .on(RoomEvent.LocalTrackUnpublished, (pub) => {
+        if (pub.source === Track.Source.Camera) setIsCameraOn(false);
+        if (pub.source === Track.Source.Microphone) setIsMicOn(false);
+        refreshActiveScreenShare(room);
       })
       .on(RoomEvent.DataReceived, (payload, participant, _kind, topic) => {
         if (!topic) return;
@@ -184,12 +258,18 @@ export function useLiveKitRoom(opts: UseLiveKitRoomOpts): UseLiveKitRoomResult {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, wsUrl, token, isInstructor]);
 
-  const localVideoEl = useCallback((el: HTMLVideoElement | null) => {
-    localVideoElRef.current = el;
+  const localCameraEl = useCallback((el: HTMLVideoElement | null) => {
+    localCameraElRef.current = el;
     if (!el) return;
-    const room = roomRef.current;
-    const camPub = room?.localParticipant.getTrackPublication(Track.Source.Camera);
+    const camPub = roomRef.current?.localParticipant.getTrackPublication(Track.Source.Camera);
     if (camPub?.track) camPub.track.attach(el);
+  }, []);
+
+  const localScreenShareEl = useCallback((el: HTMLVideoElement | null) => {
+    localScreenElRef.current = el;
+    if (!el) return;
+    const screenPub = roomRef.current?.localParticipant.getTrackPublication(Track.Source.ScreenShare);
+    if (screenPub?.track) screenPub.track.attach(el);
   }, []);
 
   const toggleCamera = useCallback(() => {
@@ -243,8 +323,10 @@ export function useLiveKitRoom(opts: UseLiveKitRoomOpts): UseLiveKitRoomResult {
 
   return {
     connectionState,
-    localVideoEl,
+    localCameraEl,
+    localScreenShareEl,
     remoteParticipants,
+    activeScreenShare,
     isCameraOn,
     isMicOn,
     isScreenSharing,

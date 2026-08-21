@@ -66,40 +66,66 @@ const SEED_ACCOUNTS: Record<"admin" | "instructor" | "student", SeedAccount[]> =
       password: "adminpassword123",
     },
   ],
+  // Every instructor who actually owns courses in coursesData.ts, matching the real `users` docs
+  // seeded with role "instructor" — this list used to have 5 made-up personas (including one,
+  // "Sneha Agarwal", that owns no courses and was never a real account). Since /api/auth/session no
+  // longer lets a login request grant itself a role, an email here that isn't already a DB user with
+  // that role silently logs in as a student instead — so this list has to track the real roster.
   instructor: [
     {
       name: "Pawan Gupta",
       email: "pawan.gupta@fukeyeducation.com",
       role: "instructor",
-      designation: "Senior Mathematics Lead Faculty",
+      designation: "Senior Mathematics Faculty & HOD",
       password: "facultypassword123",
     },
     {
       name: "Kratika Rathore",
       email: "kratika.rathore@fukeyeducation.com",
       role: "instructor",
-      designation: "Senior Chemistry Lead Faculty",
+      designation: "Head of Science & Chemistry",
       password: "facultypassword123",
     },
     {
       name: "Arya Dubey",
       email: "arya.dubey@fukeyeducation.com",
       role: "instructor",
-      designation: "Senior Physics Faculty",
+      designation: "Economics & Commercial Studies Lead",
       password: "facultypassword123",
     },
     {
       name: "Vivek Dubey",
       email: "vivek.dubey@fukeyeducation.com",
       role: "instructor",
-      designation: "Senior Biology Lead Faculty",
+      designation: "Senior Physics Educator",
       password: "facultypassword123",
     },
     {
-      name: "Sneha Agarwal",
-      email: "sneha.commerce@fukeyeducation.com",
+      name: "Babli Jain",
+      email: "babli.jain@fukeyeducation.com",
       role: "instructor",
-      designation: "Senior Accountancy & Commerce Faculty",
+      designation: "Senior Biology Faculty & NEET Mentor",
+      password: "facultypassword123",
+    },
+    {
+      name: "Ram Kumar Soni",
+      email: "ram.kumar.soni@fukeyeducation.com",
+      role: "instructor",
+      designation: "Humanities & Social Sciences Expert",
+      password: "facultypassword123",
+    },
+    {
+      name: "Mousam Patil",
+      email: "mousam.patil@fukeyeducation.com",
+      role: "instructor",
+      designation: "Senior Business Studies Faculty",
+      password: "facultypassword123",
+    },
+    {
+      name: "Soumya Jain",
+      email: "soumya.jain@fukeyeducation.com",
+      role: "instructor",
+      designation: "Senior Accountancy Faculty",
       password: "facultypassword123",
     },
   ],
@@ -333,7 +359,7 @@ export default function LoginPage() {
                 <span>1-Click QA Test Switcher</span>
               </div>
               <span className="px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
-                15 Pre-Seeded Accounts
+                {SEED_ACCOUNTS.admin.length + SEED_ACCOUNTS.instructor.length + SEED_ACCOUNTS.student.length} Pre-Seeded Accounts
               </span>
             </div>
 
@@ -348,7 +374,7 @@ export default function LoginPage() {
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                Admin (5)
+                Admin ({SEED_ACCOUNTS.admin.length})
               </button>
               <button
                 type="button"
@@ -359,7 +385,7 @@ export default function LoginPage() {
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                Faculty (5)
+                Faculty ({SEED_ACCOUNTS.instructor.length})
               </button>
               <button
                 type="button"
@@ -370,7 +396,7 @@ export default function LoginPage() {
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                Student (5)
+                Student ({SEED_ACCOUNTS.student.length})
               </button>
             </div>
 

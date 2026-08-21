@@ -8,9 +8,6 @@ import {
   FileText,
   Video,
   GraduationCap,
-  Heart,
-  MessageSquare,
-  HelpCircle,
   Clock,
   User,
   LogOut,
@@ -35,8 +32,6 @@ import {
   TrendingUp,
   ChevronRight,
   Plus,
-  Send,
-  X,
   ExternalLink,
   Receipt,
   FileSpreadsheet
@@ -51,12 +46,12 @@ import { formatPrice } from "@/lib/utils";
 import Pagination from "@/components/ui/Pagination";
 
 export default function StudentDashboardPage() {
-  const { user, logout, switchRole } = useAuth();
+  const { user, logout, switchRole, isLoading: isAuthLoading } = useAuth();
   const { currency } = useCart();
   const { openModal } = useModal();
   const router = useRouter();
 
-  type TabType = "dashboard" | "courses" | "live" | "recordings" | "tests" | "doubts" | "orders" | "wishlist" | "settings";
+  type TabType = "dashboard" | "courses" | "live" | "recordings" | "tests" | "orders" | "settings";
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
 
   const handleTabChange = (tab: TabType) => {
@@ -72,7 +67,7 @@ export default function StudentDashboardPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const tabParam = new URLSearchParams(window.location.search).get("tab") as TabType;
-      const validTabs: TabType[] = ["dashboard", "courses", "live", "recordings", "tests", "doubts", "orders", "wishlist", "settings"];
+      const validTabs: TabType[] = ["dashboard", "courses", "live", "recordings", "tests", "orders", "settings"];
       if (tabParam && validTabs.includes(tabParam)) {
         setActiveTab(tabParam);
       } else {
@@ -86,9 +81,7 @@ export default function StudentDashboardPage() {
 
   // Tab Pagination States
   const [coursesPage, setCoursesPage] = useState(1);
-  const [doubtsPage, setDoubtsPage] = useState(1);
   const [ordersPage, setOrdersPage] = useState(1);
-  const [wishlistPage, setWishlistPage] = useState(1);
 
   // Dynamic state
   const [courses, setCourses] = useState<Course[]>(coursesData);
@@ -99,29 +92,6 @@ export default function StudentDashboardPage() {
     { id: "g4", title: "Attend Saturday 5:00 PM Live Doubt Clearance Room", done: false }
   ]);
   const [newGoalText, setNewGoalText] = useState("");
-
-  // Ask Doubt Modal State
-  const [askDoubtOpen, setAskDoubtOpen] = useState(false);
-  const [doubtSubject, setDoubtSubject] = useState("Mathematics");
-  const [doubtQuestion, setDoubtQuestion] = useState("");
-  const [doubtList, setDoubtList] = useState([
-    {
-      id: "d-1",
-      subject: "Mathematics",
-      question: "Sir, in Quadratic Equations, when discriminant D < 0, how do we write the final board step?",
-      status: "Answered by Pawan Gupta",
-      answer: "Write: 'Since D = b² - 4ac < 0, no real roots exist for this equation.' Full marks are awarded for this exact phrasing.",
-      time: "Yesterday"
-    },
-    {
-      id: "d-2",
-      subject: "Science",
-      question: "Difference between exothermic and endothermic reaction with 2 real-life examples?",
-      status: "Faculty Reviewing...",
-      answer: null,
-      time: "2 hours ago"
-    }
-  ]);
 
   // Profile Settings Form State
   const [profileName, setProfileName] = useState(user?.name || "Mayank Dubey");
@@ -137,7 +107,7 @@ export default function StudentDashboardPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Orders State
-  const [orders, setOrders] = useState([
+  const [orders, setOrders] = useState<any[]>([
     {
       id: "ORD-2026-9812",
       date: "2026-08-14",
@@ -174,6 +144,14 @@ export default function StudentDashboardPage() {
         if (data.courses && data.courses.length > 0) setCourses(data.courses);
       })
       .catch(() => {});
+
+    // Wait for auth to actually resolve before fetching anything personalized. Firing an
+    // unfiltered /api/live/classes request during the brief window where `user` is still null
+    // (before the session cookie loads) used to flash every live class — including ones this
+    // student isn't enrolled in and can't join — for one render before the real, filtered fetch
+    // replaced it. This page also redirects a genuinely logged-out visitor to /login, so there's
+    // no legitimate anonymous case left to fetch a fallback list for.
+    if (isAuthLoading) return;
 
     if (user?.email) {
       // 1. Fetch real student enrollments
@@ -218,15 +196,8 @@ export default function StudentDashboardPage() {
           if (data.history) setTestHistory(data.history);
         })
         .catch(() => {});
-    } else {
-      fetch("/api/live/classes")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.classes && data.classes.length > 0) setLiveClasses(data.classes);
-        })
-        .catch(() => {});
     }
-  }, [user?.email]);
+  }, [user?.email, isAuthLoading]);
 
   const handleLogout = () => {
     logout();
@@ -250,27 +221,6 @@ export default function StudentDashboardPage() {
       setNewGoalText("");
       triggerConfetti();
     }
-  };
-
-  const handleAskDoubtSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!doubtQuestion.trim()) return;
-
-    setDoubtList((prev) => [
-      {
-        id: `d-${Date.now()}`,
-        subject: doubtSubject,
-        question: doubtQuestion.trim(),
-        status: "Faculty Reviewing...",
-        answer: null,
-        time: "Just now"
-      },
-      ...prev
-    ]);
-    setDoubtQuestion("");
-    setAskDoubtOpen(false);
-    triggerConfetti();
-    showToast("Your doubt has been submitted to the faculty lead!");
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -362,14 +312,6 @@ export default function StudentDashboardPage() {
 
           {/* Quick Actions */}
           <div className="relative z-10 flex flex-wrap items-center justify-center gap-3">
-            <button
-              onClick={() => setAskDoubtOpen(true)}
-              className="px-5 py-3 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-extrabold text-xs shadow-lg shadow-red-900/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              <HelpCircle className="w-4 h-4" />
-              <span>Ask Faculty Doubt</span>
-            </button>
-
             {liveClasses.some((c) => c.status === "LIVE_NOW") ? (
               <Link
                 href={`/live/${liveClasses.find((c) => c.status === "LIVE_NOW")!.roomId}`}
@@ -464,18 +406,6 @@ export default function StudentDashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => handleTabChange("doubts")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
-                    activeTab === "doubts"
-                      ? "bg-indigo-50 text-[#5751E1]"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span>My Doubts ({doubtList.length})</span>
-                </button>
-
-                <button
                   onClick={() => handleTabChange("orders")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
                     activeTab === "orders"
@@ -487,17 +417,6 @@ export default function StudentDashboardPage() {
                   <span>Invoices &amp; Orders ({orders.length})</span>
                 </button>
 
-                <button
-                  onClick={() => handleTabChange("wishlist")}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-left cursor-pointer transition-all ${
-                    activeTab === "wishlist"
-                      ? "bg-indigo-50 text-[#5751E1]"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <Heart className="w-4 h-4" />
-                  <span>Saved Courses ({courses.slice(0, 3).length})</span>
-                </button>
               </nav>
             </div>
 
@@ -974,62 +893,6 @@ export default function StudentDashboardPage() {
               </div>
             )}
 
-            {/* TAB 5: MY DOUBTS & Q&A */}
-            {activeTab === "doubts" && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900">My Doubts &amp; Faculty Answers</h2>
-                    <p className="text-xs text-slate-500">Track responses from senior board faculties</p>
-                  </div>
-                  <button
-                    onClick={() => setAskDoubtOpen(true)}
-                    className="px-4 py-2 rounded-xl bg-[#050071] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Ask New Doubt</span>
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {doubtList
-                    .slice((doubtsPage - 1) * 4, doubtsPage * 4)
-                    .map((d) => (
-                      <div key={d.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
-                            {d.subject}
-                          </span>
-                          <span className="text-slate-400 text-[11px]">{d.time}</span>
-                        </div>
-
-                        <p className="text-xs font-bold text-slate-900">Q: {d.question}</p>
-
-                        {d.answer ? (
-                          <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1">
-                            <div className="font-bold text-emerald-800">Faculty Response:</div>
-                            <div>{d.answer}</div>
-                          </div>
-                        ) : (
-                          <div className="text-[11px] text-amber-700 font-semibold flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-amber-500 animate-spin" />
-                            <span>Assigned to faculty lead for step-by-step resolution...</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                </div>
-
-                <Pagination
-                  currentPage={doubtsPage}
-                  totalItems={doubtList.length}
-                  itemsPerPage={4}
-                  onPageChange={(page) => setDoubtsPage(page)}
-                  pageSizeOptions={[4, 8, 12]}
-                />
-              </div>
-            )}
-
             {/* TAB 6: INVOICES & ORDERS */}
             {activeTab === "orders" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
@@ -1041,32 +904,43 @@ export default function StudentDashboardPage() {
                 <div className="space-y-3">
                   {orders
                     .slice((ordersPage - 1) * 4, ordersPage * 4)
-                    .map((o) => (
-                      <div key={o.id} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-bold text-slate-600">{o.id}</span>
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] uppercase">
-                              {o.status}
-                            </span>
-                          </div>
-                          <h4 className="font-extrabold text-sm text-slate-900">{o.course}</h4>
-                          <div className="text-xs text-slate-500">{o.date} • {o.paymentMode}</div>
-                        </div>
+                    .map((o, idx) => {
+                      // Real order docs (from /api/orders) use invoice/courseTitle/totalNumeric/gateway
+                      // — o.id/o.course/o.amount/o.paymentMode only exist on the hardcoded fallback
+                      // seed data. Falling back across both shapes so a real order doesn't render
+                      // blank fields (and doesn't collide on a shared `undefined` key).
+                      const orderRef = o.invoice || o.id;
+                      const title = o.courseTitle || o.course;
+                      const amount = o.totalNumeric ?? o.amount;
+                      const paymentLabel = o.gateway || o.paymentMode;
 
-                        <div className="flex items-center gap-3">
-                          <span className="font-black text-base text-[#050071]">{formatPrice(o.amount, currency)}</span>
-                          <Link
-                            href={`/invoice/${o.id}`}
-                            target="_blank"
-                            className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <Receipt className="w-3.5 h-3.5" />
-                            <span>View / Download Invoice</span>
-                          </Link>
+                      return (
+                        <div key={orderRef || o._id || idx} className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-xs font-bold text-slate-600">{orderRef}</span>
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] uppercase">
+                                {o.status}
+                              </span>
+                            </div>
+                            <h4 className="font-extrabold text-sm text-slate-900">{title}</h4>
+                            <div className="text-xs text-slate-500">{o.date} • {paymentLabel}</div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <span className="font-black text-base text-[#050071]">{formatPrice(amount, currency)}</span>
+                            <Link
+                              href={`/invoice/${orderRef}`}
+                              target="_blank"
+                              className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-[#050071] hover:text-white text-slate-700 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <Receipt className="w-3.5 h-3.5" />
+                              <span>View / Download Invoice</span>
+                            </Link>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                 </div>
 
                 <Pagination
@@ -1075,51 +949,6 @@ export default function StudentDashboardPage() {
                   itemsPerPage={4}
                   onPageChange={(page) => setOrdersPage(page)}
                   pageSizeOptions={[4, 8, 12]}
-                />
-              </div>
-            )}
-
-            {/* TAB 7: WISHLIST */}
-            {activeTab === "wishlist" && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900">Saved Wishlist Batches</h2>
-                  <p className="text-xs text-slate-500">Batches shortlisted for your upcoming board preparation</p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {courses
-                    .slice((wishlistPage - 1) * 6, wishlistPage * 6)
-                    .map((c) => (
-                      <div
-                        key={c.id}
-                        className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between"
-                      >
-                        <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden border-b border-slate-100 flex items-center justify-center">
-                          <img src={c.thumbnail} alt={c.title} className="w-full h-full object-contain p-1" />
-                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white text-[#050071] font-extrabold text-[10px] uppercase">
-                            {c.class}
-                          </span>
-                        </div>
-                        <div className="p-5 space-y-3">
-                          <h3 className="font-extrabold text-sm text-slate-900 line-clamp-2">{c.title}</h3>
-                          <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
-                            <span className="font-black text-[#050071]">{formatPrice(c.price, currency)}</span>
-                            <Link href={`/course/${c.slug}`} className="text-[#5751E1] font-bold hover:underline">
-                              Enroll Now
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-
-                <Pagination
-                  currentPage={wishlistPage}
-                  totalItems={courses.length}
-                  itemsPerPage={6}
-                  onPageChange={(page) => setWishlistPage(page)}
-                  pageSizeOptions={[6, 12, 18]}
                 />
               </div>
             )}
@@ -1235,67 +1064,6 @@ export default function StudentDashboardPage() {
             )}
           </div>
         </div>
-
-        {/* MODAL: ASK DOUBT */}
-        {askDoubtOpen && (
-          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
-            <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="space-y-0.5">
-                  <h3 className="font-extrabold text-base text-slate-900">Ask Faculty Doubt</h3>
-                  <p className="text-xs text-slate-500">Get step-by-step mathematical &amp; scientific explanations</p>
-                </div>
-                <button onClick={() => setAskDoubtOpen(false)} className="p-1.5 rounded-full bg-slate-100 cursor-pointer">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <form onSubmit={handleAskDoubtSubmit} className="space-y-4 text-xs">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Subject</label>
-                  <select
-                    value={doubtSubject}
-                    onChange={(e) => setDoubtSubject(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 font-bold focus:outline-none"
-                  >
-                    <option value="Mathematics">Mathematics (Pawan Gupta)</option>
-                    <option value="Science">Science (Kratika Rathore)</option>
-                    <option value="Physics">Physics (Arya Dubey)</option>
-                    <option value="Chemistry">Chemistry (Bhoopendra)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Your Question / Derivation Query</label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={doubtQuestion}
-                    onChange={(e) => setDoubtQuestion(e.target.value)}
-                    placeholder="Type your question or NCERT problem statement..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setAskDoubtOpen(false)}
-                    className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white font-bold shadow-md cursor-pointer"
-                  >
-                    Submit Question
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
 
         {/* REUSABLE TOAST NOTIFICATION */}
         <ToastNotification
