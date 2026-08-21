@@ -12,6 +12,7 @@ export default function StatsBanner() {
       label: "Active Students Enrolled",
       color: "text-blue-500",
       bg: "bg-blue-50",
+      anim: "animate-icon-float",
     },
     {
       icon: Video,
@@ -19,6 +20,7 @@ export default function StatsBanner() {
       label: "CBSE & State Board Batches",
       color: "text-orange-500",
       bg: "bg-orange-50",
+      anim: "animate-icon-pulse",
     },
     {
       icon: Users,
@@ -26,6 +28,7 @@ export default function StatsBanner() {
       label: "Gold Medalist Instructors",
       color: "text-emerald-500",
       bg: "bg-emerald-50",
+      anim: "animate-icon-wiggle",
     },
     {
       icon: Award,
@@ -33,6 +36,7 @@ export default function StatsBanner() {
       label: "Board Exam Success Rate",
       color: "text-purple-500",
       bg: "bg-purple-50",
+      anim: "animate-icon-sparkle",
     },
   ];
 
@@ -45,12 +49,12 @@ export default function StatsBanner() {
             return (
               <div
                 key={idx}
-                className="flex flex-col items-center text-center p-4 first:pt-0 md:first:pt-4"
+                className="flex flex-col items-center text-center p-4 first:pt-0 md:first:pt-4 group"
                 data-aos="zoom-in"
                 data-aos-delay={idx * 120}
               >
-                <div className={`w-14 h-14 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-3 shadow-md`}>
-                  <Icon className="w-7 h-7" />
+                <div className={`w-14 h-14 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-3 shadow-md transition-transform group-hover:scale-115`}>
+                  <Icon className={`w-7 h-7 ${stat.anim}`} />
                 </div>
                 <div className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-1">
                   {stat.value}

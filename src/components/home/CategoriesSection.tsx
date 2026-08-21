@@ -7,11 +7,11 @@ import { categoriesData } from "@/data/categoriesData";
 
 export default function CategoriesSection() {
   const iconMap: Record<string, any> = {
-    calculator: Calculator,
-    atom: Atom,
-    book: BookOpen,
-    briefcase: Briefcase,
-    award: Award,
+    calculator: { icon: Calculator, anim: "animate-icon-pulse" },
+    atom: { icon: Atom, anim: "animate-icon-spin-slow" },
+    book: { icon: BookOpen, anim: "animate-icon-float" },
+    briefcase: { icon: Briefcase, anim: "animate-icon-wiggle" },
+    award: { icon: Award, anim: "animate-icon-sparkle" },
   };
 
   return (
@@ -33,7 +33,7 @@ export default function CategoriesSection() {
 
           <Link
             href="/courses"
-            className="inline-flex items-center gap-2 text-xs font-bold text-[#5751E1] hover:text-[#050071] transition-colors self-start md:self-auto"
+            className="inline-flex items-center gap-2 text-xs font-bold text-[#5751E1] hover:text-[#050071] transition-all hover:scale-105 active:scale-95 self-start md:self-auto"
           >
             <span>Browse All Batches</span>
             <ArrowRight className="w-4 h-4" />
@@ -43,19 +43,20 @@ export default function CategoriesSection() {
         {/* Categories Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {categoriesData.map((cat, idx) => {
-            const Icon = iconMap[cat.icon] || BookOpen;
+            const mapped = iconMap[cat.icon] || { icon: BookOpen, anim: "animate-icon-float" };
+            const Icon = mapped.icon;
 
             return (
               <Link
                 key={cat.id}
                 href={`/courses?class=${encodeURIComponent(cat.title)}`}
-                className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all duration-300 flex flex-col justify-between group"
+                className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all duration-300 flex flex-col justify-between group hover:scale-102 active:scale-98"
                 data-aos="fade-up"
                 data-aos-delay={idx * 100}
               >
                 <div className="space-y-4">
                   <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-[#5751E1] group-hover:bg-[#5751E1] group-hover:text-white transition-colors flex items-center justify-center">
-                    <Icon className="w-7 h-7" />
+                    <Icon className={`w-7 h-7 ${mapped.anim}`} />
                   </div>
 
                   <div>
@@ -70,7 +71,7 @@ export default function CategoriesSection() {
 
                 <div className="pt-4 mt-6 border-t border-slate-100 flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-400">{cat.coursesCount} Active Batches</span>
-                  <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-[#FF2424] group-hover:text-white flex items-center justify-center text-slate-600 transition-colors">
+                  <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-[#FF2424] group-hover:text-white flex items-center justify-center text-slate-600 transition-all group-hover:scale-110">
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
                 </div>
