@@ -108,19 +108,20 @@ export default function InstructorDashboardPage() {
             </div>
           </div>
 
-          <div className="relative z-10 flex items-center gap-3">
+          <div className="relative z-10 flex flex-wrap items-center gap-3">
+            <Link
+              href="/live/room-maths-10-quadratics"
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-black text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+            >
+              <Video className="w-4 h-4 animate-icon-pulse" />
+              <span>Launch Live Studio (WebRTC)</span>
+            </Link>
+
             <button
               onClick={handleSwitchToStudent}
-              className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs transition-colors"
+              className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs transition-colors"
             >
-              Switch to Student View
-            </button>
-            <button
-              onClick={handleCreateLiveClass}
-              className="px-6 py-3 rounded-2xl bg-[#FF2424] hover:bg-red-700 text-white font-extrabold text-xs shadow-lg shadow-red-900/30 flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create Live Class</span>
+              Student View
             </button>
           </div>
         </div>

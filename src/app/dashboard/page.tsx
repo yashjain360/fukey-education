@@ -282,7 +282,27 @@ export default function StudentDashboardPage() {
           {/* Right Main Content Area */}
           <div className="lg:col-span-9 space-y-8" data-aos="fade-left" data-aos-duration="850">
             {activeTab === "dashboard" && (
-              <div className="space-y-8">
+              <div className="space-y-6">
+                {/* Active Live Class Banner */}
+                <div className="p-6 rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-indigo-500/30">
+                  <div className="space-y-1.5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black border border-emerald-400/30 uppercase tracking-wider">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      <span>Live Classroom Broadcasting Now</span>
+                    </div>
+                    <h3 className="text-xl font-black tracking-tight">Class 10th Maths: Quadratic Equations</h3>
+                    <p className="text-xs text-indigo-200">Instructor: Pawan Gupta • 42 Students in Live Tablet Room</p>
+                  </div>
+
+                  <Link
+                    href="/live/room-maths-10-quadratics"
+                    className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#FF2424] to-red-700 hover:brightness-110 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+                  >
+                    <Video className="w-4 h-4 animate-icon-pulse" />
+                    <span>Join Live Class Now</span>
+                  </Link>
+                </div>
+
                 <div>
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-6">Dashboard</h2>
 
