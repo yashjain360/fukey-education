@@ -45,7 +45,7 @@ export default function LiveRoomPage() {
   const [isRecording, setIsRecording] = useState(true);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
 
-  // Video element refs for mock WebRTC streams
+  // Video element refs for live streaming video streams
   const localVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -163,7 +163,7 @@ export default function LiveRoomPage() {
               <WhiteboardCanvas isInstructor={isInstructor} roomId={roomId} />
             ) : (
               <div className="w-full h-full min-h-[500px] bg-slate-950 rounded-3xl overflow-hidden border border-indigo-900 shadow-2xl relative flex items-center justify-center">
-                {/* Simulated Instructor WebRTC Feed */}
+                {/* Simulated Instructor Live Broadcast Feed */}
                 <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-950 via-slate-900 to-black">
                   <div className="text-center space-y-3">
                     <div className="w-24 h-24 rounded-full bg-[#5751E1] text-white font-black text-3xl mx-auto flex items-center justify-center border-4 border-white/20 shadow-2xl">

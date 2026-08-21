@@ -623,7 +623,7 @@ export default function InstructorDashboardPage() {
                       <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping" />
                       <span>Live Classroom Hub</span>
                     </h2>
-                    <p className="text-xs text-slate-500">Launch WebRTC video lecture studios with digital whiteboard &amp; doubt rooms</p>
+                    <p className="text-xs text-slate-500">Launch interactive video lecture studios with digital whiteboard &amp; doubt rooms</p>
                   </div>
 
                   <Link
