@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Award, Star, BookOpen } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 import { instructorsData } from "@/data/instructorsData";
 
 export default function InstructorsSection() {
@@ -34,18 +34,14 @@ export default function InstructorsSection() {
               {/* Photo */}
               <div className="relative aspect-square bg-slate-100 overflow-hidden">
                 <img
-                  src={inst.image}
+                  src={inst.photo || inst.image || "/images/instructors/kratika-rathore.webp"}
                   alt={inst.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "https://fukeyeducation.com/uploads/website-images/frontend-avatar.png";
-                  }}
                 />
 
                 <div className="absolute top-3 left-3">
                   <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white font-extrabold text-[10px] uppercase tracking-wider">
-                    {inst.department}
+                    {inst.department || inst.role.split(" ")[0]}
                   </span>
                 </div>
               </div>
@@ -56,8 +52,8 @@ export default function InstructorsSection() {
                   <h3 className="font-extrabold text-slate-900 text-base group-hover:text-[#5751E1] transition-colors">
                     {inst.name}
                   </h3>
-                  <div className="text-xs text-slate-500 font-medium mt-0.5">
-                    {inst.designation}
+                  <div className="text-xs text-slate-500 font-medium mt-0.5 line-clamp-1">
+                    {inst.designation || inst.role}
                   </div>
                 </div>
 
