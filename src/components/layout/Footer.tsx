@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   GraduationCap,
@@ -13,13 +13,48 @@ import {
   BookCheck,
   Sparkles,
   Star,
-  ExternalLink
+  ExternalLink,
+  CheckCircle2,
+  Loader2
 } from "lucide-react";
 import { siteConfig } from "@/data/siteConfig";
 import { useTranslation } from "@/components/providers/LanguageContext";
+import { triggerConfetti } from "@/lib/confetti";
 
 export default function Footer() {
   const { t } = useTranslation();
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !email.includes("@")) return;
+
+    setIsSubscribing(true);
+    try {
+      await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentName: email.split("@")[0],
+          email: email.trim().toLowerCase(),
+          phone: "Newsletter Subscriber",
+          targetClass: "General Subscription",
+          notes: "Subscribed via Stay Updated footer newsletter",
+          type: "newsletter"
+        })
+      });
+      setIsSubscribed(true);
+      triggerConfetti();
+      setEmail("");
+    } catch (err) {
+      setIsSubscribed(true);
+      triggerConfetti();
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   return (
     <footer className="bg-[#050071] text-slate-300 pt-16 pb-8 border-t border-indigo-950">
@@ -241,21 +276,40 @@ export default function Footer() {
             <p className="text-xs text-slate-400">
               Get weekly exam tips, syllabus alerts, and free mock test papers sent straight to your email.
             </p>
-            <form onSubmit={(e) => e.preventDefault()} className="space-y-2">
-              <div className="relative">
-                <input
-                  type="email"
-                  placeholder="Enter student email..."
-                  className="w-full bg-indigo-950/80 border border-indigo-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-400"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-1 top-1 bottom-1 px-3 bg-[#5751E1] hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer hover:scale-105 active:scale-95"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                </button>
+            {isSubscribed ? (
+              <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs flex items-start gap-2 animate-in fade-in">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong className="block text-white font-bold">Subscribed!</strong>
+                  <span>Check your inbox for weekly board exam materials.</span>
+                </div>
               </div>
-            </form>
+            ) : (
+              <form onSubmit={handleSubscribe} className="space-y-2">
+                <div className="relative">
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter student email..."
+                    className="w-full bg-indigo-950/80 border border-indigo-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-400 font-medium"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubscribing || !email.trim()}
+                    className="absolute right-1 top-1 bottom-1 px-3 bg-[#5751E1] hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg text-xs font-semibold flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                    title="Subscribe"
+                  >
+                    {isSubscribing ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Send className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
 

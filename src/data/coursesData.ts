@@ -911,12 +911,12 @@ export const coursesData: Course[] = [
   {
     "id": "course-12",
     "slug": "business-studies-hindi",
-    "title": "BUSINESS STUDIES 10TH (HINDI)",
-    "subTitle": "Complete CBSE & State Board coaching for Class 10th Business Studies (Hindi Medium) by top faculties.",
-    "class": "Class 10",
-    "classNum": 10,
+    "title": "BUSINESS STUDIES 12TH (HINDI)",
+    "subTitle": "Complete CBSE & State Board coaching for Class 12th Business Studies (Hindi Medium) by top faculties.",
+    "class": "Class 12",
+    "classNum": 12,
     "subject": "Business Studies",
-    "stream": "Foundation (Class 9-10)",
+    "stream": "Commerce",
     "language": "Hindi",
     "price": 1499,
     "originalPrice": 2499,
@@ -930,7 +930,7 @@ export const coursesData: Course[] = [
     "lessonsCount": 70,
     "resourcesCount": 48,
     "badge": "Top Rated",
-    "description": "Master Class 10th Business Studies (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
+    "description": "Master Class 12th Business Studies (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
     "features": [
       "Live Interactive Online Lectures with Audio/Video Doubt Q&A",
       "Complete High-Definition Video Recording Backups",
@@ -941,7 +941,7 @@ export const coursesData: Course[] = [
     ],
     "curriculum": [
       {
-        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 10 Business Studies",
+        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 12 Business Studies",
         "duration": "12 Hours",
         "topics": [
           "Introduction to Business Studies curriculum & NCERT breakdown",
@@ -973,8 +973,8 @@ export const coursesData: Course[] = [
     ],
     "faqs": [
       {
-        "q": "Is this course suitable for Class 10 CBSE and State Board students?",
-        "a": "Yes! The course covers 100% of the NCERT syllabus which is the standard baseline for CBSE, ICSE, and all major State Boards in India for Class 10."
+        "q": "Is this course suitable for Class 12 CBSE and State Board students?",
+        "a": "Yes! The course covers 100% of the NCERT syllabus which is the standard baseline for CBSE, ICSE, and all major State Boards in India for Class 12."
       },
       {
         "q": "What happens if I miss a live lecture?",
@@ -3202,11 +3202,11 @@ export const coursesData: Course[] = [
   {
     "id": "course-41",
     "slug": "political-science-11th-english",
-    "title": "SCIENCE 11TH (ENGLISH)",
-    "subTitle": "Complete CBSE & State Board coaching for Class 11th Science (English Medium) by top faculties.",
+    "title": "POLITICAL SCIENCE 11TH (ENGLISH)",
+    "subTitle": "Complete CBSE & State Board coaching for Class 11th Political Science (English Medium) by top faculties.",
     "class": "Class 11",
     "classNum": 11,
-    "subject": "Science",
+    "subject": "Political Science",
     "stream": "Humanities / Arts",
     "language": "English",
     "price": 1499,
@@ -3215,13 +3215,13 @@ export const coursesData: Course[] = [
     "rating": 4.85,
     "reviewsCount": 165,
     "studentsEnrolled": 600,
-    "instructor": "Kratika Rathore",
-    "instructorRole": "Senior Science Faculty",
+    "instructor": "Mayank Dubey",
+    "instructorRole": "Senior Political Science Faculty",
     "duration": "85+ Hours Live",
     "lessonsCount": 56,
     "resourcesCount": 35,
     "badge": "Bestseller",
-    "description": "Master Class 11th Science (English Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
+    "description": "Master Class 11th Political Science (English Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
     "features": [
       "Live Interactive Online Lectures with Audio/Video Doubt Q&A",
       "Complete High-Definition Video Recording Backups",
@@ -3232,10 +3232,10 @@ export const coursesData: Course[] = [
     ],
     "curriculum": [
       {
-        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 11 Science",
+        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 11 Political Science",
         "duration": "12 Hours",
         "topics": [
-          "Introduction to Science curriculum & NCERT breakdown",
+          "Introduction to Political Science curriculum & NCERT breakdown",
           "Comprehensive theoretical definitions & proof formulas",
           "NCERT exemplar problems & step-by-step solutions",
           "Live doubt clearing & diagnostic quick quiz"
@@ -3281,11 +3281,11 @@ export const coursesData: Course[] = [
   {
     "id": "course-42",
     "slug": "political-science-11th-hindi",
-    "title": "SCIENCE 11TH (HINDI)",
-    "subTitle": "Complete CBSE & State Board coaching for Class 11th Science (Hindi Medium) by top faculties.",
+    "title": "POLITICAL SCIENCE 11TH (HINDI)",
+    "subTitle": "Complete CBSE & State Board coaching for Class 11th Political Science (Hindi Medium) by top faculties.",
     "class": "Class 11",
     "classNum": 11,
-    "subject": "Science",
+    "subject": "Political Science",
     "stream": "Humanities / Arts",
     "language": "Hindi",
     "price": 1499,
@@ -3294,13 +3294,13 @@ export const coursesData: Course[] = [
     "rating": 4.88,
     "reviewsCount": 176,
     "studentsEnrolled": 637,
-    "instructor": "Kratika Rathore",
-    "instructorRole": "Senior Science Faculty",
+    "instructor": "Mayank Dubey",
+    "instructorRole": "Senior Political Science Faculty",
     "duration": "85+ Hours Live",
     "lessonsCount": 58,
     "resourcesCount": 38,
     "badge": "Top Rated",
-    "description": "Master Class 11th Science (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
+    "description": "Master Class 11th Political Science (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
     "features": [
       "Live Interactive Online Lectures with Audio/Video Doubt Q&A",
       "Complete High-Definition Video Recording Backups",
@@ -3311,10 +3311,10 @@ export const coursesData: Course[] = [
     ],
     "curriculum": [
       {
-        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 11 Science",
+        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 11 Political Science",
         "duration": "12 Hours",
         "topics": [
-          "Introduction to Science curriculum & NCERT breakdown",
+          "Introduction to Political Science curriculum & NCERT breakdown",
           "Comprehensive theoretical definitions & proof formulas",
           "NCERT exemplar problems & step-by-step solutions",
           "Live doubt clearing & diagnostic quick quiz"
@@ -3360,11 +3360,11 @@ export const coursesData: Course[] = [
   {
     "id": "course-43",
     "slug": "political-science-12th-english",
-    "title": "SCIENCE 12TH (ENGLISH)",
-    "subTitle": "Complete CBSE & State Board coaching for Class 12th Science (English Medium) by top faculties.",
+    "title": "POLITICAL SCIENCE 12TH (ENGLISH)",
+    "subTitle": "Complete CBSE & State Board coaching for Class 12th Political Science (English Medium) by top faculties.",
     "class": "Class 12",
     "classNum": 12,
-    "subject": "Science",
+    "subject": "Political Science",
     "stream": "Humanities / Arts",
     "language": "English",
     "price": 1499,
@@ -3373,13 +3373,13 @@ export const coursesData: Course[] = [
     "rating": 4.91,
     "reviewsCount": 187,
     "studentsEnrolled": 674,
-    "instructor": "Kratika Rathore",
-    "instructorRole": "Senior Science Faculty",
+    "instructor": "Mayank Dubey",
+    "instructorRole": "Senior Political Science Faculty",
     "duration": "85+ Hours Live",
     "lessonsCount": 60,
     "resourcesCount": 41,
     "badge": "Trending",
-    "description": "Master Class 12th Science (English Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
+    "description": "Master Class 12th Political Science (English Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
     "features": [
       "Live Interactive Online Lectures with Audio/Video Doubt Q&A",
       "Complete High-Definition Video Recording Backups",
@@ -3390,10 +3390,10 @@ export const coursesData: Course[] = [
     ],
     "curriculum": [
       {
-        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 12 Science",
+        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 12 Political Science",
         "duration": "12 Hours",
         "topics": [
-          "Introduction to Science curriculum & NCERT breakdown",
+          "Introduction to Political Science curriculum & NCERT breakdown",
           "Comprehensive theoretical definitions & proof formulas",
           "NCERT exemplar problems & step-by-step solutions",
           "Live doubt clearing & diagnostic quick quiz"
@@ -3439,11 +3439,11 @@ export const coursesData: Course[] = [
   {
     "id": "course-44",
     "slug": "political-science-12th-hindi",
-    "title": "SCIENCE 12TH (HINDI)",
-    "subTitle": "Complete CBSE & State Board coaching for Class 12th Science (Hindi Medium) by top faculties.",
+    "title": "POLITICAL SCIENCE 12TH (HINDI)",
+    "subTitle": "Complete CBSE & State Board coaching for Class 12th Political Science (Hindi Medium) by top faculties.",
     "class": "Class 12",
     "classNum": 12,
-    "subject": "Science",
+    "subject": "Political Science",
     "stream": "Humanities / Arts",
     "language": "Hindi",
     "price": 1499,
@@ -3452,13 +3452,13 @@ export const coursesData: Course[] = [
     "rating": 4.94,
     "reviewsCount": 198,
     "studentsEnrolled": 711,
-    "instructor": "Kratika Rathore",
-    "instructorRole": "Senior Science Faculty",
+    "instructor": "Mayank Dubey",
+    "instructorRole": "Senior Political Science Faculty",
     "duration": "85+ Hours Live",
     "lessonsCount": 62,
     "resourcesCount": 44,
     "badge": "Top Rated",
-    "description": "Master Class 12th Science (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
+    "description": "Master Class 12th Political Science (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
     "features": [
       "Live Interactive Online Lectures with Audio/Video Doubt Q&A",
       "Complete High-Definition Video Recording Backups",
@@ -3469,10 +3469,10 @@ export const coursesData: Course[] = [
     ],
     "curriculum": [
       {
-        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 12 Science",
+        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 12 Political Science",
         "duration": "12 Hours",
         "topics": [
-          "Introduction to Science curriculum & NCERT breakdown",
+          "Introduction to Political Science curriculum & NCERT breakdown",
           "Comprehensive theoretical definitions & proof formulas",
           "NCERT exemplar problems & step-by-step solutions",
           "Live doubt clearing & diagnostic quick quiz"
@@ -3834,11 +3834,11 @@ export const coursesData: Course[] = [
   {
     "id": "course-49",
     "slug": "social-science-10th-english-1",
-    "title": "SCIENCE 10TH (ENGLISH)",
-    "subTitle": "Complete CBSE & State Board coaching for Class 10th Science (English Medium) by top faculties.",
+    "title": "SOCIAL SCIENCE 10TH (ENGLISH)",
+    "subTitle": "Complete CBSE & State Board coaching for Class 10th Social Science (English Medium) by top faculties.",
     "class": "Class 10",
     "classNum": 10,
-    "subject": "Science",
+    "subject": "Social Science",
     "stream": "Foundation (Class 9-10)",
     "language": "English",
     "price": 1499,
@@ -3847,13 +3847,13 @@ export const coursesData: Course[] = [
     "rating": 4.94,
     "reviewsCount": 133,
     "studentsEnrolled": 896,
-    "instructor": "Kratika Rathore",
-    "instructorRole": "Senior Science Faculty",
+    "instructor": "Ram Kumar Soni",
+    "instructorRole": "Senior Social Science Faculty",
     "duration": "85+ Hours Live",
     "lessonsCount": 48,
     "resourcesCount": 39,
     "badge": "Bestseller",
-    "description": "Master Class 10th Science (English Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
+    "description": "Master Class 10th Social Science (English Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
     "features": [
       "Live Interactive Online Lectures with Audio/Video Doubt Q&A",
       "Complete High-Definition Video Recording Backups",
@@ -3864,10 +3864,10 @@ export const coursesData: Course[] = [
     ],
     "curriculum": [
       {
-        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 10 Science",
+        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 10 Social Science",
         "duration": "12 Hours",
         "topics": [
-          "Introduction to Science curriculum & NCERT breakdown",
+          "Introduction to Social Science curriculum & NCERT breakdown",
           "Comprehensive theoretical definitions & proof formulas",
           "NCERT exemplar problems & step-by-step solutions",
           "Live doubt clearing & diagnostic quick quiz"
@@ -3913,11 +3913,11 @@ export const coursesData: Course[] = [
   {
     "id": "course-50",
     "slug": "social-science-10th-hindi",
-    "title": "SCIENCE 10TH (HINDI)",
-    "subTitle": "Complete CBSE & State Board coaching for Class 10th Science (Hindi Medium) by top faculties.",
+    "title": "SOCIAL SCIENCE 10TH (HINDI)",
+    "subTitle": "Complete CBSE & State Board coaching for Class 10th Social Science (Hindi Medium) by top faculties.",
     "class": "Class 10",
     "classNum": 10,
-    "subject": "Science",
+    "subject": "Social Science",
     "stream": "Foundation (Class 9-10)",
     "language": "Hindi",
     "price": 1499,
@@ -3926,13 +3926,13 @@ export const coursesData: Course[] = [
     "rating": 4.97,
     "reviewsCount": 144,
     "studentsEnrolled": 933,
-    "instructor": "Kratika Rathore",
-    "instructorRole": "Senior Science Faculty",
+    "instructor": "Ram Kumar Soni",
+    "instructorRole": "Senior Social Science Faculty",
     "duration": "85+ Hours Live",
     "lessonsCount": 50,
     "resourcesCount": 42,
     "badge": "Top Rated",
-    "description": "Master Class 10th Science (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
+    "description": "Master Class 10th Social Science (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
     "features": [
       "Live Interactive Online Lectures with Audio/Video Doubt Q&A",
       "Complete High-Definition Video Recording Backups",
@@ -3943,10 +3943,10 @@ export const coursesData: Course[] = [
     ],
     "curriculum": [
       {
-        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 10 Science",
+        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 10 Social Science",
         "duration": "12 Hours",
         "topics": [
-          "Introduction to Science curriculum & NCERT breakdown",
+          "Introduction to Social Science curriculum & NCERT breakdown",
           "Comprehensive theoretical definitions & proof formulas",
           "NCERT exemplar problems & step-by-step solutions",
           "Live doubt clearing & diagnostic quick quiz"
@@ -3992,11 +3992,11 @@ export const coursesData: Course[] = [
   {
     "id": "course-51",
     "slug": "social-science-9th-english",
-    "title": "SCIENCE 9TH (ENGLISH)",
-    "subTitle": "Complete CBSE & State Board coaching for Class 9th Science (English Medium) by top faculties.",
+    "title": "SOCIAL SCIENCE 9TH (ENGLISH)",
+    "subTitle": "Complete CBSE & State Board coaching for Class 9th Social Science (English Medium) by top faculties.",
     "class": "Class 9",
     "classNum": 9,
-    "subject": "Science",
+    "subject": "Social Science",
     "stream": "Foundation (Class 9-10)",
     "language": "English",
     "price": 1499,
@@ -4005,13 +4005,13 @@ export const coursesData: Course[] = [
     "rating": 4.85,
     "reviewsCount": 155,
     "studentsEnrolled": 970,
-    "instructor": "Kratika Rathore",
-    "instructorRole": "Senior Science Faculty",
+    "instructor": "Ram Kumar Soni",
+    "instructorRole": "Senior Social Science Faculty",
     "duration": "85+ Hours Live",
     "lessonsCount": 52,
     "resourcesCount": 45,
     "badge": "Top Rated",
-    "description": "Master Class 9th Science (English Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
+    "description": "Master Class 9th Social Science (English Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
     "features": [
       "Live Interactive Online Lectures with Audio/Video Doubt Q&A",
       "Complete High-Definition Video Recording Backups",
@@ -4022,10 +4022,10 @@ export const coursesData: Course[] = [
     ],
     "curriculum": [
       {
-        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 9 Science",
+        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 9 Social Science",
         "duration": "12 Hours",
         "topics": [
-          "Introduction to Science curriculum & NCERT breakdown",
+          "Introduction to Social Science curriculum & NCERT breakdown",
           "Comprehensive theoretical definitions & proof formulas",
           "NCERT exemplar problems & step-by-step solutions",
           "Live doubt clearing & diagnostic quick quiz"
@@ -4071,11 +4071,11 @@ export const coursesData: Course[] = [
   {
     "id": "course-52",
     "slug": "social-science-9th-hindi",
-    "title": "SCIENCE 9TH (HINDI)",
-    "subTitle": "Complete CBSE & State Board coaching for Class 9th Science (Hindi Medium) by top faculties.",
+    "title": "SOCIAL SCIENCE 9TH (HINDI)",
+    "subTitle": "Complete CBSE & State Board coaching for Class 9th Social Science (Hindi Medium) by top faculties.",
     "class": "Class 9",
     "classNum": 9,
-    "subject": "Science",
+    "subject": "Social Science",
     "stream": "Foundation (Class 9-10)",
     "language": "Hindi",
     "price": 1499,
@@ -4084,13 +4084,13 @@ export const coursesData: Course[] = [
     "rating": 4.88,
     "reviewsCount": 166,
     "studentsEnrolled": 1007,
-    "instructor": "Kratika Rathore",
-    "instructorRole": "Senior Science Faculty",
+    "instructor": "Ram Kumar Soni",
+    "instructorRole": "Senior Social Science Faculty",
     "duration": "85+ Hours Live",
     "lessonsCount": 54,
     "resourcesCount": 48,
     "badge": "Trending",
-    "description": "Master Class 9th Science (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
+    "description": "Master Class 9th Social Science (Hindi Medium) with Fukey Education. This comprehensive live online coaching course is structured strictly as per the latest NCERT & CBSE board curriculum 2026-27. Features include live interactive classes, HD recorded backups, downloadable color notes, chapter-wise worksheets, formula sheets, mock test series, and 24/7 doubt resolution.",
     "features": [
       "Live Interactive Online Lectures with Audio/Video Doubt Q&A",
       "Complete High-Definition Video Recording Backups",
@@ -4101,10 +4101,10 @@ export const coursesData: Course[] = [
     ],
     "curriculum": [
       {
-        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 9 Science",
+        "moduleTitle": "Unit 1: Fundamentals & Core Concepts of Class 9 Social Science",
         "duration": "12 Hours",
         "topics": [
-          "Introduction to Science curriculum & NCERT breakdown",
+          "Introduction to Social Science curriculum & NCERT breakdown",
           "Comprehensive theoretical definitions & proof formulas",
           "NCERT exemplar problems & step-by-step solutions",
           "Live doubt clearing & diagnostic quick quiz"

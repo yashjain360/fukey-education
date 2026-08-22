@@ -97,8 +97,8 @@ export default function InstructorsPage() {
                   {inst.coursesCount} Active Batches
                 </span>
                 <Link
-                  href={`/courses`}
-                  className="px-5 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                  href={`/courses?instructor=${encodeURIComponent(inst.name)}`}
+                  className="px-5 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <span>Explore Batches</span>
                   <ArrowRight className="w-3.5 h-3.5" />

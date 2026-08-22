@@ -38,12 +38,13 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!couponInput) return;
-    const res = applyCoupon(couponInput);
+  const handleApplyCoupon = (e?: React.FormEvent, codeToUse?: string) => {
+    if (e) e.preventDefault();
+    const code = codeToUse || couponInput || "FREEDOM40";
+    const res = applyCoupon(code);
     setCouponStatus(res.message);
     if (res.success) {
+      setCouponInput("");
       triggerConfetti();
     }
   };
@@ -143,27 +144,43 @@ export default function CartDrawer() {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleApplyCoupon} className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Tag className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Coupon (e.g. FREEDOM40)"
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 font-medium focus:outline-none focus:border-indigo-500 uppercase"
-                    />
+                <div className="space-y-2">
+                  <form onSubmit={(e) => handleApplyCoupon(e)} className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Tag className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Coupon (e.g. FREEDOM40)"
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 font-bold focus:outline-none focus:border-indigo-500 uppercase tracking-wider"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-[#050071] hover:bg-indigo-900 text-white rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      Apply
+                    </button>
+                  </form>
+
+                  {/* Quick Click Promo Badge */}
+                  <div className="flex items-center gap-1.5 text-[10px]">
+                    <span className="text-slate-400">Available:</span>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyCoupon(undefined, "FREEDOM40")}
+                      className="px-2 py-0.5 rounded-md bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold cursor-pointer transition-colors"
+                    >
+                      ⚡ FREEDOM40 (40% OFF)
+                    </button>
                   </div>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-[#050071] hover:bg-indigo-900 text-white rounded-xl text-xs font-bold transition-colors"
-                  >
-                    Apply
-                  </button>
-                </form>
+                </div>
               )}
               {couponStatus && (
-                <p className="text-[11px] text-slate-500 mt-1 font-medium">{couponStatus}</p>
+                <p className={`text-[11px] mt-1 font-semibold ${couponStatus.includes("successfully") ? "text-emerald-600" : "text-rose-600"}`}>
+                  {couponStatus}
+                </p>
               )}
             </div>
 

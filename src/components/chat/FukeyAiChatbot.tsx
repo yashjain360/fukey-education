@@ -74,9 +74,42 @@ export default function FukeyAiChatbot({ isOpen, onClose }: FukeyAiChatbotProps)
       let botReply = "";
       let botOptions: string[] | undefined = undefined;
 
-      const q = text.toLowerCase();
+      const q = text.toLowerCase().trim();
 
-      if (q.includes("10th") || q.includes("class 10")) {
+      if (q.includes("economic") || q.includes("who teaches eco")) {
+        botReply = "📈 **Economics (Classes 11th & 12th)** is taught by:\n• **Arya Dubey** (English Medium) — Delhi School of Economics alumna specializing in Macroeconomics & Micro Analysis.\n• **Rashmi Parihar** (Hindi Medium) — M.Com, M.Phil with 10+ years experience in Indian Economic Development & Statistics.\n\nBoth educators offer live NCERT derivations and numerical drills!";
+        botOptions = ["View Economics Courses", "Meet Arya Dubey", "Meet Rashmi Parihar", "Ask Course Fees"];
+      } else if (q.includes("math") || q.includes("who teaches math") || q.includes("pawan")) {
+        botReply = "📐 **Mathematics (Classes 9th to 12th)** is taught by **Pawan Gupta** (Senior Faculty & HOD, M.Sc. Mathematics, B.Ed. Gold Medalist with 10+ Years Experience). He is author of the 'Fast Track Maths Formula Bank' and has trained 150+ board centum scorers!";
+        botOptions = ["View Maths Batches", "Download 10th Maths Formulas", "Meet Pawan Gupta"];
+      } else if (q.includes("chem") || q.includes("kratika") || (q.includes("science") && !q.includes("social"))) {
+        botReply = "🧪 **Science & Chemistry** is taught by **Kratika Rathore** (Head of Science, M.Sc. Chemistry, CSIR-NET Qualified with 8+ Years Experience). She brings chemical reactions alive through interactive experiment simulations and memory mnemonics!";
+        botOptions = ["View Class 10 Science", "View Class 12 Chemistry", "Meet Kratika Rathore"];
+      } else if (q.includes("physic") || q.includes("vivek")) {
+        botReply = "⚡ **Physics (Classes 11th & 12th)** is taught by **Vivek Dubey** (Senior Physics Faculty Lead, M.Tech, 12+ Years Experience, Former Kota Faculty Lead). Renowned for pen-tablet whiteboard derivations and board numerical shortcuts!";
+        botOptions = ["View Physics Batches", "Download 12th Physics Derivations", "Meet Vivek Dubey"];
+      } else if (q.includes("bio") || q.includes("zoology") || q.includes("botany") || q.includes("babli")) {
+        botReply = "🧬 **Biology (Classes 11th & 12th)** is taught by **Babli Jain** (M.Sc. Zoology, 9+ Years Experience). She specializes in high-yield NCERT diagram mastery, genetics problem solving, and human physiology!";
+        botOptions = ["View Biology Batches", "Meet Babli Jain"];
+      } else if (q.includes("account") || q.includes("soumya")) {
+        botReply = "📊 **Accountancy (Classes 11th & 12th)** is taught by **Soumya Jain** (M.Com, Chartered Accountancy Faculty Lead with 8+ Years Experience). Covers Partnership Accounts, Company Balance Sheets, and Cash Flow Statements line-by-line!";
+        botOptions = ["View Accountancy Batches", "Meet Soumya Jain"];
+      } else if (q.includes("business") || q.includes("bstd") || q.includes("mousam")) {
+        botReply = "💼 **Business Studies (Classes 11th & 12th)** is taught by **Mousam Patil** (M.Com, UGC-NET Qualified). Known for real-world case study breakdowns and board answer presentation techniques!";
+        botOptions = ["View Business Studies Batches", "Meet Mousam Patil"];
+      } else if (q.includes("polity") || q.includes("political") || q.includes("mayank")) {
+        botReply = "🏛️ **Political Science & Humanities** is taught by **Mayank Dubey** (M.A. Political Science, Senior Faculty Lead). Covers Indian Constitution, World Politics, and Board Mock Answer Writing!";
+        botOptions = ["View Political Science Batches", "Meet Mayank Dubey"];
+      } else if (q.includes("social") || q.includes("history") || q.includes("geo") || q.includes("soni") || q.includes("ram")) {
+        botReply = "🌍 **Social Science (Classes 9th & 10th)** is taught by **Ram Kumar Soni** (M.A., B.Ed., 10+ Yrs Exp). Known for map-pointing masterclasses, chronology timelines, and NCERT structured answer keys!";
+        botOptions = ["View Social Science Batches", "Meet Ram Kumar Soni"];
+      } else if (q.includes("faculty") || q.includes("teacher") || q.includes("instructor") || q.includes("sir") || q.includes("ma'am") || q.includes("mam")) {
+        botReply = "👨‍🏫 **Fukey Education Faculty Directory**:\n• **Mathematics**: Pawan Gupta (Gold Medalist)\n• **Chemistry & Science**: Kratika Rathore (CSIR-NET)\n• **Physics**: Vivek Dubey (12+ Yrs Exp)\n• **Biology**: Babli Jain (9+ Yrs Exp)\n• **Economics**: Arya Dubey & Rashmi Parihar\n• **Accountancy**: Soumya Jain\n• **Business Studies**: Mousam Patil\n• **Social Science & Polity**: Mayank Dubey & Ram Kumar Soni\n\nAll teachers hold live 45-min classes + 15-min 1-on-1 doubt solving daily!";
+        botOptions = ["Meet All Faculty", "Explore All Batches", "Talk to Academic Counselor"];
+      } else if (q.includes("fee") || q.includes("price") || q.includes("cost") || q.includes("discount") || q.includes("coupon") || q.includes("offer")) {
+        botReply = "🎟️ **Course Pricing & Special Discounts**:\n• All individual subject batches are priced at **₹1,499** (regular ₹2,499).\n• Use coupon code **`FREEDOM40`** at checkout for an instant **40% OFF**!\n• Batches include complete NCERT live lectures, formula PDFs, test series & 1-on-1 doubts.";
+        botOptions = ["Browse All Courses", "Claim FREEDOM40 Discount", "Talk to Admissions"];
+      } else if (q.includes("10th") || q.includes("class 10")) {
         botReply = "For **Class 10th Boards**, we offer comprehensive target batches for **Mathematics (Pawan Gupta)** and **Science (Kratika Rathore)** available in both Hindi and English mediums. All courses include NCERT line-by-line solutions, chapter-wise mock tests, and live doubt sessions!";
         botOptions = ["View Class 10 Maths", "View Class 10 Science", "Claim Freedom 40% Discount"];
       } else if (q.includes("12th") || q.includes("physics") || q.includes("chemistry")) {
@@ -88,11 +121,11 @@ export default function FukeyAiChatbot({ isOpen, onClose }: FukeyAiChatbotProps)
       } else if (q.includes("board exam") || q.includes("prepare") || q.includes("strategy")) {
         botReply = "💡 **Top 3 Board Exam Tips**:\n1. Solve NCERT in-text & back exercises twice.\n2. Dedicate 50 mins study + 10 mins break.\n3. Practice 5 full-length mock papers with 3-hour timer.\nCheck our Blog section for full timetables!";
         botOptions = ["Read Exam Strategy Blog", "Download Free eBooks"];
-      } else if (q.includes("counselor") || q.includes("call") || q.includes("human") || q.includes("talk")) {
-        botReply = `You can speak directly with our senior admission counselor at **${siteConfig.supportPhone}** or click below to chat on WhatsApp instantly!`;
+      } else if (q.includes("counselor") || q.includes("call") || q.includes("human") || q.includes("talk") || q.includes("phone")) {
+        botReply = `You can speak directly with our senior admission counselor in Bhopal at **${siteConfig.supportPhone}** or click below to chat on WhatsApp instantly!`;
         botOptions = ["Chat on WhatsApp Now", "Request Free Callback"];
       } else {
-        botReply = `Thank you for your question! We offer 46+ live courses for CBSE & State boards for Classes 9th-12th in Maths, Science, Commerce, and Humanities. Would you like to explore our course catalog or speak to an advisor?`;
+        botReply = `Thank you for your question! We offer 52+ live courses for CBSE & State boards for Classes 9th-12th in Maths, Science, Commerce, and Humanities. Would you like to explore our course catalog or speak to an advisor?`;
         botOptions = ["Browse All Courses", "View Free eBooks", "Call Support"];
       }
 

@@ -43,15 +43,21 @@ export default function RichTextEditor({
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const selected = value.substring(start, end) || defaultText;
+    const isBlockFormat = before.startsWith("#") || before.startsWith("> ");
 
-    const replacement = `${before}${selected}${after}`;
+    let prefix = before;
+    if (isBlockFormat && start > 0 && value[start - 1] !== "\n") {
+      prefix = `\n${before}`;
+    }
+
+    const selected = value.substring(start, end) || defaultText;
+    const replacement = `${prefix}${selected}${after}`;
     const newValue = value.substring(0, start) + replacement + value.substring(end);
     onChange(newValue);
 
     setTimeout(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + before.length, start + before.length + selected.length);
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
     }, 50);
   };
 
@@ -63,6 +69,7 @@ export default function RichTextEditor({
     const end = textarea.selectionEnd;
     const selected = value.substring(start, end);
 
+    let needsLeadingNewline = start > 0 && value[start - 1] !== "\n";
     let replacement = "";
     if (selected) {
       replacement = selected
@@ -70,8 +77,10 @@ export default function RichTextEditor({
         .map((line) => (line.startsWith(prefix) ? line : `${prefix}${line}`))
         .join("\n");
     } else {
-      replacement = `${prefix}List item`;
+      replacement = `${prefix}List item\n`;
     }
+
+    if (needsLeadingNewline) replacement = `\n${replacement}`;
 
     const newValue = value.substring(0, start) + replacement + value.substring(end);
     onChange(newValue);

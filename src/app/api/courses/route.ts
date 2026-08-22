@@ -13,16 +13,26 @@ export async function GET(request: Request) {
     const instructorEmail = searchParams.get("instructorEmail");
     const slugs = searchParams.get("slugs");
 
+    const reseed = searchParams.get("reseed") === "true";
+
     const db = await getDatabase();
+
+    if (reseed) {
+      await db.collection("courses").deleteMany({});
+      await db.collection("courses").insertMany(
+        coursesData.map((c) => ({ ...c, timestamp: new Date() }))
+      );
+    }
+
     const query: Record<string, any> = {};
     if (slug) query.slug = slug.replace(/^[-]+|[-]+$/g, "");
     if (slugs) {
       const slugArr = slugs.split(",").map((s) => s.trim().replace(/^[-]+|[-]+$/g, "")).filter(Boolean);
       if (slugArr.length > 0) query.slug = { $in: slugArr };
     }
-    if (cls && cls !== "All") query.class = cls;
-    if (lang && lang !== "All") query.language = lang;
-    if (subject && subject !== "All") query.subject = subject;
+    if (cls && cls !== "All") query.class = new RegExp(`^${cls}$`, "i");
+    if (lang && lang !== "All") query.language = new RegExp(`^${lang}`, "i");
+    if (subject && subject !== "All") query.subject = new RegExp(`^${subject}$`, "i");
     if (instructor || instructorEmail) {
       const orConditions: any[] = [];
       if (instructor) orConditions.push({ instructor: new RegExp(instructor, "i") });
@@ -41,7 +51,16 @@ export async function GET(request: Request) {
     }
 
     if (courses && courses.length > 0) {
-      return NextResponse.json({ success: true, count: courses.length, courses, source: "mongodb" });
+      // Deduplicate courses by slug / id so duplicates never leak
+      const uniqueMap = new Map<string, any>();
+      courses.forEach((c: any) => {
+        const key = c.slug || c.id;
+        if (key && !uniqueMap.has(key)) {
+          uniqueMap.set(key, c);
+        }
+      });
+      const uniqueCourses = Array.from(uniqueMap.values());
+      return NextResponse.json({ success: true, count: uniqueCourses.length, courses: uniqueCourses, source: "mongodb" });
     }
     return NextResponse.json({ success: true, count: coursesData.length, courses: coursesData, source: "fallback" });
   } catch (error) {

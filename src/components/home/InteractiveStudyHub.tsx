@@ -14,6 +14,7 @@ import {
 import { triggerConfetti } from "@/lib/confetti";
 import { useModal } from "@/components/ui/CustomModal";
 import { useTranslation } from "@/components/providers/LanguageContext";
+import { downloadFormulaSheet } from "@/lib/downloadHelper";
 
 interface QuizQuestion {
   id: number;
@@ -95,6 +96,8 @@ export default function InteractiveStudyHub() {
   };
 
   const handleDownloadHandbook = (title: string) => {
+    downloadFormulaSheet(title);
+    triggerConfetti();
     openModal({
       type: "download",
       title: `Free Revision Cheat-Sheet`,

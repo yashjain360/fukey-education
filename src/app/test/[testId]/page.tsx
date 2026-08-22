@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -348,8 +348,56 @@ export default function SecureTestRoomPage() {
     );
   }
 
+  // Derive live score metrics directly from candidate answers
+  const clientMetrics = useMemo(() => {
+    if (!testData?.questions) {
+      return { totalScore: 0, maxScore: 20, percentage: 0, accuracy: 0, percentile: 75, correctCount: 0, incorrectCount: 0, skippedCount: 0 };
+    }
+    let correct = 0;
+    let incorrect = 0;
+    let skipped = 0;
+    let rawScore = 0;
+
+    testData.questions.forEach((q) => {
+      const chosen = answers[q.id];
+      if (chosen === undefined || chosen === null) {
+        skipped += 1;
+      } else if (chosen === q.correctAnswer) {
+        correct += 1;
+        rawScore += (q.marks || 4);
+      } else {
+        incorrect += 1;
+        rawScore -= (q.negativeMarks || 1);
+      }
+    });
+
+    const maxScore = testData.questions.reduce((acc, q) => acc + (q.marks || 4), 0) || 20;
+    const finalScore = Math.max(0, rawScore);
+    const percentage = Math.round((finalScore / maxScore) * 100);
+    const accuracy = (correct + incorrect) > 0 ? Math.round((correct / (correct + incorrect)) * 100) : 0;
+    const percentile = Math.min(99.4, 75 + Math.round(percentage * 0.24));
+
+    return {
+      totalScore: finalScore,
+      rawScore,
+      maxScore,
+      percentage,
+      accuracy,
+      percentile,
+      correctCount: correct,
+      incorrectCount: incorrect,
+      skippedCount: skipped
+    };
+  }, [testData, answers]);
+
   // 2. SCORECARD & SOLUTION ANALYSIS STAGE
   if (stage === "scorecard") {
+    const displayScore = result?.totalScore ?? clientMetrics.totalScore;
+    const displayMax = result?.maxScore ?? clientMetrics.maxScore;
+    const displayPercentage = result?.percentage ?? clientMetrics.percentage;
+    const displayPercentile = result?.percentile ?? clientMetrics.percentile;
+    const displayAccuracy = result?.accuracy ?? clientMetrics.accuracy;
+
     return (
       <div className="bg-slate-50 min-h-screen py-10">
         <div className="max-w-4xl mx-auto px-4 space-y-8 animate-in fade-in">
@@ -367,19 +415,19 @@ export default function SecureTestRoomPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-indigo-900">
               <div className="p-3 rounded-2xl bg-white/10 text-center">
-                <div className="text-2xl font-black text-amber-300">{result?.totalScore || 16} / {result?.maxScore || 20}</div>
+                <div className="text-2xl font-black text-amber-300">{displayScore} / {displayMax}</div>
                 <div className="text-[10px] text-slate-300 uppercase font-bold">Total Score</div>
               </div>
               <div className="p-3 rounded-2xl bg-white/10 text-center">
-                <div className="text-2xl font-black text-emerald-300">{result?.percentage || 80}%</div>
+                <div className="text-2xl font-black text-emerald-300">{displayPercentage}%</div>
                 <div className="text-[10px] text-slate-300 uppercase font-bold">Percentage</div>
               </div>
               <div className="p-3 rounded-2xl bg-white/10 text-center">
-                <div className="text-2xl font-black text-sky-300">{result?.percentile || 94.2}th</div>
+                <div className="text-2xl font-black text-sky-300">{displayPercentile}th</div>
                 <div className="text-[10px] text-slate-300 uppercase font-bold">State Percentile</div>
               </div>
               <div className="p-3 rounded-2xl bg-white/10 text-center">
-                <div className="text-2xl font-black text-purple-300">{result?.accuracy || 80}%</div>
+                <div className="text-2xl font-black text-purple-300">{displayAccuracy}%</div>
                 <div className="text-[10px] text-slate-300 uppercase font-bold">Accuracy Rate</div>
               </div>
             </div>

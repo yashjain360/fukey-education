@@ -52,11 +52,11 @@ export default function Navbar() {
   const navLinks = [
     { name: t("nav.home", "Home"), href: "/" },
     { name: t("nav.courses", "Courses"), href: "/courses" },
-    { name: t("nav.test_series", "Test Series"), href: "/test-series" },
+    { name: t("nav.test_series", "Test"), href: "/test-series" },
     { name: t("nav.notes", "Notes"), href: "/notes" },
     { name: t("nav.ebooks", "Ebooks"), href: "/ebooks" },
     { name: t("nav.instructors", "Instructors"), href: "/instructors" },
-    { name: t("nav.about", "About Us"), href: "/about-us" },
+    { name: t("nav.about", "About"), href: "/about-us" },
     { name: t("nav.blog", "Blog"), href: "/blog" },
     { name: t("nav.contact", "Contact"), href: "/contact" },
   ];
@@ -64,11 +64,10 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-          isScrolled
-            ? "bg-white/95 backdrop-blur-md shadow-md py-3 border-b border-slate-200"
-            : "bg-white py-3.5 border-b border-slate-100"
-        }`}
+        className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
+          ? "bg-white/95 backdrop-blur-md shadow-md py-3 border-b border-slate-200"
+          : "bg-white py-3.5 border-b border-slate-100"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
           {/* Authentic Fukey Education Brand Logo */}
@@ -92,9 +91,8 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-sm font-semibold relative py-1 transition-all hover:scale-105 active:scale-95 ${
-                    isActive ? "text-[#5751E1]" : "text-slate-700 hover:text-[#5751E1]"
-                  }`}
+                  className={`text-sm font-semibold relative py-1 transition-all hover:scale-105 active:scale-95 ${isActive ? "text-[#5751E1]" : "text-slate-700 hover:text-[#5751E1]"
+                    }`}
                 >
                   {link.name}
                   {isActive && (
@@ -228,7 +226,7 @@ export default function Navbar() {
                 className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#050071] to-[#5751E1] text-white text-xs font-bold shadow-sm transition-all hover:scale-105 active:scale-95"
               >
                 <User className="w-3.5 h-3.5" />
-                <span>{t("nav.student_portal", "Student Portal")}</span>
+                <span>{t("nav.student_portal", "Dashboard")}</span>
               </Link>
             )}
 
@@ -252,11 +250,10 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-lg text-sm font-semibold ${
-                    pathname === link.href
-                      ? "bg-indigo-50 text-indigo-600"
-                      : "text-slate-700 hover:bg-slate-50"
-                  }`}
+                  className={`block px-3 py-2 rounded-lg text-sm font-semibold ${pathname === link.href
+                    ? "bg-indigo-50 text-indigo-600"
+                    : "text-slate-700 hover:bg-slate-50"
+                    }`}
                 >
                   {link.name}
                 </Link>

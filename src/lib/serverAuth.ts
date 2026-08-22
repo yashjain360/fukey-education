@@ -21,7 +21,18 @@ export async function getUserByToken(token: string): Promise<AuthedUser | null> 
   if (!token) return null;
 
   const db = await getDatabase();
-  const user = await db.collection("users").findOne({ token });
+  let user = await db.collection("users").findOne({ token });
+  
+  // Fallback: Check if token is user ID or email representation
+  if (!user && (token.includes("@") || token.startsWith("usr_") || token.length === 24)) {
+    user = await db.collection("users").findOne({
+      $or: [
+        { email: token.toLowerCase().trim() },
+        { id: token }
+      ]
+    });
+  }
+
   if (!user) return null;
 
   return {

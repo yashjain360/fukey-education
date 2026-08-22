@@ -32,6 +32,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Live class not found" }, { status: 404 });
     }
 
+    if (liveClass.status === "ended" || liveClass.status === "completed") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "This live class has ended. You cannot join a completed session. Please access recorded lectures and study notes from your dashboard.",
+          code: "CLASS_ENDED"
+        },
+        { status: 410 }
+      );
+    }
+
     const isStaff = user.role === "instructor" || user.role === "admin";
     // A non-admin instructor only gets host powers (roomAdmin/roomRecord) on their own class — an
     // instructor who isn't this class's owner is treated as a regular participant, same enrollment

@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   Loader2,
   Lock,
+  Clock,
   UserX,
   MoreVertical,
   Pin,
@@ -42,7 +43,7 @@ interface LiveClassDoc {
   status: string;
 }
 
-type EntryState = "loading" | "class-not-found" | "not-enrolled" | "ready" | "token-error";
+type EntryState = "loading" | "class-not-found" | "class-ended" | "not-enrolled" | "ready" | "token-error";
 
 function authFetch(url: string, token: string | undefined, init: RequestInit = {}) {
   return fetch(url, {
@@ -89,9 +90,7 @@ export default function LiveRoomPage() {
 
   const isInstructor = user?.role === "instructor" || user?.role === "admin";
 
-  // Fetch the class doc, then mint a token — the token route is the real access gate (it repeats
-  // this enrollment check server-side and 403s regardless of what happens here); this is only for a
-  // clean "not enrolled" screen instead of a raw fetch failure.
+  // Fetch the class doc, then mint a token
   useEffect(() => {
     if (!user || !roomId) return;
     let cancelled = false;
@@ -108,7 +107,12 @@ export default function LiveRoomPage() {
         }
         setLiveClass(classData.liveClass);
 
-        const tokenRes = await authFetch("/api/live/token", user.token, {
+        if (classData.liveClass.status === "ended" || classData.liveClass.status === "completed") {
+          setEntryState("class-ended");
+          return;
+        }
+
+        const tokenRes = await authFetch("/api/live/token", user.token || user.email, {
           method: "POST",
           body: JSON.stringify({ roomId }),
         });
@@ -116,7 +120,9 @@ export default function LiveRoomPage() {
         if (cancelled) return;
 
         if (!tokenData.success) {
-          if (tokenRes.status === 403) {
+          if (tokenRes.status === 410 || tokenData.code === "CLASS_ENDED") {
+            setEntryState("class-ended");
+          } else if (tokenRes.status === 403) {
             setEntryState("not-enrolled");
             setEntryError(tokenData.error || "You are not enrolled in this class");
           } else {
@@ -282,6 +288,36 @@ export default function LiveRoomPage() {
     );
   }
 
+  if (entryState === "class-ended") {
+    return (
+      <div className="min-h-screen bg-[#050071] flex flex-col items-center justify-center p-6 text-white text-center space-y-6">
+        <div className="w-20 h-20 rounded-3xl bg-amber-500/20 text-amber-300 flex items-center justify-center mx-auto border border-amber-400/30">
+          <Clock className="w-10 h-10" />
+        </div>
+        <div className="space-y-2 max-w-md">
+          <h2 className="text-2xl font-black">This Live Class Has Concluded</h2>
+          <p className="text-sm text-indigo-200">
+            The interactive lecture and doubt session for <strong>{liveClass?.title || "this batch"}</strong> has already ended. You can view the full video recording, notes, and formula sheets from your student dashboard.
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link
+            href="/dashboard?tab=recordings"
+            className="px-6 py-3.5 rounded-2xl bg-white text-[#050071] font-black text-sm shadow-xl hover:bg-indigo-50 transition-all hover:scale-105"
+          >
+            View Class Recordings
+          </Link>
+          <Link
+            href={isInstructor ? "/instructor/dashboard" : "/dashboard"}
+            className="px-6 py-3.5 rounded-2xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/20"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (entryState === "class-not-found" || entryState === "not-enrolled" || entryState === "token-error") {
     return (
       <div className="min-h-screen bg-[#050071] flex flex-col items-center justify-center p-6 text-white text-center space-y-6">
@@ -298,12 +334,22 @@ export default function LiveRoomPage() {
               : entryError}
           </p>
         </div>
-        <Link
-          href={isInstructor ? "/instructor/dashboard" : "/dashboard"}
-          className="px-8 py-3.5 rounded-2xl bg-white text-[#050071] font-black text-sm shadow-xl hover:bg-indigo-50 transition-all hover:scale-105"
-        >
-          Back to Dashboard
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3">
+          {entryState === "token-error" && (
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-all hover:scale-105 cursor-pointer shadow-lg"
+            >
+              Retry Connection
+            </button>
+          )}
+          <Link
+            href={isInstructor ? "/instructor/dashboard" : "/dashboard"}
+            className="px-6 py-3.5 rounded-2xl bg-white text-[#050071] font-black text-sm shadow-xl hover:bg-indigo-50 transition-all hover:scale-105"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
       </div>
     );
   }

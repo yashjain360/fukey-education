@@ -14,6 +14,8 @@ function CoursesContent() {
   const searchParams = useSearchParams();
   const initialClass = searchParams.get("class") || "";
   const initialLang = searchParams.get("lang") || "";
+  const initialInstructor = searchParams.get("instructor") || searchParams.get("instructorEmail") || "";
+  const initialSubject = searchParams.get("subject") || "";
 
   const [courses, setCourses] = useState<Course[]>(coursesData);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,9 +24,10 @@ function CoursesContent() {
     initialClass ? [initialClass] : []
   );
   const [selectedLanguage, setSelectedLanguage] = useState<string>(
-    initialLang ? initialLang : "All"
+    initialLang ? (initialLang.toLowerCase().includes("hindi") ? "Hindi" : initialLang.toLowerCase().includes("eng") ? "English" : initialLang) : "All"
   );
-  const [selectedSubject, setSelectedSubject] = useState<string>("All");
+  const [selectedSubject, setSelectedSubject] = useState<string>(initialSubject || "All");
+  const [selectedInstructor, setSelectedInstructor] = useState<string>(initialInstructor || "");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("latest");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -46,40 +49,109 @@ function CoursesContent() {
       });
   }, []);
 
+  // Sync state if URL search parameters change
+  useEffect(() => {
+    const cls = searchParams.get("class");
+    const lng = searchParams.get("lang");
+    const inst = searchParams.get("instructor") || searchParams.get("instructorEmail");
+    const subj = searchParams.get("subject");
+
+    if (cls) setSelectedClasses([cls]);
+    if (lng) setSelectedLanguage(lng.toLowerCase().includes("hindi") ? "Hindi" : lng.toLowerCase().includes("eng") ? "English" : lng);
+    if (inst) setSelectedInstructor(inst);
+    if (subj) setSelectedSubject(subj);
+  }, [searchParams]);
+
   const handleClassToggle = (cls: string) => {
     setSelectedClasses((prev) =>
       prev.includes(cls) ? prev.filter((c) => c !== cls) : [...prev, cls]
     );
+    setCurrentPage(1);
   };
+
+  const handleResetFilters = () => {
+    setSelectedClasses([]);
+    setSelectedLanguage("All");
+    setSelectedSubject("All");
+    setSelectedInstructor("");
+    setSearchQuery("");
+    setSortBy("latest");
+    setCurrentPage(1);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (url.search) {
+        window.history.replaceState({}, "", url.pathname);
+      }
+    }
+  };
+
+  const hasActiveFilters =
+    selectedClasses.length > 0 ||
+    selectedLanguage !== "All" ||
+    selectedSubject !== "All" ||
+    selectedInstructor !== "" ||
+    searchQuery.trim() !== "";
 
   const filteredCourses = useMemo(() => {
     return courses
       .filter((course) => {
-        if (selectedClasses.length > 0 && !selectedClasses.includes(course.class)) {
-          return false;
+        // Class filter
+        if (selectedClasses.length > 0) {
+          const matchClass = selectedClasses.some((sc) => {
+            const scNum = sc.replace(/\D/g, "");
+            const cNum = (course.class || "").replace(/\D/g, "") || String(course.classNum || "");
+            return sc === course.class || (scNum && cNum && scNum === cNum);
+          });
+          if (!matchClass) return false;
         }
-        if (selectedLanguage !== "All" && course.language !== selectedLanguage) {
-          return false;
+
+        // Language filter (English / Hindi / All)
+        if (selectedLanguage !== "All") {
+          const targetLang = selectedLanguage.toLowerCase().trim();
+          const cLang = (course.language || "").toLowerCase().trim();
+          if (!cLang.includes(targetLang) && !targetLang.includes(cLang)) {
+            return false;
+          }
         }
-        if (selectedSubject !== "All" && course.subject !== selectedSubject) {
-          return false;
+
+        // Subject filter
+        if (selectedSubject !== "All") {
+          const targetSub = selectedSubject.toLowerCase().trim();
+          const cSub = (course.subject || "").toLowerCase().trim();
+          if (cSub !== targetSub) {
+            return false;
+          }
         }
+
+        // Instructor filter
+        if (selectedInstructor.trim()) {
+          const targetInst = selectedInstructor.toLowerCase().trim();
+          const cInst = (course.instructor || "").toLowerCase().trim();
+          if (!cInst.includes(targetInst) && !targetInst.includes(cInst)) {
+            return false;
+          }
+        }
+
+        // Search query
         if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          const matchTitle = course.title.toLowerCase().includes(q);
-          const matchInst = course.instructor.toLowerCase().includes(q);
-          const matchSub = course.subject.toLowerCase().includes(q);
-          if (!matchTitle && !matchInst && !matchSub) return false;
+          const q = searchQuery.toLowerCase().trim();
+          const matchTitle = (course.title || "").toLowerCase().includes(q);
+          const matchInst = (course.instructor || "").toLowerCase().includes(q);
+          const matchSub = (course.subject || "").toLowerCase().includes(q);
+          const matchClass = (course.class || "").toLowerCase().includes(q);
+          if (!matchTitle && !matchInst && !matchSub && !matchClass) return false;
         }
+
         return true;
       })
       .sort((a, b) => {
         if (sortBy === "price-low") return a.price - b.price;
         if (sortBy === "price-high") return b.price - a.price;
         if (sortBy === "rating") return b.rating - a.rating;
+        if (sortBy === "popular") return (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0);
         return 0;
       });
-  }, [courses, selectedClasses, selectedLanguage, selectedSubject, searchQuery, sortBy]);
+  }, [courses, selectedClasses, selectedLanguage, selectedSubject, selectedInstructor, searchQuery, sortBy]);
 
   const paginatedCourses = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -124,6 +196,34 @@ function CoursesContent() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* Active Faculty Filter Badge if Filtered */}
+        {selectedInstructor && (
+          <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-indigo-900">
+                Filtered by Faculty: <strong className="text-[#050071]">{selectedInstructor}</strong>
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-indigo-200 text-indigo-800 text-[10px] font-black">
+                {filteredCourses.length} Batches
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setSelectedInstructor("");
+                if (typeof window !== "undefined") {
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete("instructor");
+                  url.searchParams.delete("instructorEmail");
+                  window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
+                }
+              }}
+              className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
+            >
+              Clear Faculty Filter ✕
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Sidebar Filters */}
           <div className="lg:col-span-3 space-y-6" data-aos="fade-right" data-aos-duration="800">
@@ -133,15 +233,10 @@ function CoursesContent() {
                   <Filter className="w-4 h-4 text-[#5751E1]" />
                   <span>Filter Courses</span>
                 </div>
-                {(selectedClasses.length > 0 || selectedLanguage !== "All" || selectedSubject !== "All") && (
+                {hasActiveFilters && (
                   <button
-                    onClick={() => {
-                      setSelectedClasses([]);
-                      setSelectedLanguage("All");
-                      setSelectedSubject("All");
-                      setSearchQuery("");
-                    }}
-                    className="text-[11px] font-bold text-rose-500 hover:underline"
+                    onClick={handleResetFilters}
+                    className="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer"
                   >
                     Reset All
                   </button>
@@ -186,7 +281,10 @@ function CoursesContent() {
                         type="radio"
                         name="language_filter"
                         checked={selectedLanguage === lang}
-                        onChange={() => setSelectedLanguage(lang)}
+                        onChange={() => {
+                          setSelectedLanguage(lang);
+                          setCurrentPage(1);
+                        }}
                         className="w-4 h-4 text-[#5751E1] border-slate-300 focus:ring-indigo-500 cursor-pointer"
                       />
                       <span>{lang === "All" ? "All Languages" : `${lang} Medium`}</span>
@@ -202,7 +300,10 @@ function CoursesContent() {
                 </div>
                 <select
                   value={selectedSubject}
-                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedSubject(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-medium text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
                 >
                   {uniqueSubjects.map((sub) => (
@@ -229,7 +330,10 @@ function CoursesContent() {
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     placeholder="Search in courses..."
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs focus:outline-none focus:border-indigo-500 font-medium"
                   />
@@ -237,7 +341,10 @@ function CoursesContent() {
 
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => {
+                    setSortBy(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
                 >
                   <option value="latest">Latest Batches</option>
@@ -247,14 +354,9 @@ function CoursesContent() {
                 </select>
               </div>
 
-              {(selectedClasses.length > 0 || selectedLanguage !== "All" || selectedSubject !== "All" || searchQuery) && (
+              {hasActiveFilters && (
                 <button
-                  onClick={() => {
-                    setSelectedClasses([]);
-                    setSelectedLanguage("All");
-                    setSelectedSubject("All");
-                    setSearchQuery("");
-                  }}
+                  onClick={handleResetFilters}
                   className="text-xs font-bold text-rose-600 hover:underline text-left cursor-pointer"
                 >
                   Reset All Filters
@@ -270,12 +372,18 @@ function CoursesContent() {
                 ))}
               </div>
             ) : filteredCourses.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-3">
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-4">
                 <BookOpen className="w-12 h-12 text-slate-300 mx-auto" />
                 <h3 className="font-extrabold text-slate-800 text-base">No Matching Courses Found</h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  Try clearing your search query or selecting a different class or language filter.
+                  Try resetting your active filters or searching with different keywords.
                 </p>
+                <button
+                  onClick={handleResetFilters}
+                  className="px-6 py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                >
+                  Reset All Filters
+                </button>
               </div>
             ) : (
               <div>

@@ -122,25 +122,48 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const subtotal = cart.reduce((acc, item) => acc + item.course.price, 0);
 
   let discountAmount = 0;
-  if (appliedCoupon === "FREEDOM40" || appliedCoupon === "FUKEYEDU") {
+  if (appliedCoupon === "FREEDOM40") {
+    discountAmount = Math.round(subtotal * 0.40);
+  } else if (appliedCoupon === "FUKEY20" || appliedCoupon === "FUKEYEDU") {
+    discountAmount = Math.round(subtotal * 0.20);
+  } else if (appliedCoupon === "WELCOME15") {
     discountAmount = Math.round(subtotal * 0.15);
+  } else if (appliedCoupon === "TOPPER10") {
+    discountAmount = Math.round(subtotal * 0.10);
+  } else if (appliedCoupon === "BOARD100") {
+    discountAmount = Math.min(subtotal, 500);
   }
 
   const total = Math.max(0, subtotal - discountAmount);
 
   const applyCoupon = (code: string) => {
-    const clean = code.trim().toUpperCase();
-    if (clean === "FREEDOM40" || clean === "FUKEYEDU" || clean === "TOPPER10") {
+    const clean = (code || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (!clean) {
+      return { success: false, message: "Please enter a valid coupon code (e.g. FREEDOM40)" };
+    }
+
+    if (
+      clean === "FREEDOM40" ||
+      clean === "FUKEY20" ||
+      clean === "FUKEYEDU" ||
+      clean === "TOPPER10" ||
+      clean === "BOARD100" ||
+      clean === "WELCOME15"
+    ) {
       setAppliedCoupon(clean);
-      localStorage.setItem("fukey_coupon", clean);
+      try {
+        localStorage.setItem("fukey_coupon", clean);
+      } catch (e) {}
       return { success: true, message: `Coupon "${clean}" applied successfully!` };
     }
-    return { success: false, message: "Invalid promo code. Try 'FREEDOM40'" };
+    return { success: false, message: "Invalid promo code. Try 'FREEDOM40' for 40% off!" };
   };
 
   const removeCoupon = () => {
     setAppliedCoupon(null);
-    localStorage.removeItem("fukey_coupon");
+    try {
+      localStorage.removeItem("fukey_coupon");
+    } catch (e) {}
   };
 
   return (

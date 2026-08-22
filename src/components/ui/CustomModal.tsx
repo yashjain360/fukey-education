@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { X, CheckCircle2, Video, Download, FileText, Plus, MessageSquare, AlertCircle, Sparkles } from "lucide-react";
 import { triggerConfetti } from "@/lib/confetti";
+import { downloadFormulaSheet } from "@/lib/downloadHelper";
 
 interface ModalConfig {
   title: string;
@@ -125,10 +126,11 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
                 <button
                   onClick={() => {
+                    downloadFormulaSheet(modal.subtitle || modal.title || "NCERT Board Study Resource");
                     triggerConfetti();
                     closeModal();
                   }}
-                  className="w-full py-3.5 rounded-xl bg-[#050071] hover:bg-indigo-900 text-white font-bold text-xs flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-xl bg-[#050071] hover:bg-indigo-900 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-102 active:scale-98"
                 >
                   <Download className="w-4 h-4" />
                   <span>Download Verified Document</span>
