@@ -33,7 +33,7 @@ export async function GET() {
       subject: "Physics",
       pages: 36,
       fileSize: "6.1 MB",
-      author: "Arya Dubey (Gold Medalist)",
+      author: "Vivek Dubey (Senior Physics Faculty Lead)",
       downloadUrl: "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-08-14-06-28-03-5696.png",
       rating: 5.0,
       downloadsCount: 840

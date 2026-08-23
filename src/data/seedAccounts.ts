@@ -60,8 +60,8 @@ export const SEED_ACCOUNTS: Record<"admin" | "instructor" | "student", SeedAccou
       password: "facultypassword123",
     },
     {
-      name: "Arya Dubey",
-      email: "arya.dubey@fukeyeducation.com",
+      name: "Dr. Aditi Sharma",
+      email: "aditi.sharma@fukeyeducation.com",
       role: "instructor",
       designation: "Economics & Commercial Studies Lead",
       password: "facultypassword123",

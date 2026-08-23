@@ -2177,7 +2177,7 @@ export default function AdminDashboardPage() {
                       ))}
                       <option value="Pawan Gupta">Pawan Gupta (Mathematics)</option>
                       <option value="Kratika Rathore">Kratika Rathore (Chemistry)</option>
-                      <option value="Arya Dubey">Arya Dubey (Physics)</option>
+                      <option value="Dr. Aditi Sharma">Dr. Aditi Sharma (Economics)</option>
                       <option value="Vivek Dubey">Vivek Dubey (Biology)</option>
                     </select>
                   </div>

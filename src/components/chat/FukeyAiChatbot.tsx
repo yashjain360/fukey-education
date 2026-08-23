@@ -77,8 +77,8 @@ export default function FukeyAiChatbot({ isOpen, onClose }: FukeyAiChatbotProps)
       const q = text.toLowerCase().trim();
 
       if (q.includes("economic") || q.includes("who teaches eco")) {
-        botReply = "📈 **Economics (Classes 11th & 12th)** is taught by:\n• **Arya Dubey** (English Medium) — Delhi School of Economics alumna specializing in Macroeconomics & Micro Analysis.\n• **Rashmi Parihar** (Hindi Medium) — M.Com, M.Phil with 10+ years experience in Indian Economic Development & Statistics.\n\nBoth educators offer live NCERT derivations and numerical drills!";
-        botOptions = ["View Economics Courses", "Meet Arya Dubey", "Meet Rashmi Parihar", "Ask Course Fees"];
+        botReply = "📈 **Economics (Classes 11th & 12th)** is taught by:\n• **Dr. Aditi Sharma** (English Medium) — Delhi School of Economics alumna specializing in Macroeconomics & Micro Analysis.\n• **Rashmi Parihar** (Hindi Medium) — M.Com, M.Phil with 10+ years experience in Indian Economic Development & Statistics.\n\nBoth educators offer live NCERT derivations and numerical drills!";
+        botOptions = ["View Economics Courses", "Meet Dr. Aditi Sharma", "Meet Rashmi Parihar", "Ask Course Fees"];
       } else if (q.includes("math") || q.includes("who teaches math") || q.includes("pawan")) {
         botReply = "📐 **Mathematics (Classes 9th to 12th)** is taught by **Pawan Gupta** (Senior Faculty & HOD, M.Sc. Mathematics, B.Ed. Gold Medalist with 10+ Years Experience). He is author of the 'Fast Track Maths Formula Bank' and has trained 150+ board centum scorers!";
         botOptions = ["View Maths Batches", "Download 10th Maths Formulas", "Meet Pawan Gupta"];
@@ -104,7 +104,7 @@ export default function FukeyAiChatbot({ isOpen, onClose }: FukeyAiChatbotProps)
         botReply = "🌍 **Social Science (Classes 9th & 10th)** is taught by **Ram Kumar Soni** (M.A., B.Ed., 10+ Yrs Exp). Known for map-pointing masterclasses, chronology timelines, and NCERT structured answer keys!";
         botOptions = ["View Social Science Batches", "Meet Ram Kumar Soni"];
       } else if (q.includes("faculty") || q.includes("teacher") || q.includes("instructor") || q.includes("sir") || q.includes("ma'am") || q.includes("mam")) {
-        botReply = "👨‍🏫 **Fukey Education Faculty Directory**:\n• **Mathematics**: Pawan Gupta (Gold Medalist)\n• **Chemistry & Science**: Kratika Rathore (CSIR-NET)\n• **Physics**: Vivek Dubey (12+ Yrs Exp)\n• **Biology**: Babli Jain (9+ Yrs Exp)\n• **Economics**: Arya Dubey & Rashmi Parihar\n• **Accountancy**: Soumya Jain\n• **Business Studies**: Mousam Patil\n• **Social Science & Polity**: Mayank Dubey & Ram Kumar Soni\n\nAll teachers hold live 45-min classes + 15-min 1-on-1 doubt solving daily!";
+        botReply = "👨‍🏫 **Fukey Education Faculty Directory**:\n• **Mathematics**: Pawan Gupta (Gold Medalist)\n• **Chemistry & Science**: Kratika Rathore (CSIR-NET)\n• **Physics**: Vivek Dubey (12+ Yrs Exp)\n• **Biology**: Babli Jain (9+ Yrs Exp)\n• **Economics**: Dr. Aditi Sharma & Rashmi Parihar\n• **Accountancy**: Soumya Jain\n• **Business Studies**: Mousam Patil\n• **Social Science & Polity**: Mayank Dubey & Ram Kumar Soni\n\nAll teachers hold live 45-min classes + 15-min 1-on-1 doubt solving daily!";
         botOptions = ["Meet All Faculty", "Explore All Batches", "Talk to Academic Counselor"];
       } else if (q.includes("fee") || q.includes("price") || q.includes("cost") || q.includes("discount") || q.includes("coupon") || q.includes("offer")) {
         botReply = "🎟️ **Course Pricing & Special Discounts**:\n• All individual subject batches are priced at **₹1,499** (regular ₹2,499).\n• Use coupon code **`FREEDOM40`** at checkout for an instant **40% OFF**!\n• Batches include complete NCERT live lectures, formula PDFs, test series & 1-on-1 doubts.";
