@@ -2,8 +2,8 @@ import nodemailer from "nodemailer";
 
 const smtpConfig = {
   host: process.env.SMTP_HOST || "smtpout.secureserver.net",
-  port: parseInt(process.env.SMTP_PORT || "587", 10),
-  secure: process.env.SMTP_SECURE === "true",
+  port: parseInt(process.env.SMTP_PORT || "465", 10),
+  secure: process.env.SMTP_SECURE === "true" || process.env.SMTP_PORT === "465",
   auth: {
     user: process.env.SMTP_USER || "info@thewebvale.com",
     pass: process.env.SMTP_PASS || "Global5972@",
@@ -15,7 +15,98 @@ const smtpConfig = {
 
 export const transporter = nodemailer.createTransport(smtpConfig);
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://fukeyeducation.thewebvale.com";
+
+// Google OAuth Credentials for Gmail REST API
+const GMAIL_CLIENT_ID = process.env.GOOGLE_MAIL_CLIENT_ID || "";
+const GMAIL_CLIENT_SECRET = process.env.GOOGLE_MAIL_CLIENT_SECRET || "";
+const GMAIL_REFRESH_TOKEN = process.env.GOOGLE_MAIL_REFRESH_TOKEN || "";
+const GMAIL_SENDER = process.env.GOOGLE_MAIL_SENDER || "yashjain.backup3@gmail.com";
+
+async function getGmailAccessToken(): Promise<string> {
+  const params = new URLSearchParams({
+    client_id: GMAIL_CLIENT_ID,
+    client_secret: GMAIL_CLIENT_SECRET,
+    refresh_token: GMAIL_REFRESH_TOKEN,
+    grant_type: "refresh_token",
+  });
+
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params.toString(),
+  });
+  const data = await res.json();
+  if (data.access_token) return data.access_token;
+  throw new Error(data.error_description || "Failed to obtain Gmail access token");
+}
+
+export async function sendEmailMessage({
+  to,
+  subject,
+  html,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+}) {
+  // 1. Primary Engine: High-speed Gmail REST API
+  try {
+    const accessToken = await getGmailAccessToken();
+    const senderName = "Fukey Education Academy";
+    const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
+
+    const messageParts = [
+      `From: "${senderName}" <${GMAIL_SENDER}>`,
+      `To: ${to}`,
+      `Subject: ${utf8Subject}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/html; charset=utf-8",
+      "",
+      html,
+    ];
+    const rawMessage = messageParts.join("\r\n");
+    const encodedMessage = Buffer.from(rawMessage)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    const sendRes = await fetch(
+      "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ raw: encodedMessage }),
+      }
+    );
+
+    if (sendRes.ok) {
+      return { success: true, engine: "Gmail REST API" };
+    }
+    const errText = await sendRes.text();
+    console.error("Gmail REST API dispatch error:", errText);
+  } catch (gmailErr) {
+    console.error("Gmail OAuth dispatch failed, trying SMTP fallback:", gmailErr);
+  }
+
+  // 2. Fallback Engine: Nodemailer SMTP
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || `"Fukey Education" <${process.env.SMTP_USER || "info@thewebvale.com"}>`,
+      to,
+      subject,
+      html,
+    });
+    return { success: true, engine: "SMTP", messageId: info.messageId };
+  } catch (smtpErr) {
+    console.error("SMTP fallback also failed:", smtpErr);
+    return { success: false, error: String(smtpErr) };
+  }
+}
 
 // Base HTML Wrapper with Plus Jakarta Sans & Fukey Brand Colors
 function renderEmailWrapper(title: string, preheader: string, contentHtml: string): string {
@@ -187,8 +278,7 @@ export async function sendWelcomeEmail(toEmail: string, studentName: string) {
     content
   );
 
-  return await transporter.sendMail({
-    from: process.env.SMTP_FROM || "Fukey Education <info@thewebvale.com>",
+  return await sendEmailMessage({
     to: toEmail,
     subject: "🎓 Welcome to Fukey Education – Your Board Preparation Starts Now!",
     html,
@@ -245,8 +335,7 @@ export async function sendLoginAlertEmail(toEmail: string, studentName: string, 
     content
   );
 
-  return await transporter.sendMail({
-    from: process.env.SMTP_FROM || "Fukey Education <info@thewebvale.com>",
+  return await sendEmailMessage({
     to: toEmail,
     subject: "🔐 Security Alert: Successful Login to Fukey Education",
     html,
@@ -314,8 +403,7 @@ export async function sendOrderConfirmationEmail(
     content
   );
 
-  return await transporter.sendMail({
-    from: process.env.SMTP_FROM || "Fukey Education <info@thewebvale.com>",
+  return await sendEmailMessage({
     to: toEmail,
     subject: `🧾 Official Invoice & Course Enrollment Receipt #${order.invoice}`,
     html,
@@ -324,7 +412,7 @@ export async function sendOrderConfirmationEmail(
 
 // 4. Send Password Reset Email
 export async function sendPasswordResetEmail(toEmail: string, resetToken: string) {
-  const resetLink = `${BASE_URL}/login?resetToken=${resetToken}`;
+  const resetLink = `${BASE_URL}/forgot-password?token=${resetToken}&email=${encodeURIComponent(toEmail)}`;
 
   const content = `
     <p style="font-size: 15px; font-weight: 700; color: #0f172a; margin-top: 0;">
@@ -342,8 +430,11 @@ export async function sendPasswordResetEmail(toEmail: string, resetToken: string
 
     <div class="card-box" style="font-size: 12px; color: #64748b;">
       <p style="margin: 0 0 6px 0;"><strong>Security Note:</strong></p>
-      <p style="margin: 0;">
-        This password reset link is valid for 30 minutes. If you did not request a password change, no action is required and your account remains safe.
+      <p style="margin: 0 0 8px 0;">
+        This password reset link is valid for 60 minutes. If the button above does not work, copy and paste this link into your browser:
+      </p>
+      <p style="margin: 0; word-break: break-all; color: #4f46e5;">
+        ${resetLink}
       </p>
     </div>
   `;
@@ -354,8 +445,7 @@ export async function sendPasswordResetEmail(toEmail: string, resetToken: string
     content
   );
 
-  return await transporter.sendMail({
-    from: process.env.SMTP_FROM || "Fukey Education <info@thewebvale.com>",
+  return await sendEmailMessage({
     to: toEmail,
     subject: "🔑 Reset Your Fukey Education Password",
     html,
@@ -401,8 +491,7 @@ export async function sendEnquiryReceiptEmail(
     content
   );
 
-  return await transporter.sendMail({
-    from: process.env.SMTP_FROM || "Fukey Education <info@thewebvale.com>",
+  return await sendEmailMessage({
     to: toEmail,
     subject: "📞 Admission Callback Requested – Fukey Education",
     html,
