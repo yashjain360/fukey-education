@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const newEnquiry = {
       id: `ENQ-2026-${Math.floor(10000 + Math.random() * 90000)}`,
       name: body.name || "Prospective Student",
-      phone: body.phone || "+91 88718 35015",
+      phone: body.phone || "",
       email: body.email || "student@example.com",
       targetClass: body.targetClass || "Class 10",
       medium: body.medium || "Hindi & English",

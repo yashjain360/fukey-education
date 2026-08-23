@@ -39,9 +39,9 @@ export async function POST(request: Request) {
     const newOrder = {
       no: Date.now(),
       invoice: `INV-2026-${Math.floor(10000 + Math.random() * 90000)}`,
-      studentName: body.studentName || "Mayank Dubey",
-      studentEmail: body.studentEmail || body.email || "mayank@fukeyeducation.com",
-      studentPhone: body.studentPhone || body.phone || "+91 88718 35015",
+      studentName: body.studentName || "Student",
+      studentEmail: body.studentEmail || body.email || "student@example.com",
+      studentPhone: body.studentPhone || body.phone || "",
       paid: `₹${(body.total || 1499).toLocaleString("en-IN")}`,
       totalNumeric: body.total || 1499,
       gateway: body.paymentMethod === "upi" ? "Instant UPI / QR" : "Card / NetBanking",
@@ -83,15 +83,19 @@ export async function POST(request: Request) {
     }
 
     // Update user record with the new order and profile
+    const userUpdateSet: any = {
+      name: newOrder.studentName,
+      email: newOrder.studentEmail.toLowerCase().trim(),
+      updatedAt: new Date(),
+    };
+    if (newOrder.studentPhone) {
+      userUpdateSet.phone = newOrder.studentPhone;
+    }
+
     await db.collection("users").updateOne(
       { email: newOrder.studentEmail.toLowerCase().trim() },
       {
-        $set: {
-          name: newOrder.studentName,
-          email: newOrder.studentEmail.toLowerCase().trim(),
-          phone: newOrder.studentPhone,
-          updatedAt: new Date(),
-        },
+        $set: userUpdateSet,
         $push: { orders: newOrder } as any,
       },
       { upsert: true }

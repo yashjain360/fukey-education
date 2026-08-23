@@ -13,6 +13,7 @@ interface AuthContextType {
   closeGoogleModal: () => void;
   loginWithGoogle: (customData?: Partial<UserProfile>) => Promise<UserProfile | void>;
   loginWithEmail: (email: string, name?: string, role?: "student" | "instructor" | "admin", phone?: string) => Promise<UserProfile>;
+  updateUser: (updatedData: Partial<UserProfile>) => Promise<UserProfile>;
   logout: () => void;
   switchRole: (role: "student" | "instructor" | "admin") => void;
 }
@@ -69,6 +70,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return userObj;
   };
 
+  const updateUser = async (updatedData: Partial<UserProfile>) => {
+    const current = user || (typeof window !== "undefined" ? JSON.parse(localStorage.getItem("fukey_auth_user") || "null") : null) || {};
+    const mergedUser: UserProfile = {
+      ...current,
+      ...updatedData,
+      id: current.id || `usr_${Date.now()}`,
+      email: updatedData.email || current.email || "",
+      name: updatedData.name || current.name || "Student",
+      role: current.role || "student",
+    };
+    return await saveUserSession(mergedUser);
+  };
+
   const redirectToGoogleOAuth = async (role = "student") => {
     try {
       const res = await fetch(`/api/auth/google/url?role=${encodeURIComponent(role)}`);
@@ -91,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name: customData?.name || "Student",
         email: customData.email,
         role: customData?.role || "student",
-        phone: customData?.phone || "+91 88718 35015",
+        phone: customData?.phone || "",
         avatar: customData?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
         enrolledCoursesCount: 2,
         quizAttemptsCount: 5,
@@ -109,14 +123,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     email: string,
     name = "Student",
     role: "student" | "instructor" | "admin" = "student",
-    phone = "+91 88718 35015"
+    phone = ""
   ) => {
     const emailUser: UserProfile = {
       id: `usr_${Date.now()}`,
       name: name || email.split("@")[0],
       email,
       role,
-      phone: phone || "+91 88718 35015",
+      phone: phone || "",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
       enrolledCoursesCount: 2,
       quizAttemptsCount: 5,
@@ -159,6 +173,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         closeGoogleModal: () => setIsGoogleModalOpen(false),
         loginWithGoogle,
         loginWithEmail,
+        updateUser,
         logout,
         switchRole,
       }}

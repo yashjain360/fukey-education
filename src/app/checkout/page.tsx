@@ -19,11 +19,11 @@ import { triggerConfetti } from "@/lib/confetti";
 
 export default function CheckoutPage() {
   const { cart, subtotal, discountAmount, total, appliedCoupon, clearCart, currency } = useCart();
-  const { user, openGoogleModal } = useAuth();
+  const { user, openGoogleModal, updateUser } = useAuth();
   
-  const [fullName, setFullName] = useState(user?.name || "Mayank Dubey");
-  const [email, setEmail] = useState(user?.email || "mayank@fukeyeducation.com");
-  const [phone, setPhone] = useState(user?.phone || "+91 88718 35015");
+  const [fullName, setFullName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [phone, setPhone] = useState(user?.phone || "");
   const [paymentMethod, setPaymentMethod] = useState<"upi" | "card">("upi");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -42,6 +42,10 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
+      if (user && phone && updateUser) {
+        updateUser({ phone, name: fullName || user.name }).catch(() => {});
+      }
+
       const orderPayload = {
         studentName: fullName,
         studentEmail: email,
@@ -194,7 +198,7 @@ export default function CheckoutPage() {
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+91 88718 35015"
+                      placeholder="e.g. +91 98765 43210"
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 font-semibold"
                     />
                   </div>

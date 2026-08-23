@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     const newLead = {
       id: `LEAD-${Date.now().toString().slice(-6)}`,
       name: body.name || "New Student",
-      phone: body.phone || "+91 88718 35015",
+      phone: body.phone || "",
       email: body.email || "student@fukeyeducation.com",
       targetClass: body.targetClass || "Class 10",
       medium: body.medium || "Hindi & English",

@@ -29,13 +29,21 @@ export default function AutoEngagementModal() {
   const router = useRouter();
 
   // Form states for enquiry
-  const [studentName, setStudentName] = useState(user?.name || "Mayank Dubey");
-  const [studentPhone, setStudentPhone] = useState(user?.phone || "+91 88718 35015");
-  const [studentEmail, setStudentEmail] = useState(user?.email || "mayank@fukeyeducation.com");
+  const [studentName, setStudentName] = useState(user?.name || "");
+  const [studentPhone, setStudentPhone] = useState(user?.phone || "");
+  const [studentEmail, setStudentEmail] = useState(user?.email || "");
   const [selectedClass, setSelectedClass] = useState("Class 10");
   const [medium, setMedium] = useState("Hindi & English");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEnquirySent, setIsEnquirySent] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      if (user.name) setStudentName(user.name);
+      if (user.email) setStudentEmail(user.email);
+      if (user.phone) setStudentPhone(user.phone);
+    }
+  }, [user]);
 
   useEffect(() => {
     // Intelligent non-annoying trigger logic
@@ -326,7 +334,7 @@ export default function AutoEngagementModal() {
                           required
                           value={studentPhone}
                           onChange={(e) => setStudentPhone(e.target.value)}
-                          placeholder="+91 88718 35015"
+                          placeholder="e.g. +91 98765 43210"
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 font-medium"
                         />
                       </div>

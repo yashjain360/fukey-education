@@ -1188,7 +1188,8 @@ export default function InstructorDashboardPage() {
                     <label className="block font-bold text-slate-700 mb-1">Helpline Phone Number</label>
                     <input
                       type="text"
-                      defaultValue="+91 88718 35015"
+                      defaultValue={user?.phone || ""}
+                      placeholder="e.g. +91 98765 43210"
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 font-medium focus:outline-none"
                     />
                   </div>

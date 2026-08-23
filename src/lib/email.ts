@@ -304,7 +304,7 @@ export async function sendOrderConfirmationEmail(
     </div>
 
     <p style="font-size: 12px; color: #64748b; margin-bottom: 0;">
-      A confirmation SMS and WhatsApp invite link have also been dispatched to your mobile number <strong>${order.phone || "+91 88718 35015"}</strong>.
+      ${order.phone ? `A confirmation SMS and WhatsApp invite link have also been dispatched to your mobile number <strong>${order.phone}</strong>.` : `Your course enrollment and student pass have been successfully activated.`}
     </p>
   `;
 

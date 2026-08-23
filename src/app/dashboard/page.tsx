@@ -46,7 +46,7 @@ import { formatPrice } from "@/lib/utils";
 import Pagination from "@/components/ui/Pagination";
 
 export default function StudentDashboardPage() {
-  const { user, logout, switchRole, isLoading: isAuthLoading } = useAuth();
+  const { user, logout, switchRole, updateUser, isLoading: isAuthLoading } = useAuth();
   const { currency } = useCart();
   const { openModal } = useModal();
   const router = useRouter();
@@ -94,9 +94,9 @@ export default function StudentDashboardPage() {
   const [newGoalText, setNewGoalText] = useState("");
 
   // Profile Settings Form State
-  const [profileName, setProfileName] = useState(user?.name || "Mayank Dubey");
-  const [profileEmail, setProfileEmail] = useState(user?.email || "mayank@fukeyeducation.com");
-  const [profilePhone, setProfilePhone] = useState(user?.phone || "+91 88718 35015");
+  const [profileName, setProfileName] = useState(user?.name || "Student");
+  const [profileEmail, setProfileEmail] = useState(user?.email || "");
+  const [profilePhone, setProfilePhone] = useState(user?.phone || "");
   const [targetClass, setTargetClass] = useState("Class 10");
   const [targetBoard, setTargetBoard] = useState("CBSE");
   const [medium, setMedium] = useState("Hindi & English (Bilingual)");
@@ -105,6 +105,15 @@ export default function StudentDashboardPage() {
   const [whatsappAlerts, setWhatsappAlerts] = useState(true);
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      if (user.name) setProfileName(user.name);
+      if (user.email) setProfileEmail(user.email);
+      if (user.phone !== undefined) setProfilePhone(user.phone || "");
+      if (user.avatar) setAvatarUrl(user.avatar);
+    }
+  }, [user]);
 
   // Orders State
   const [orders, setOrders] = useState<any[]>([
@@ -228,16 +237,16 @@ export default function StudentDashboardPage() {
     setIsSaving(true);
     try {
       if (user) {
-        const updatedUser = {
-          ...user,
+        await updateUser({
           name: profileName,
           phone: profilePhone,
           avatar: avatarUrl,
-        };
-        localStorage.setItem("fukey_auth_user", JSON.stringify(updatedUser));
+        });
       }
       triggerConfetti();
       showToast("Profile and Academic Settings successfully updated!");
+    } catch (err) {
+      showToast("Failed to update profile. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -1017,6 +1026,7 @@ export default function StudentDashboardPage() {
                           required
                           value={profilePhone}
                           onChange={(e) => setProfilePhone(e.target.value)}
+                          placeholder="e.g. +91 98765 43210"
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 font-medium focus:outline-none focus:border-indigo-500"
                         />
                       </div>

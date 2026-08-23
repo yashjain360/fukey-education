@@ -61,18 +61,18 @@ export async function GET(request: Request) {
     const db = await getDatabase();
     const token = `fk_sess_${Math.random().toString(36).substring(2)}_${Date.now()}`;
 
+    const existingUser = await db.collection("users").findOne({ email: profile.email });
+
     const userRecord = {
       email: profile.email,
-      name: profile.name || profile.email.split("@")[0],
-      role: role,
-      avatar: profile.picture || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
-      phone: "+91 88718 35015",
+      name: profile.name || existingUser?.name || profile.email.split("@")[0],
+      role: existingUser?.role || role,
+      avatar: profile.picture || existingUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      phone: existingUser?.phone || "",
       lastLogin: new Date(),
       googleId: profile.sub,
       token,
     };
-
-    const existingUser = await db.collection("users").findOne({ email: profile.email });
 
     await db.collection("users").updateOne(
       { email: profile.email },
@@ -97,7 +97,7 @@ export async function GET(request: Request) {
     })();
 
     // Set cookie and redirect to respective portal
-    const targetPath = role === "admin" ? "/admin" : role === "instructor" ? "/instructor/dashboard" : "/dashboard";
+    const targetPath = (userRecord.role === "admin") ? "/admin" : (userRecord.role === "instructor") ? "/instructor/dashboard" : "/dashboard";
     const response = NextResponse.redirect(`${protocol}://${host}${targetPath}`);
 
     response.cookies.set("fukey_session", JSON.stringify({
@@ -106,6 +106,7 @@ export async function GET(request: Request) {
       email: userRecord.email,
       role: userRecord.role,
       avatar: userRecord.avatar,
+      phone: userRecord.phone,
     }), {
       path: "/",
       maxAge: 30 * 24 * 60 * 60,

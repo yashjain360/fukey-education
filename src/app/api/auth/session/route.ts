@@ -26,10 +26,10 @@ export async function POST(request: Request) {
       email: email.toLowerCase().trim(),
       name: name || existingUser?.name || email.split("@")[0],
       role: userRole,
-      phone: phone || existingUser?.phone || "+91 88718 35015",
+      phone: phone !== undefined ? phone : (existingUser?.phone || ""),
       avatar: avatar || existingUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
       lastLogin: new Date(),
-      token,
+      token: existingUser?.token || token,
     };
 
     await db.collection("users").updateOne(
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
         name: savedUser?.name || userRecord.name,
         email: savedUser?.email || userRecord.email,
         role: savedUser?.role || userRecord.role,
-        phone: savedUser?.phone || userRecord.phone,
+        phone: savedUser?.phone !== undefined ? savedUser.phone : userRecord.phone,
         avatar: savedUser?.avatar || userRecord.avatar,
         token: userRecord.token,
       },
