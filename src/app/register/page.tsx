@@ -12,15 +12,20 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { openGoogleModal, loginWithEmail } = useAuth();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { openGoogleModal, registerWithEmail } = useAuth();
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim() || !password) return;
     setIsSubmitting(true);
+    setErrorMessage(null);
     try {
-      await loginWithEmail(email, name, "student", phone);
+      await registerWithEmail(email, password, name, phone);
       router.push("/dashboard");
+    } catch (err: any) {
+      setErrorMessage(err.message || "Registration failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -83,6 +88,14 @@ export default function RegisterPage() {
           <span>or sign up with email</span>
           <div className="flex-1 h-px bg-slate-200" />
         </div>
+
+        {/* Error Notification */}
+        {errorMessage && (
+          <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-2xl flex items-start gap-2.5 animate-in fade-in">
+            <span className="text-rose-500 font-black">⚠️</span>
+            <div className="flex-1">{errorMessage}</div>
+          </div>
+        )}
 
         <form onSubmit={handleRegister} className="space-y-3.5">
           <div>

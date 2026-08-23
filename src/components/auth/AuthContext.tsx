@@ -12,7 +12,8 @@ interface AuthContextType {
   openGoogleModal: () => void;
   closeGoogleModal: () => void;
   loginWithGoogle: (customData?: Partial<UserProfile>) => Promise<UserProfile | void>;
-  loginWithEmail: (email: string, name?: string, role?: "student" | "instructor" | "admin", phone?: string) => Promise<UserProfile>;
+  loginWithEmail: (email: string, password: string) => Promise<UserProfile>;
+  registerWithEmail: (email: string, password: string, name?: string, phone?: string) => Promise<UserProfile>;
   updateUser: (updatedData: Partial<UserProfile>) => Promise<UserProfile>;
   logout: () => void;
   switchRole: (role: "student" | "instructor" | "admin") => void;
@@ -49,7 +50,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const saveUserSession = async (userObj: UserProfile) => {
-    // Sync to MongoDB users collection & retrieve verified role
     try {
       const res = await fetch("/api/auth/session", {
         method: "POST",
@@ -119,19 +119,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await redirectToGoogleOAuth("student");
   };
 
-  const loginWithEmail = async (
-    email: string,
-    name = "Student",
-    role: "student" | "instructor" | "admin" = "student",
-    phone = ""
-  ) => {
-    const emailUser: UserProfile = {
-      id: `usr_${Date.now()}`,
-      name: name || email.split("@")[0],
-      email,
-      role,
-      phone: phone || "",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+  const loginWithEmail = async (email: string, password: string): Promise<UserProfile> => {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim(), password }),
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success || !data.user) {
+      throw new Error(data.error || "Authentication failed. Please verify your credentials.");
+    }
+
+    const authenticatedUser: UserProfile = {
+      ...data.user,
       enrolledCoursesCount: 2,
       quizAttemptsCount: 5,
       totalReviewsCount: 3300,
@@ -139,7 +140,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       pendingCoursesCount: 0,
     };
 
-    return await saveUserSession(emailUser);
+    setUser(authenticatedUser);
+    localStorage.setItem("fukey_auth_user", JSON.stringify(authenticatedUser));
+    setCookie("fukey_session", JSON.stringify(authenticatedUser), 30);
+    triggerConfetti();
+
+    return authenticatedUser;
+  };
+
+  const registerWithEmail = async (
+    email: string,
+    password: string,
+    name = "Student",
+    phone = ""
+  ): Promise<UserProfile> => {
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email.trim(),
+        password,
+        name: name.trim(),
+        phone: phone.trim(),
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success || !data.user) {
+      throw new Error(data.error || "Registration failed. Please try again.");
+    }
+
+    const registeredUser: UserProfile = {
+      ...data.user,
+      enrolledCoursesCount: 0,
+      quizAttemptsCount: 0,
+      totalReviewsCount: 0,
+      instructorCoursesCount: 0,
+      pendingCoursesCount: 0,
+    };
+
+    setUser(registeredUser);
+    localStorage.setItem("fukey_auth_user", JSON.stringify(registeredUser));
+    setCookie("fukey_session", JSON.stringify(registeredUser), 30);
+    triggerConfetti();
+
+    return registeredUser;
   };
 
   const switchRole = (role: "student" | "instructor" | "admin") => {
@@ -173,6 +218,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         closeGoogleModal: () => setIsGoogleModalOpen(false),
         loginWithGoogle,
         loginWithEmail,
+        registerWithEmail,
         updateUser,
         logout,
         switchRole,

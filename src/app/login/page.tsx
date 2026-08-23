@@ -20,153 +20,7 @@ import {
 import { useAuth } from "@/components/auth/AuthContext";
 import { triggerConfetti } from "@/lib/confetti";
 
-interface SeedAccount {
-  name: string;
-  email: string;
-  role: "admin" | "instructor" | "student";
-  designation: string;
-  password: string;
-}
-
-const SEED_ACCOUNTS: Record<"admin" | "instructor" | "student", SeedAccount[]> = {
-  admin: [
-    {
-      name: "Surendra Singh Baghel",
-      email: "admin.director@fukeyeducation.com",
-      role: "admin",
-      designation: "Managing Director & Founder",
-      password: "adminpassword123",
-    },
-    {
-      name: "Dr. Sunita Sharma",
-      email: "admin.academic@fukeyeducation.com",
-      role: "admin",
-      designation: "Principal & Academic Dean",
-      password: "adminpassword123",
-    },
-    {
-      name: "Rajesh Varma",
-      email: "admin.finance@fukeyeducation.com",
-      role: "admin",
-      designation: "Head of Accounts & Bursar",
-      password: "adminpassword123",
-    },
-    {
-      name: "Ananya Dixit",
-      email: "admin.admissions@fukeyeducation.com",
-      role: "admin",
-      designation: "Lead Admission Counselor",
-      password: "adminpassword123",
-    },
-    {
-      name: "Master Administrator",
-      email: "admin@fukeyeducation.com",
-      role: "admin",
-      designation: "Master System Administrator",
-      password: "adminpassword123",
-    },
-  ],
-  // Every instructor who actually owns courses in coursesData.ts, matching the real `users` docs
-  // seeded with role "instructor" — this list used to have 5 made-up personas (including one,
-  // "Sneha Agarwal", that owns no courses and was never a real account). Since /api/auth/session no
-  // longer lets a login request grant itself a role, an email here that isn't already a DB user with
-  // that role silently logs in as a student instead — so this list has to track the real roster.
-  instructor: [
-    {
-      name: "Pawan Gupta",
-      email: "pawan.gupta@fukeyeducation.com",
-      role: "instructor",
-      designation: "Senior Mathematics Faculty & HOD",
-      password: "facultypassword123",
-    },
-    {
-      name: "Kratika Rathore",
-      email: "kratika.rathore@fukeyeducation.com",
-      role: "instructor",
-      designation: "Head of Science & Chemistry",
-      password: "facultypassword123",
-    },
-    {
-      name: "Arya Dubey",
-      email: "arya.dubey@fukeyeducation.com",
-      role: "instructor",
-      designation: "Economics & Commercial Studies Lead",
-      password: "facultypassword123",
-    },
-    {
-      name: "Vivek Dubey",
-      email: "vivek.dubey@fukeyeducation.com",
-      role: "instructor",
-      designation: "Senior Physics Educator",
-      password: "facultypassword123",
-    },
-    {
-      name: "Babli Jain",
-      email: "babli.jain@fukeyeducation.com",
-      role: "instructor",
-      designation: "Senior Biology Faculty & NEET Mentor",
-      password: "facultypassword123",
-    },
-    {
-      name: "Ram Kumar Soni",
-      email: "ram.kumar.soni@fukeyeducation.com",
-      role: "instructor",
-      designation: "Humanities & Social Sciences Expert",
-      password: "facultypassword123",
-    },
-    {
-      name: "Mousam Patil",
-      email: "mousam.patil@fukeyeducation.com",
-      role: "instructor",
-      designation: "Senior Business Studies Faculty",
-      password: "facultypassword123",
-    },
-    {
-      name: "Soumya Jain",
-      email: "soumya.jain@fukeyeducation.com",
-      role: "instructor",
-      designation: "Senior Accountancy Faculty",
-      password: "facultypassword123",
-    },
-  ],
-  student: [
-    {
-      name: "Mayank Dubey",
-      email: "mayank.dubey@gmail.com",
-      role: "student",
-      designation: "Class 10th CBSE (Mathematics & Science)",
-      password: "studentpassword123",
-    },
-    {
-      name: "Rahul Sharma",
-      email: "rahul.sharma@gmail.com",
-      role: "student",
-      designation: "Class 11th English Medium (Accountancy)",
-      password: "studentpassword123",
-    },
-    {
-      name: "Priya Patel",
-      email: "priya.patel@gmail.com",
-      role: "student",
-      designation: "Class 12th State Board (Physics & Chemistry)",
-      password: "studentpassword123",
-    },
-    {
-      name: "Aman Verma",
-      email: "aman.verma@gmail.com",
-      role: "student",
-      designation: "Class 10th Hindi Medium (Complete Board Prep)",
-      password: "studentpassword123",
-    },
-    {
-      name: "Anjali Gupta",
-      email: "anjali.gupta@gmail.com",
-      role: "student",
-      designation: "Class 12th Commerce (Maths & Accountancy)",
-      password: "studentpassword123",
-    },
-  ],
-};
+import { SEED_ACCOUNTS, SeedAccount } from "@/data/seedAccounts";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -176,6 +30,7 @@ export default function LoginPage() {
   const [qaActiveTab, setQaActiveTab] = useState<"admin" | "instructor" | "student">("admin");
   const [selectedPersonaName, setSelectedPersonaName] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { openGoogleModal, loginWithEmail } = useAuth();
   const router = useRouter();
 
@@ -184,16 +39,17 @@ export default function LoginPage() {
     setPassword(acc.password);
     setRole(acc.role);
     setSelectedPersonaName(acc.name);
+    setErrorMessage(null);
     triggerConfetti();
   };
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !password) return;
     setIsLoggingIn(true);
+    setErrorMessage(null);
     try {
-      const nameToUse = selectedPersonaName || email.split("@")[0];
-      const loggedUser = await loginWithEmail(email.trim(), nameToUse, role);
+      const loggedUser = await loginWithEmail(email.trim(), password);
       const effectiveRole = loggedUser?.role || role;
       if (effectiveRole === "admin") {
         router.push("/admin");
@@ -202,6 +58,8 @@ export default function LoginPage() {
       } else {
         router.push("/dashboard");
       }
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to sign in. Please verify your credentials.");
     } finally {
       setIsLoggingIn(false);
     }
@@ -269,6 +127,14 @@ export default function LoginPage() {
                 or sign in with credentials
               </span>
             </div>
+
+            {/* Error Notification */}
+            {errorMessage && (
+              <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-2xl flex items-start gap-2.5 animate-in fade-in">
+                <span className="text-rose-500 font-black">⚠️</span>
+                <div className="flex-1">{errorMessage}</div>
+              </div>
+            )}
 
             {/* Credential Form */}
             <form onSubmit={handleEmailSubmit} className="space-y-4">
