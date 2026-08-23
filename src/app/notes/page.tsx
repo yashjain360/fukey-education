@@ -88,18 +88,18 @@ export default function NotesLibraryPage() {
 
         {/* Banner */}
         <div
-          className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl relative overflow-hidden"
+          className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-6 sm:p-12 shadow-xl relative overflow-hidden"
           data-aos="fade-down"
           data-aos-duration="750"
         >
-          <div className="relative z-10 space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-extrabold text-xs uppercase tracking-wider border border-amber-400/30">
+          <div className="relative z-10 space-y-2.5 sm:space-y-3">
+            <span className="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider border border-amber-400/30">
               Gold Medalist Faculty Curated
             </span>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight">
               Chapter Notes &amp; Formula Cheatsheets
             </h1>
-            <p className="text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
               Concise revision summaries, step-by-step mathematical derivations, chemical reaction charts, and NCERT solved examples for board exam prep.
             </p>
           </div>
@@ -107,7 +107,7 @@ export default function NotesLibraryPage() {
 
         {/* Filter & Search Bar */}
         <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
             {["All", "Class 9", "Class 10", "Class 11", "Class 12"].map((cls) => (
               <button
                 key={cls}

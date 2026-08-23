@@ -203,7 +203,7 @@ export default function AutoEngagementModal() {
         </div>
 
         {/* 4 Tabs Selector */}
-        <div className="flex border-b border-slate-200 bg-slate-50/80 px-4 sm:px-6 overflow-x-auto gap-2 py-2">
+        <div className="flex border-b border-slate-200 bg-slate-50/80 px-3 sm:px-6 overflow-x-auto no-scrollbar gap-2 py-2">
           <button
             onClick={() => setActiveTab("enquiry")}
             className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${

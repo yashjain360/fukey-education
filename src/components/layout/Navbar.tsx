@@ -233,48 +233,141 @@ export default function Navbar() {
             {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="xl:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="xl:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
+        {/* Premium Mobile Slide-Over Navigation Drawer */}
         {isMobileMenuOpen && (
-          <div className="xl:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-3">
-            <div className="space-y-1">
-              {navLinks.map((link) => (
+          <div className="xl:hidden fixed inset-0 z-[100] flex justify-end bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div
+              className="w-[85%] max-w-sm bg-white h-full shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Drawer Header */}
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
                 <Link
-                  key={link.href}
-                  href={link.href}
+                  href="/"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-lg text-sm font-semibold ${pathname === link.href
-                    ? "bg-indigo-50 text-indigo-600"
-                    : "text-slate-700 hover:bg-slate-50"
-                    }`}
+                  className="flex items-center gap-2"
                 >
-                  {link.name}
+                  <img
+                    src="/images/logo/logo-main.png"
+                    alt="Fukey Education"
+                    className="h-8 w-auto object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        "https://fukeyeducation.com/uploads/custom-images/wsus-img-2026-02-23-03-59-14-6859.png";
+                    }}
+                  />
                 </Link>
-              ))}
-            </div>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-            <div className="pt-2 flex flex-col gap-2 border-t border-slate-100">
-              <Link
-                href="/dashboard"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full text-center py-2.5 rounded-xl bg-[#050071] text-white text-xs font-bold transition-transform active:scale-95"
-              >
-                {t("nav.dashboard", "Student Dashboard")}
-              </Link>
-              <Link
-                href="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full text-center py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold transition-transform active:scale-95"
-              >
-                {t("nav.admin_console", "Admin Console")}
-              </Link>
+              {/* Drawer Search Launcher */}
+              <div className="p-4 border-b border-slate-100">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsSearchOpen(true);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-500 text-xs border border-slate-200/60 transition-colors cursor-pointer text-left"
+                >
+                  <Search className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                  <span className="font-medium flex-1 truncate">Search 52+ courses, notes...</span>
+                  <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-400 font-bold">⌘K</span>
+                </button>
+              </div>
+
+              {/* Navigation Links List */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-1">
+                <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3 py-1">
+                  Main Academic Portal
+                </div>
+                {navLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                        isActive
+                          ? "bg-indigo-50 text-[#5751E1] shadow-xs"
+                          : "text-slate-700 hover:bg-slate-50 hover:text-[#5751E1]"
+                      }`}
+                    >
+                      <span>{link.name}</span>
+                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#5751E1]" />}
+                    </Link>
+                  );
+                })}
+
+                {/* Admission & Quick Contact Desk */}
+                <div className="pt-4 border-t border-slate-100 space-y-2">
+                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3">
+                    Admission &amp; Support
+                  </div>
+                  <a
+                    href="tel:+918871835015"
+                    className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-50 text-slate-700 hover:bg-indigo-50 hover:text-[#5751E1] text-xs font-semibold transition-colors"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Call Helpline: +91 88718 35015</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Drawer Footer Actions */}
+              <div className="p-4 border-t border-slate-100 bg-slate-50 space-y-2">
+                {isAuthenticated ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2.5 px-2 py-1">
+                      <div className="w-7 h-7 rounded-full bg-[#050071] text-white flex items-center justify-center text-xs font-black">
+                        {user?.name?.charAt(0) || "U"}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-slate-900 truncate">{user?.name}</div>
+                        <div className="text-[10px] text-slate-400 truncate">{user?.email}</div>
+                      </div>
+                    </div>
+                    <Link
+                      href={user?.role === "admin" ? "/admin" : user?.role === "instructor" ? "/instructor/dashboard" : "/dashboard"}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full block text-center py-2.5 rounded-xl bg-[#050071] hover:bg-[#5751E1] text-white text-xs font-bold shadow-sm transition-all"
+                    >
+                      {user?.role === "admin" ? "Open Admin Console" : user?.role === "instructor" ? "Instructor Studio" : "Student Dashboard"}
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-center py-2.5 rounded-xl bg-[#050071] text-white text-xs font-bold shadow-sm transition-all active:scale-95"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-center py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-bold shadow-xs transition-all active:scale-95"
+                    >
+                      Enroll Free
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

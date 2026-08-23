@@ -7,23 +7,23 @@ import { instructorsData } from "@/data/instructorsData";
 
 export default function InstructorsSection() {
   return (
-    <section className="py-20 bg-white" data-aos="fade-up">
+    <section className="py-14 sm:py-20 bg-white" data-aos="fade-up">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3" data-aos="fade-up">
-          <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-indigo-100 text-[#5751E1] font-extrabold text-xs uppercase tracking-wider">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-14 space-y-2.5 sm:space-y-3" data-aos="fade-up">
+          <div className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1 rounded-full bg-indigo-100 text-[#5751E1] font-extrabold text-[11px] sm:text-xs uppercase tracking-wider">
             Faculty Directory
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight">
             Learn From Expert Subject Specialists
           </h2>
-          <p className="text-sm text-slate-500 font-medium">
+          <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-lg mx-auto">
             Dedicated educators with 10+ years experience mentoring board toppers
           </p>
         </div>
 
         {/* Instructors Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8">
           {instructorsData.slice(0, 4).map((inst, idx) => (
             <div
               key={inst.id}
@@ -47,7 +47,7 @@ export default function InstructorsSection() {
               </div>
 
               {/* Bio Details */}
-              <div className="p-6 space-y-3">
+              <div className="p-5 sm:p-6 space-y-3">
                 <div>
                   <h3 className="font-extrabold text-slate-900 text-base group-hover:text-[#5751E1] transition-colors">
                     {inst.name}

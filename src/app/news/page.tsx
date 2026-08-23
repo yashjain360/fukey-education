@@ -71,18 +71,18 @@ export default function NewsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-10">
         {/* Banner */}
         <div
-          className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl relative overflow-hidden"
+          className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-6 sm:p-12 shadow-xl relative overflow-hidden"
           data-aos="fade-down"
           data-aos-duration="750"
         >
-          <div className="relative z-10 space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-orange-500/20 text-orange-300 font-extrabold text-xs uppercase tracking-wider border border-orange-400/30">
+          <div className="relative z-10 space-y-2.5 sm:space-y-3">
+            <span className="px-3.5 py-1 rounded-full bg-orange-500/20 text-orange-300 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider border border-orange-400/30">
               Live Academic Feed
             </span>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight">
               Academic News &amp; Circulars
             </h1>
-            <p className="text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
               Real-time circulars from CBSE, State Education Boards, National Testing Agency, and official ministry notices.
             </p>
           </div>

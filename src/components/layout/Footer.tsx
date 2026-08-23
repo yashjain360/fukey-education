@@ -57,13 +57,13 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#050071] text-slate-300 pt-16 pb-8 border-t border-indigo-950">
+    <footer className="bg-[#050071] text-slate-300 pt-12 sm:pt-16 pb-8 border-t border-indigo-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Tier 1: Trust Badges Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pb-12 border-b border-indigo-900/60">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pb-8 sm:pb-12 border-b border-indigo-900/60">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-orange-400">
-              <ShieldCheck className="w-6 h-6 animate-icon-pulse" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-orange-400">
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 animate-icon-pulse" />
             </div>
             <div>
               <div className="font-bold text-white text-sm">{t("footer.ncert", "100% NCERT Aligned")}</div>
@@ -72,8 +72,8 @@ export default function Footer() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-emerald-400">
-              <Award className="w-6 h-6 animate-icon-sparkle" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-emerald-400">
+              <Award className="w-5 h-5 sm:w-6 sm:h-6 animate-icon-sparkle" />
             </div>
             <div>
               <div className="font-bold text-white text-sm">{t("footer.faculty", "Gold Medalist Faculty")}</div>
@@ -82,8 +82,8 @@ export default function Footer() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-sky-400">
-              <BookCheck className="w-6 h-6 animate-icon-float" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-sky-400">
+              <BookCheck className="w-5 h-5 sm:w-6 sm:h-6 animate-icon-float" />
             </div>
             <div>
               <div className="font-bold text-white text-sm">{t("footer.notes", "Free Study Notes")}</div>
@@ -92,8 +92,8 @@ export default function Footer() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-pink-400">
-              <Sparkles className="w-6 h-6 animate-icon-sparkle" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-indigo-800/50 flex items-center justify-center flex-shrink-0 text-pink-400">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 animate-icon-sparkle" />
             </div>
             <div>
               <div className="font-bold text-white text-sm">{t("footer.rated", "5.0 ★ Google Rated")}</div>
@@ -103,7 +103,7 @@ export default function Footer() {
         </div>
 
         {/* Tier 2: Main Footer Navigation Links & Newsletter */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 py-12 border-b border-indigo-900/60">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 py-8 sm:py-12 border-b border-indigo-900/60">
           {/* Col 1 & 2: Brand Story */}
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="inline-block group transition-transform hover:scale-105">

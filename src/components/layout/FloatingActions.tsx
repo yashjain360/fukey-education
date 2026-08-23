@@ -24,26 +24,29 @@ export default function FloatingActions({ onOpenChat }: FloatingActionsProps) {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-4 right-3.5 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end gap-2.5 sm:gap-3 pointer-events-none">
       {/* Scroll to top button */}
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="pointer-events-auto p-3 rounded-2xl bg-[#5751E1] hover:bg-indigo-700 text-white shadow-xl shadow-indigo-950/20 hover:scale-110 active:scale-95 transition-all animate-in fade-in zoom-in-75 duration-200 cursor-pointer"
+          className="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#5751E1] hover:bg-indigo-700 text-white shadow-lg shadow-indigo-950/20 hover:scale-110 active:scale-95 transition-all flex items-center justify-center animate-in fade-in zoom-in-75 duration-200 cursor-pointer"
           aria-label="Scroll to top"
+          title="Scroll to top"
         >
-          <ArrowUp className="w-5 h-5 stroke-[2.5] animate-icon-float" />
+          <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5] animate-icon-float" />
         </button>
       )}
 
       {/* Fukey AI Study Assistant Button */}
       <button
         onClick={onOpenChat}
-        className="pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] text-white shadow-2xl shadow-indigo-950/30 hover:scale-105 active:scale-95 transition-all group border border-white/20 cursor-pointer"
+        className="pointer-events-auto flex items-center justify-center gap-2 h-11 sm:h-auto px-3 sm:px-4 py-2 sm:py-3 rounded-2xl bg-gradient-to-r from-[#050071] via-[#5751E1] to-[#FF2424] text-white shadow-xl shadow-indigo-950/30 hover:scale-105 active:scale-95 transition-all group border border-white/25 cursor-pointer"
         aria-label="Open Fukey AI Counselor"
+        title="Fukey AI Study Sahayak"
       >
-        <Sparkles className="w-5 h-5 text-amber-300 animate-icon-sparkle" />
-        <span className="font-bold text-xs tracking-wide">Fukey AI Sahayak</span>
+        <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 flex-shrink-0 animate-icon-sparkle" />
+        <span className="hidden sm:inline font-bold text-xs tracking-wide">Fukey AI Sahayak</span>
+        <span className="sm:hidden font-black text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-amber-200">AI</span>
       </button>
 
       {/* WhatsApp Floating Connect */}
@@ -51,10 +54,11 @@ export default function FloatingActions({ onOpenChat }: FloatingActionsProps) {
         href={siteConfig.whatsappUrl}
         target="_blank"
         rel="noreferrer"
-        className="pointer-events-auto relative p-3.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-emerald-950/20 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+        className="pointer-events-auto relative w-11 h-11 sm:w-auto sm:h-auto sm:p-3.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-emerald-950/20 hover:scale-110 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
         aria-label="Chat on WhatsApp"
+        title="Chat on WhatsApp"
       >
-        <MessageCircle className="w-6 h-6 fill-current animate-icon-wiggle" />
+        <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 fill-current animate-icon-wiggle" />
         <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white"></span>

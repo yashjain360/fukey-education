@@ -11,15 +11,15 @@ export default function TopBar() {
   const { language, setLanguage, t } = useTranslation();
 
   return (
-    <div className="bg-[#030045] text-white text-xs py-2 border-b border-indigo-950/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-3">
+    <div className="bg-[#030045] text-white text-xs py-1.5 sm:py-2 border-b border-indigo-950/80">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between gap-2">
         {/* Contact Info */}
-        <div className="flex items-center gap-4 text-slate-300">
-          <div className="flex items-center gap-1.5">
-            <Mail className="w-3.5 h-3.5 text-orange-400 animate-icon-pulse" />
+        <div className="flex items-center gap-2 sm:gap-4 text-slate-300 min-w-0">
+          <div className="flex items-center gap-1.5 truncate">
+            <Mail className="w-3.5 h-3.5 text-orange-400 flex-shrink-0 animate-icon-pulse" />
             <a
               href={`mailto:${siteConfig.supportEmail}`}
-              className="hover:text-white transition-colors"
+              className="hover:text-white transition-colors truncate text-[11px] sm:text-xs"
             >
               {siteConfig.supportEmail}
             </a>
@@ -44,9 +44,9 @@ export default function TopBar() {
         </div>
 
         {/* Social Icons & Selectors */}
-        <div className="flex items-center gap-4 text-slate-300 ml-auto sm:ml-0">
-          {/* Social SVGs */}
-          <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-4 text-slate-300 flex-shrink-0">
+          {/* Social SVGs - Hidden on mobile, visible on sm+ */}
+          <div className="hidden sm:flex items-center gap-2.5">
             <a
               href={siteConfig.socials.facebook}
               target="_blank"
@@ -86,7 +86,7 @@ export default function TopBar() {
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value as "INR" | "USD")}
-            className="bg-indigo-950 border border-slate-700 text-slate-200 rounded-lg px-2 py-0.5 text-[11px] focus:outline-none cursor-pointer"
+            className="bg-indigo-950 border border-slate-700 text-slate-200 rounded-lg px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] focus:outline-none cursor-pointer"
           >
             <option value="INR">₹ INR</option>
             <option value="USD">$ USD</option>
@@ -96,10 +96,10 @@ export default function TopBar() {
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value as "en" | "hi")}
-            className="bg-indigo-950 border border-indigo-700 text-amber-300 font-bold rounded-lg px-2.5 py-0.5 text-[11px] focus:outline-none cursor-pointer hover:border-amber-400 transition-colors"
+            className="bg-indigo-950 border border-indigo-700 text-amber-300 font-bold rounded-lg px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] focus:outline-none cursor-pointer hover:border-amber-400 transition-colors"
           >
-            <option value="en">English (US/UK)</option>
-            <option value="hi">🇮🇳 हिंदी (Hindi)</option>
+            <option value="en">English</option>
+            <option value="hi">हिंदी</option>
           </select>
         </div>
       </div>

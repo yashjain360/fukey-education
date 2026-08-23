@@ -58,23 +58,23 @@ export default function FeaturedCourses() {
   const visibleCourses = filteredCourses.slice(startIndex, startIndex + displayCount);
 
   return (
-    <section className="py-20 bg-white" data-aos="fade-up" id="featured-courses">
+    <section className="py-14 sm:py-20 bg-white" data-aos="fade-up" id="featured-courses">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3" data-aos="fade-up">
-          <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-indigo-100/80 text-[#5751E1] font-extrabold text-xs uppercase tracking-wider">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 space-y-2.5 sm:space-y-3" data-aos="fade-up">
+          <div className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1 rounded-full bg-indigo-100/80 text-[#5751E1] font-extrabold text-[11px] sm:text-xs uppercase tracking-wider">
             {t("courses.tag", "Top Class Courses")}
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight">
             {t("courses.title", "Explore Our Worlds Featured Courses")}
           </h2>
-          <p className="text-sm text-slate-500 font-medium">
+          <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-lg mx-auto">
             {t("courses.desc", "Check out the most demanding courses right now for CBSE & State Board classes")}
           </p>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-12 overflow-x-auto pb-2" data-aos="fade-up">
+        <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 mb-8 sm:mb-12 overflow-x-auto no-scrollbar py-1 px-1 sm:px-0" data-aos="fade-up">
           {tabs.map((tab) => (
             <button
               key={tab.value}
@@ -82,7 +82,7 @@ export default function FeaturedCourses() {
                 setSelectedTab(tab.value);
                 setStartIndex(0);
               }}
-              className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+              className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                 selectedTab === tab.value
                   ? "bg-[#5751E1] text-white shadow-md"
                   : "bg-slate-100 hover:bg-slate-200 text-slate-600"
@@ -140,8 +140,8 @@ export default function FeaturedCourses() {
                     </div>
 
                     {/* Course Details Body */}
-                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                      <div className="space-y-2">
+                    <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3 sm:space-y-4">
+                      <div className="space-y-1.5 sm:space-y-2">
                         <div className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">
                           {course.subject}: {course.class}
                         </div>
@@ -159,10 +159,10 @@ export default function FeaturedCourses() {
                       </div>
 
                       {/* Price & Action Row */}
-                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                         <button
                           onClick={() => addToCart(course)}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                          className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap ${
                             inCart
                               ? "bg-emerald-600 text-white"
                               : "bg-[#FF2424] hover:bg-red-700 text-white shadow-sm"
@@ -181,8 +181,8 @@ export default function FeaturedCourses() {
                           )}
                         </button>
 
-                        <div className="text-right">
-                          <div className="font-black text-base text-[#050071]">
+                        <div className="text-right flex-shrink-0">
+                          <div className="font-black text-sm sm:text-base text-[#050071]">
                             {formatPrice(course.price, currency)}
                           </div>
                           <div className="text-[10px] text-slate-400 line-through">

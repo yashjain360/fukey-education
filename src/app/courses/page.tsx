@@ -32,6 +32,7 @@ function CoursesContent() {
   const [sortBy, setSortBy] = useState<string>("latest");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(9);
+  const [showMobileFilters, setShowMobileFilters] = useState<boolean>(false);
 
   const { addToCart, isInCart, toggleWishlist, isInWishlist, currency } = useCart();
 
@@ -225,9 +226,15 @@ function CoursesContent() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Sidebar Filters */}
-          <div className="lg:col-span-3 space-y-6" data-aos="fade-right" data-aos-duration="800">
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
+          {/* Sidebar Filters - Desktop always visible, Mobile toggleable */}
+          <div
+            className={`lg:col-span-3 space-y-6 ${
+              showMobileFilters ? "block" : "hidden lg:block"
+            }`}
+            data-aos="fade-right"
+            data-aos-duration="800"
+          >
+            <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5 sm:space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2 font-black text-slate-900 text-sm">
                   <Filter className="w-4 h-4 text-[#5751E1]" />
@@ -319,12 +326,26 @@ function CoursesContent() {
           {/* Right Main Course Grid */}
           <div className="lg:col-span-9 space-y-6" data-aos="fade-left" data-aos-duration="850">
             {/* Top Search & Sort Control Bar */}
-            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-xs font-black text-slate-800">
-                Total <span className="text-[#5751E1] text-sm">{filteredCourses.length}</span> Courses Found
+            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-black text-slate-800">
+                  Total <span className="text-[#5751E1] text-sm">{filteredCourses.length}</span> Courses Found
+                </div>
+
+                {/* Mobile Filter Toggle Button */}
+                <button
+                  onClick={() => setShowMobileFilters(!showMobileFilters)}
+                  className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+                >
+                  <Filter className="w-3.5 h-3.5 text-[#5751E1]" />
+                  <span>{showMobileFilters ? "Hide Filters" : "Filters"}</span>
+                  {hasActiveFilters && (
+                    <span className="w-2 h-2 rounded-full bg-[#FF2424]" />
+                  )}
+                </button>
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
                 <div className="relative flex-1 sm:w-64">
                   <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
                   <input
@@ -345,12 +366,12 @@ function CoursesContent() {
                     setSortBy(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 sm:px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer flex-shrink-0"
                 >
-                  <option value="latest">Latest Batches</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="popular">Most Popular</option>
+                  <option value="latest">Latest</option>
+                  <option value="price-low">Price: Low</option>
+                  <option value="price-high">Price: High</option>
+                  <option value="popular">Popular</option>
                 </select>
               </div>
 
@@ -428,8 +449,8 @@ function CoursesContent() {
                         </div>
 
                         {/* Card Body */}
-                        <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                          <div className="space-y-2">
+                        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3 sm:space-y-4">
+                          <div className="space-y-1.5 sm:space-y-2">
                             <div className="flex items-center justify-between text-[11px] font-bold text-indigo-600">
                               <span>{course.subject}</span>
                               <span className="text-slate-400 font-medium">{course.language}</span>
@@ -447,10 +468,10 @@ function CoursesContent() {
                           </div>
 
                           {/* Footer Pricing & CTA */}
-                          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                          <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                             <button
                               onClick={() => addToCart(course)}
-                              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                              className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap ${
                                 inCart
                                   ? "bg-emerald-600 text-white shadow-xs"
                                   : "bg-[#FF2424] hover:bg-red-700 text-white shadow-sm"
@@ -469,7 +490,7 @@ function CoursesContent() {
                               )}
                             </button>
 
-                            <div className="text-right">
+                            <div className="text-right flex-shrink-0">
                               <div className="font-black text-sm text-[#050071]">
                                 {formatPrice(course.price, currency)}
                               </div>

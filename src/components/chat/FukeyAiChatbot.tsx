@@ -162,7 +162,8 @@ export default function FukeyAiChatbot({ isOpen, onClose }: FukeyAiChatbotProps)
 
         <button
           onClick={onClose}
-          className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
+          aria-label="Close Chat"
         >
           <X className="w-5 h-5" />
         </button>

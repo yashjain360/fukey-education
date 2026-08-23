@@ -32,12 +32,12 @@ export default function TestimonialsSection() {
   };
 
   return (
-    <section className="py-20 bg-slate-50/70 border-t border-slate-200/80" data-aos="fade-up">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12">
+    <section className="py-14 sm:py-20 bg-slate-50/70 border-t border-slate-200/80" data-aos="fade-up">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12">
         {/* Section Header & Google Badge Banner */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6" data-aos="fade-up">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-extrabold text-xs">
+          <div className="space-y-2.5 sm:space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-extrabold text-[11px] sm:text-xs">
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -47,42 +47,42 @@ export default function TestimonialsSection() {
               <span>{t("reviews.tag", "Google & Justdial Verified Reviews")}</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#050071] tracking-tight">
               {t("reviews.title", "Real Experiences From Board Toppers & Parents")}
             </h2>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
               {t("reviews.desc", "Read transparent feedback from students and parents across Madhya Pradesh and CBSE schools experiencing our 100% live interactive methodology.")}
             </p>
           </div>
 
           {/* Overall Rating Scorecard */}
           <div
-            className="bg-white rounded-3xl p-6 border border-slate-200 shadow-md flex items-center gap-5 flex-shrink-0"
+            className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-md flex items-center gap-4 sm:gap-5 flex-shrink-0"
             data-aos="zoom-in"
           >
             <div className="text-center">
-              <div className="text-4xl font-black text-slate-900 leading-none">5.0</div>
+              <div className="text-3xl sm:text-4xl font-black text-slate-900 leading-none">5.0</div>
               <div className="flex items-center gap-0.5 justify-center mt-1 text-amber-400">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-current animate-icon-sparkle" />
+                  <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current animate-icon-sparkle" />
                 ))}
               </div>
               <div className="text-[10px] text-slate-400 font-bold mt-1">{t("reviews.ratings_count", "21+ Verified Ratings")}</div>
             </div>
 
-            <div className="h-12 w-px bg-slate-200" />
+            <div className="h-10 sm:h-12 w-px bg-slate-200" />
 
             <div className="space-y-1">
               <div className="flex items-center gap-1 text-xs font-bold text-slate-800">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span>{t("reviews.recommended", "100% Recommended")}</span>
               </div>
-              <div className="text-[11px] text-slate-500">Live Doubt Clearing Quality</div>
+              <div className="text-[10px] sm:text-[11px] text-slate-500">Live Doubt Clearing Quality</div>
               <a
                 href={siteConfig.socials.googleBusiness}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[11px] font-bold text-[#5751E1] hover:underline inline-flex items-center gap-1"
+                className="text-[10px] sm:text-[11px] font-bold text-[#5751E1] hover:underline inline-flex items-center gap-1"
               >
                 <span>{t("reviews.write", "Write a Review")}</span>
                 <ExternalLink className="w-3 h-3" />
@@ -92,15 +92,15 @@ export default function TestimonialsSection() {
         </div>
 
         {/* Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2" data-aos="fade-up">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 px-1 sm:px-0" data-aos="fade-up">
           {filters.map((f) => (
             <button
               key={f.value}
               onClick={() => setSelectedFilter(f.value)}
-              className={`px-5 py-2 rounded-full text-xs font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap ${
+              className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                 selectedFilter === f.value
-                  ? "bg-[#050071] text-white shadow-md"
-                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                  ? "bg-[#050071] text-white shadow-sm"
+                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
             >
               {f.label}

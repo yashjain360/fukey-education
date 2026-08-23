@@ -88,19 +88,19 @@ export default function TestSeriesCatalogPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
         {/* Banner */}
         <div
-          className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-8 sm:p-12 shadow-xl relative overflow-hidden"
+          className="rounded-3xl bg-gradient-to-r from-[#050071] via-[#1C1A4A] to-[#5751E1] text-white p-6 sm:p-12 shadow-xl relative overflow-hidden"
           data-aos="fade-down"
           data-aos-duration="750"
         >
           <div className="relative z-10 space-y-3">
-            <span className="px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-xs uppercase tracking-wider border border-emerald-400/30 flex items-center gap-1.5 w-fit">
+            <span className="px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider border border-emerald-400/30 flex items-center gap-1.5 w-fit">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>Anti-Cheating Proctored Assessment Engine</span>
             </span>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight">
               CBSE &amp; State Board Online Test Series
             </h1>
-            <p className="text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
               Real examination simulations with fullscreen locking, tab-switch security detection, instant percentile ranking, and step-by-step NCERT derivations.
             </p>
           </div>
@@ -108,11 +108,11 @@ export default function TestSeriesCatalogPage() {
 
         {/* Security Guard Guarantee Strip */}
         <div
-          className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4 text-xs"
+          className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4 text-xs"
           data-aos="fade-up"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold flex-shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -122,7 +122,7 @@ export default function TestSeriesCatalogPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold flex-shrink-0">
               <Award className="w-5 h-5" />
             </div>
             <div>
@@ -134,7 +134,7 @@ export default function TestSeriesCatalogPage() {
 
         {/* Filters & Search */}
         <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
             {["All", "Class 9", "Class 10", "Class 11", "Class 12"].map((cls) => (
               <button
                 key={cls}

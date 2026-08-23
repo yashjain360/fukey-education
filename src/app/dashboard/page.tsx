@@ -1107,7 +1107,7 @@ export default function StudentDashboardPage() {
                       {/* Preset Avatar Selector */}
                       <div>
                         <div className="text-[11px] font-bold text-slate-600 mb-2">Or Choose from Student Avatars:</div>
-                        <div className="flex items-center gap-3 overflow-x-auto pb-1">
+                        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1">
                           {PRESET_AVATARS.map((preset) => (
                             <button
                               key={preset.id}

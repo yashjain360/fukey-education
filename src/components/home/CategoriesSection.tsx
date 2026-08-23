@@ -18,18 +18,18 @@ export default function CategoriesSection() {
   };
 
   return (
-    <section className="py-20 bg-slate-50/60" data-aos="fade-up">
+    <section className="py-14 sm:py-20 bg-slate-50/60" data-aos="fade-up">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Heading */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4" data-aos="fade-up">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-4" data-aos="fade-up">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-orange-100 text-[#FF2424] font-extrabold text-xs uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1 rounded-full bg-orange-100 text-[#FF2424] font-extrabold text-[11px] sm:text-xs uppercase tracking-wider">
               {t("cat.tag", "Explore Academic Streams")}
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-[#050071] tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-black text-[#050071] tracking-tight">
               {t("cat.title", "Top Categories & Board Classes")}
             </h2>
-            <p className="text-sm text-slate-500 font-medium max-w-lg">
+            <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-lg">
               {t("cat.desc", "Structured CBSE & State Board curriculums mapped to standard NCERT textbooks.")}
             </p>
           </div>
@@ -44,7 +44,7 @@ export default function CategoriesSection() {
         </div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {categoriesData.map((cat, idx) => {
             const mapped = iconMap[cat.icon] || { icon: BookOpen, anim: "animate-icon-float" };
             const Icon = mapped.icon;
@@ -53,7 +53,7 @@ export default function CategoriesSection() {
               <Link
                 key={cat.id}
                 href={`/courses?class=${encodeURIComponent(cat.title)}`}
-                className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all duration-300 flex flex-col justify-between group hover:scale-102 active:scale-98"
+                className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all duration-300 flex flex-col justify-between group hover:scale-102 active:scale-98"
                 data-aos="fade-up"
                 data-aos-delay={idx * 100}
               >
