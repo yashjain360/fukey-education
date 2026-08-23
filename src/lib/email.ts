@@ -15,7 +15,20 @@ const smtpConfig = {
 
 export const transporter = nodemailer.createTransport(smtpConfig);
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://fukeyeducation.thewebvale.com";
+export function getAppBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_APP_URL && !process.env.NEXT_PUBLIC_APP_URL.includes("localhost")) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/+$/, "");
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.replace(/\/+$/, "")}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL.replace(/\/+$/, "")}`;
+  }
+  return "https://fukeyeducation.thewebvale.com";
+}
+
+const BASE_URL = getAppBaseUrl();
 
 // Google OAuth Credentials for Gmail REST API
 const GMAIL_CLIENT_ID = process.env.GOOGLE_MAIL_CLIENT_ID || "";
@@ -262,7 +275,7 @@ export async function sendWelcomeEmail(toEmail: string, studentName: string) {
     </div>
 
     <div style="text-align: center;">
-      <a href="${BASE_URL}/dashboard" class="button-primary">
+      <a href="${getAppBaseUrl()}/dashboard" class="button-primary">
         Go to Student Portal &rarr;
       </a>
     </div>
@@ -319,7 +332,7 @@ export async function sendLoginAlertEmail(toEmail: string, studentName: string, 
     </div>
 
     <div style="text-align: center;">
-      <a href="${BASE_URL}/dashboard" class="button-primary">
+      <a href="${getAppBaseUrl()}/dashboard" class="button-primary">
         Open Student Portal &rarr;
       </a>
     </div>
@@ -387,7 +400,7 @@ export async function sendOrderConfirmationEmail(
     </div>
 
     <div style="text-align: center;">
-      <a href="${BASE_URL}/dashboard" class="button-primary">
+      <a href="${getAppBaseUrl()}/dashboard" class="button-primary">
         Start Attending Live Lectures &rarr;
       </a>
     </div>
@@ -412,7 +425,7 @@ export async function sendOrderConfirmationEmail(
 
 // 4. Send Password Reset Email
 export async function sendPasswordResetEmail(toEmail: string, resetToken: string) {
-  const resetLink = `${BASE_URL}/forgot-password?token=${resetToken}&email=${encodeURIComponent(toEmail)}`;
+  const resetLink = `${getAppBaseUrl()}/forgot-password?token=${resetToken}&email=${encodeURIComponent(toEmail)}`;
 
   const content = `
     <p style="font-size: 15px; font-weight: 700; color: #0f172a; margin-top: 0;">
@@ -479,7 +492,7 @@ export async function sendEnquiryReceiptEmail(
     </div>
 
     <div style="text-align: center;">
-      <a href="${BASE_URL}/ebooks" class="button-primary">
+      <a href="${getAppBaseUrl()}/ebooks" class="button-primary">
         Download Free Formula PDF &rarr;
       </a>
     </div>
