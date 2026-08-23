@@ -311,7 +311,7 @@ export default function StudentDashboardPage() {
                 </span>
               </div>
               <div className="text-xs text-indigo-200 font-medium">
-                {user.email || profileEmail} • {user.phone || profilePhone}
+                {user.email || profileEmail}{(user.phone || profilePhone) ? ` • ${user.phone || profilePhone}` : ""}
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-indigo-800/60 text-indigo-200 text-[10px] font-bold">
                 <span>{targetBoard} {targetClass} • {medium}</span>
